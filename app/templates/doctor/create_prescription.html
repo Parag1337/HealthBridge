@@ -1,0 +1,341 @@
+{% extends "base.html" %}
+
+{% block title %}Create Prescription - Doctor Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card bg-dark border-primary">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">Create Prescription</h4>
+                        <a href="{{ url_for('doctor.patients') }}" class="btn btn-outline-light btn-sm">
+                            <i class="fas fa-arrow-left"></i> Back
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Patient Information -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h5 class="text-white mb-3">Patient Information</h5>
+                            <div class="bg-secondary p-3 rounded">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-circle me-3">
+                                        {{ patient.first_name[0] }}{{ patient.last_name[0] }}
+                                    </div>
+                                    <div>
+                                        <h6 class="text-white mb-1">{{ patient.first_name }} {{ patient.last_name }}</h6>
+                                        <p class="text-muted mb-0">{{ patient.email }} | Patient ID: #{{ patient.id }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Prescription Form -->
+                    <form method="POST" id="prescriptionForm">
+                        <!-- Basic Prescription Info -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="prescribed_date" class="form-label text-white">Prescribed Date</label>
+                                <input type="date" class="form-control" id="prescribed_date" name="prescribed_date">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="status" class="form-label text-white">Prescription Status</label>
+                                <select class="form-control" id="status" name="status">
+                                    <option value="Active">Active</option>
+                                    <option value="Inactive">Inactive</option>
+                                    <option value="Completed">Completed</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Medications Section -->
+                        <div class="card bg-secondary border-success mb-4">
+                            <div class="card-header bg-success text-white">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0"><i class="fas fa-pills"></i> Medications</h5>
+                                    <button type="button" class="btn btn-outline-light btn-sm" onclick="addMedication()">
+                                        <i class="fas fa-plus"></i> Add Medication
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div id="medicationsContainer">
+                                    <!-- Initial medication form -->
+                                    <div class="medication-item border rounded p-3 mb-3" data-index="0">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <h6 class="text-white mb-0">Medication #1</h6>
+                                            <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeMedication(0)" style="display: none;">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label text-white">Medication Name *</label>
+                                                <input type="text" class="form-control" name="medications[0][name]" required>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label text-white">Dosage *</label>
+                                                <input type="text" class="form-control" name="medications[0][dosage]" placeholder="e.g., 500mg" required>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label text-white">Frequency *</label>
+                                                <input type="text" class="form-control" name="medications[0][frequency]" placeholder="e.g., Twice daily" required>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label text-white">Duration *</label>
+                                                <input type="text" class="form-control" name="medications[0][duration]" placeholder="e.g., 7 days" required>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label text-white">Instructions</label>
+                                            <textarea class="form-control" name="medications[0][instructions]" rows="2" placeholder="e.g., Take with food"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Lab Tests Section -->
+                        <div class="card bg-secondary border-warning mb-4">
+                            <div class="card-header bg-warning text-dark">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0"><i class="fas fa-flask"></i> Suggested Lab Tests</h5>
+                                    <button type="button" class="btn btn-outline-dark btn-sm" onclick="addLabTest()">
+                                        <i class="fas fa-plus"></i> Add Test
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div id="labTestsContainer">
+                                    <!-- Lab tests will be added here -->
+                                    <p class="text-muted text-center">No lab tests added. Click "Add Test" to suggest laboratory tests.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- General Notes -->
+                        <div class="mb-4">
+                            <label for="notes" class="form-label text-white">General Notes</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="Any additional notes or observations..."></textarea>
+                        </div>
+
+                        <!-- Submit Buttons -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('doctor.patients') }}" class="btn btn-secondary me-md-2">Cancel</a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-prescription-bottle"></i> Create Prescription
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<style>
+.avatar-circle {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #4fc3f7, #29b6f6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.medication-item, .lab-test-item {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.medication-item:hover, .lab-test-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+</style>
+
+<script>
+let medicationIndex = 1;
+let labTestIndex = 0;
+
+// Set today's date as default for prescribed_date
+document.addEventListener('DOMContentLoaded', function() {
+    const dateInput = document.getElementById('prescribed_date');
+    if (dateInput && !dateInput.value) {
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.value = today;
+    }
+});
+
+function addMedication() {
+    const container = document.getElementById('medicationsContainer');
+    const medicationDiv = document.createElement('div');
+    medicationDiv.className = 'medication-item border rounded p-3 mb-3';
+    medicationDiv.setAttribute('data-index', medicationIndex);
+    
+    medicationDiv.innerHTML = `
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="text-white mb-0">Medication #${medicationIndex + 1}</h6>
+            <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeMedication(${medicationIndex})">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label text-white">Medication Name *</label>
+                <input type="text" class="form-control" name="medications[${medicationIndex}][name]" required>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label text-white">Dosage *</label>
+                <input type="text" class="form-control" name="medications[${medicationIndex}][dosage]" placeholder="e.g., 500mg" required>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label text-white">Frequency *</label>
+                <input type="text" class="form-control" name="medications[${medicationIndex}][frequency]" placeholder="e.g., Twice daily" required>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label text-white">Duration *</label>
+                <input type="text" class="form-control" name="medications[${medicationIndex}][duration]" placeholder="e.g., 7 days" required>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label text-white">Instructions</label>
+            <textarea class="form-control" name="medications[${medicationIndex}][instructions]" rows="2" placeholder="e.g., Take with food"></textarea>
+        </div>
+    `;
+    
+    container.appendChild(medicationDiv);
+    medicationIndex++;
+    
+    // Show remove button for first medication if more than one exists
+    updateRemoveButtons();
+}
+
+function removeMedication(index) {
+    const medicationDiv = document.querySelector(`[data-index="${index}"]`);
+    if (medicationDiv) {
+        medicationDiv.remove();
+        updateRemoveButtons();
+        updateMedicationNumbers();
+    }
+}
+
+function updateRemoveButtons() {
+    const medications = document.querySelectorAll('.medication-item');
+    medications.forEach((med, index) => {
+        const removeBtn = med.querySelector('.btn-outline-danger');
+        if (medications.length > 1) {
+            removeBtn.style.display = 'inline-block';
+        } else {
+            removeBtn.style.display = 'none';
+        }
+    });
+}
+
+function updateMedicationNumbers() {
+    const medications = document.querySelectorAll('.medication-item');
+    medications.forEach((med, index) => {
+        const header = med.querySelector('h6');
+        header.textContent = `Medication #${index + 1}`;
+    });
+}
+
+function addLabTest() {
+    const container = document.getElementById('labTestsContainer');
+    
+    // Remove the "no tests" message if it exists
+    const noTestsMsg = container.querySelector('p.text-muted');
+    if (noTestsMsg) {
+        noTestsMsg.remove();
+    }
+    
+    const testDiv = document.createElement('div');
+    testDiv.className = 'lab-test-item border rounded p-3 mb-3';
+    testDiv.setAttribute('data-index', labTestIndex);
+    
+    testDiv.innerHTML = `
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="text-white mb-0">Lab Test #${labTestIndex + 1}</h6>
+            <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeLabTest(${labTestIndex})">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label text-white">Test Name *</label>
+                <input type="text" class="form-control" name="lab_tests[${labTestIndex}][name]" placeholder="e.g., Complete Blood Count" required>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label text-white">Test Type *</label>
+                <select class="form-control" name="lab_tests[${labTestIndex}][type]" required>
+                    <option value="">Select Test Type</option>
+                    <option value="Blood">Blood Test</option>
+                    <option value="Urine">Urine Test</option>
+                    <option value="X-Ray">X-Ray</option>
+                    <option value="MRI">MRI</option>
+                    <option value="CT Scan">CT Scan</option>
+                    <option value="Ultrasound">Ultrasound</option>
+                    <option value="ECG">ECG</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label text-white">Suggested Date</label>
+                <input type="date" class="form-control" name="lab_tests[${labTestIndex}][suggested_date]">
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label text-white">Priority</label>
+                <select class="form-control" name="lab_tests[${labTestIndex}][priority]">
+                    <option value="Normal">Normal</option>
+                    <option value="Urgent">Urgent</option>
+                    <option value="Immediate">Immediate</option>
+                </select>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label text-white">Instructions</label>
+            <textarea class="form-control" name="lab_tests[${labTestIndex}][instructions]" rows="2" placeholder="Special instructions for the test..."></textarea>
+        </div>
+    `;
+    
+    container.appendChild(testDiv);
+    labTestIndex++;
+}
+
+function removeLabTest(index) {
+    const testDiv = document.querySelector(`[data-index="${index}"].lab-test-item`);
+    if (testDiv) {
+        testDiv.remove();
+        updateLabTestNumbers();
+        
+        // Add back the "no tests" message if no tests remain
+        const container = document.getElementById('labTestsContainer');
+        if (container.children.length === 0) {
+            container.innerHTML = '<p class="text-muted text-center">No lab tests added. Click "Add Test" to suggest laboratory tests.</p>';
+        }
+    }
+}
+
+function updateLabTestNumbers() {
+    const tests = document.querySelectorAll('.lab-test-item');
+    tests.forEach((test, index) => {
+        const header = test.querySelector('h6');
+        header.textContent = `Lab Test #${index + 1}`;
+    });
+}
+</script>
+{% endblock %}

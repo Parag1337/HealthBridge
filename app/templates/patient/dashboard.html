@@ -35,6 +35,70 @@
         </div>
     </div>
     
+    <!-- Health Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-dark border-success">
+                <div class="card-body text-center">
+                    <i class="fas fa-calendar-check fa-2x text-success mb-2"></i>
+                    <h4 class="text-white mb-1">{{ total_appointments }}</h4>
+                    <p class="text-muted mb-0">Total Appointments</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card bg-dark border-info">
+                <div class="card-body text-center">
+                    <i class="fas fa-prescription-bottle fa-2x text-info mb-2"></i>
+                    <h4 class="text-white mb-1">{{ total_prescriptions }}</h4>
+                    <p class="text-muted mb-0">Total Prescriptions</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card bg-dark border-warning">
+                <div class="card-body text-center">
+                    <i class="fas fa-pills fa-2x text-warning mb-2"></i>
+                    <h4 class="text-white mb-1">{{ active_prescriptions }}</h4>
+                    <p class="text-muted mb-0">Active Prescriptions</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card bg-dark border-primary">
+                <div class="card-body text-center">
+                    <i class="fas fa-user-md fa-2x text-primary mb-2"></i>
+                    <h4 class="text-white mb-1">{{ unique_doctors }}</h4>
+                    <p class="text-muted mb-0">Doctors Consulted</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Next Appointment Alert -->
+    {% if next_appointment %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-info" role="alert">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-clock fa-2x me-3"></i>
+                    <div>
+                        <h5 class="alert-heading mb-1">Next Appointment</h5>
+                        <p class="mb-0">
+                            <strong>{{ next_appointment.date.strftime('%B %d, %Y') }}</strong> at 
+                            <strong>{{ next_appointment.time.strftime('%I:%M %p') if next_appointment.time else 'Time TBD' }}</strong> 
+                            with <strong>Dr. {{ next_appointment.doctor.first_name }} {{ next_appointment.doctor.last_name }}</strong>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
     <!-- Upcoming Appointments -->
     <div class="row mb-4">
         <div class="col-12">

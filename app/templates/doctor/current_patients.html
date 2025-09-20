@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Current Patients - Doctor Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="text-white">Current Patients</h2>
+                <a href="{{ url_for('doctor.dashboard') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+            <p class="text-muted">Patients with recent or upcoming appointments (last 30 days)</p>
+        </div>
+    </div>
+
+    {% if patients_data %}
+        <div class="row">
+            {% for data in patients_data %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card bg-dark border-primary">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-circle me-2">
+                                {{ data.patient.first_name[0] }}{{ data.patient.last_name[0] }}
+                            </div>
+                            <div>
+                                <h6 class="mb-0">{{ data.patient.first_name }} {{ data.patient.last_name }}</h6>
+                                <small>{{ data.patient.email }}</small>
+                            </div>
+                        </div>
+                        <span class="badge bg-light text-dark">{{ data.appointments|length }} appts</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <h6 class="text-white mb-2">Recent Appointments:</h6>
+                            {% for appointment in data.appointments[:3] %}
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div>
+                                    <span class="badge {% if appointment.date >= today %}bg-success{% else %}bg-secondary{% endif %}">
+                                        {{ appointment.date.strftime('%Y-%m-%d') }}
+                                    </span>
+                                    {% if appointment.time %}
+                                        <small class="text-muted">{{ appointment.time.strftime('%H:%M') }}</small>
+                                    {% endif %}
+                                </div>
+                                <span class="badge bg-info">{{ appointment.status }}</span>
+                            </div>
+                            <p class="small text-muted mb-1">{{ appointment.reason[:50] }}...</p>
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <a href="{{ url_for('doctor.create_prescription', patient_id=data.patient.id) }}" 
+                               class="btn btn-success btn-sm">
+                                <i class="fas fa-prescription-bottle"></i> Create Prescription
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="row">
+            <div class="col-12">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    No current patients found. Patients with recent or upcoming appointments will appear here.
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<style>
+.avatar-circle {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #4fc3f7, #29b6f6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 12px;
+}
+</style>
+{% endblock %}

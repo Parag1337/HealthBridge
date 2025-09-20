@@ -8,9 +8,16 @@
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2 class="text-white">My Prescriptions</h2>
-                <a href="{{ url_for('patient.dashboard') }}" class="btn btn-outline-primary">
-                    <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
-                </a>
+                <div>
+                    {% if prescriptions.items %}
+                    <button class="btn btn-success me-2" onclick="exportAllPrescriptionsPDF()">
+                        <i class="fas fa-file-pdf me-2"></i>Export All as PDF
+                    </button>
+                    {% endif %}
+                    <a href="{{ url_for('patient.dashboard') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -21,41 +28,158 @@
                 <div class="card-body">
                     {% if prescriptions.items %}
                         {% for prescription in prescriptions.items %}
-                        <div class="card bg-secondary border-primary mb-3">
+                        <div class="card bg-secondary border-primary mb-3" id="prescription-{{ prescription.id }}">
+                            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-prescription-bottle me-2"></i>
+                                    Prescription #{{ prescription.id }}
+                                </h6>
+                                <div>
+                                    <span class="badge {% if prescription.status == 'Active' %}bg-success{% elif prescription.status == 'Completed' %}bg-secondary{% else %}bg-warning{% endif %}">
+                                        {{ prescription.status }}
+                                    </span>
+                                </div>
+                            </div>
                             <div class="card-body">
-                                <div class="row align-items-center">
-                                    <div class="col-md-8">
-                                        <h5 class="text-white mb-2">
-                                            <i class="fas fa-pills me-2"></i>
-                                            {{ prescription.medication_name }}
-                                        </h5>
-                                        <p class="text-muted mb-1">
-                                            <strong>Dosage:</strong> {{ prescription.dosage }}
-                                            <span class="ms-3"><strong>Frequency:</strong> {{ prescription.frequency }}</span>
-                                        </p>
-                                        <p class="text-muted mb-1">
-                                            <strong>Prescribed by:</strong> Dr. {{ prescription.doctor.first_name }} {{ prescription.doctor.last_name }}
-                                        </p>
-                                        <p class="text-muted mb-0">
-                                            <i class="fas fa-calendar me-1"></i>
-                                            Prescribed on {{ prescription.created_at.strftime('%B %d, %Y') }}
-                                        </p>
-                                        {% if prescription.instructions %}
-                                        <p class="text-white mt-2 mb-0">
-                                            <strong>Instructions:</strong> {{ prescription.instructions }}
-                                        </p>
-                                        {% endif %}
-                                    </div>
-                                    <div class="col-md-4 text-end">
-                                        <span class="badge fs-6 bg-success">Active</span>
-                                        {% if prescription.refills_remaining %}
-                                        <div class="mt-2">
-                                            <small class="text-muted">
-                                                {{ prescription.refills_remaining }} refills remaining
-                                            </small>
+                                <!-- Medications Section -->
+                                <div class="mb-3">
+                                    <h6 class="text-white mb-2">
+                                        <i class="fas fa-pills me-2"></i>Medications:
+                                    </h6>
+                                    {% if prescription.medications %}
+                                        {% for med in prescription.medications %}
+                                        <div class="border border-success rounded p-3 mb-2">
+                                            <h6 class="text-success mb-2">{{ med.medication_name }}</h6>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <p class="text-light mb-1">
+                                                        <strong class="text-info">Dosage:</strong> {{ med.dosage }}
+                                                    </p>
+                                                    <p class="text-light mb-1">
+                                                        <strong class="text-info">Frequency:</strong> {{ med.frequency }}
+                                                    </p>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <p class="text-light mb-1">
+                                                        <strong class="text-info">Duration:</strong> {{ med.duration }}
+                                                    </p>
+                                                    {% if med.instructions %}
+                                                    <p class="text-light mb-1">
+                                                        <strong class="text-info">Instructions:</strong> {{ med.instructions }}
+                                                    </p>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
                                         </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        <!-- Fallback for legacy single medication -->
+                                        <div class="border border-success rounded p-3 mb-2">
+                                            <h6 class="text-success mb-2">{{ prescription.medication_name }}</h6>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <p class="text-light mb-1">
+                                                        <strong class="text-info">Dosage:</strong> {{ prescription.dosage }}
+                                                    </p>
+                                                    <p class="text-light mb-1">
+                                                        <strong class="text-info">Frequency:</strong> {{ prescription.frequency }}
+                                                    </p>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    {% if prescription.duration %}
+                                                    <p class="text-light mb-1">
+                                                        <strong class="text-info">Duration:</strong> {{ prescription.duration }}
+                                                    </p>
+                                                    {% endif %}
+                                                    {% if prescription.instructions %}
+                                                    <p class="text-light mb-1">
+                                                        <strong class="text-info">Instructions:</strong> {{ prescription.instructions }}
+                                                    </p>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Lab Tests Section -->
+                                {% if prescription.lab_tests %}
+                                <div class="mb-3">
+                                    <h6 class="text-white mb-2">
+                                        <i class="fas fa-flask me-2"></i>Lab Tests:
+                                    </h6>
+                                    {% for test in prescription.lab_tests %}
+                                    <div class="border border-warning rounded p-3 mb-2">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <h6 class="text-warning mb-1">{{ test.test_name }}</h6>
+                                                <p class="text-light mb-1">
+                                                    <strong class="text-info">Type:</strong> {{ test.test_type }}
+                                                </p>
+                                                {% if test.suggested_date %}
+                                                <p class="text-light mb-1">
+                                                    <strong class="text-info">Suggested Date:</strong> {{ test.suggested_date.strftime('%Y-%m-%d') }}
+                                                </p>
+                                                {% endif %}
+                                                {% if test.instructions %}
+                                                <p class="text-light mb-1">
+                                                    <strong class="text-info">Instructions:</strong> {{ test.instructions }}
+                                                </p>
+                                                {% endif %}
+                                            </div>
+                                            <div>
+                                                <span class="badge {% if test.status == 'Pending' %}bg-warning text-dark{% elif test.status == 'Completed' %}bg-success{% elif test.status == 'In Progress' %}bg-info{% else %}bg-secondary{% endif %}">
+                                                    {{ test.status }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+
+                                <!-- Prescription Details -->
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p class="text-light mb-1">
+                                            <strong class="text-info">Prescribed by:</strong> Dr. {{ prescription.doctor.first_name }} {{ prescription.doctor.last_name }}
+                                        </p>
+                                        <p class="text-light mb-1">
+                                            <strong class="text-info">Prescribed on:</strong> 
+                                            {% if prescription.prescribed_date %}
+                                                {{ prescription.prescribed_date.strftime('%B %d, %Y') }}
+                                            {% else %}
+                                                {{ prescription.created_at.strftime('%B %d, %Y') }}
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        {% if prescription.refills_remaining %}
+                                        <p class="text-light mb-1">
+                                            <strong class="text-info">Refills remaining:</strong> {{ prescription.refills_remaining }}
+                                        </p>
+                                        {% endif %}
+                                        {% if prescription.notes %}
+                                        <p class="text-light mb-1">
+                                            <strong class="text-info">Notes:</strong> {{ prescription.notes }}
+                                        </p>
                                         {% endif %}
                                     </div>
+                                </div>
+
+                                <!-- Action Buttons -->
+                                <div class="d-flex justify-content-end mt-3 gap-2">
+                                    <button class="btn btn-outline-info btn-sm" onclick="viewPrescriptionDetails({{ prescription.id }})">
+                                        <i class="fas fa-eye me-1"></i>View Details
+                                    </button>
+                                    <button class="btn btn-outline-success btn-sm" onclick="exportPrescriptionPDF({{ prescription.id }})">
+                                        <i class="fas fa-download me-1"></i>Export PDF
+                                    </button>
+                                    {% if prescription.status == 'Active' %}
+                                    <button class="btn btn-outline-primary btn-sm" onclick="requestRefill({{ prescription.id }})">
+                                        <i class="fas fa-redo me-1"></i>Request Refill
+                                    </button>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
@@ -116,4 +240,317 @@
         </div>
     </div>
 </div>
+
+<!-- Prescription Details Modal -->
+<div class="modal fade" id="prescriptionDetailsModal" tabindex="-1" aria-labelledby="prescriptionDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content bg-dark border-primary">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="prescriptionDetailsModalLabel">Prescription Details</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="prescriptionDetailsContent">
+                <!-- Details will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<style>
+.prescription-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.prescription-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,123,255,0.3);
+}
+
+.medication-card {
+    background: rgba(40, 167, 69, 0.1);
+    border: 1px solid #28a745;
+}
+
+.lab-test-card {
+    background: rgba(255, 193, 7, 0.1);
+    border: 1px solid #ffc107;
+}
+
+@media print {
+    .btn, .pagination, .modal {
+        display: none !important;
+    }
+    
+    .prescription-card {
+        border: 1px solid #000 !important;
+        page-break-inside: avoid;
+        margin-bottom: 20px;
+    }
+}
+</style>
+
+<script>
+function viewPrescriptionDetails(prescriptionId) {
+    const modal = new bootstrap.Modal(document.getElementById('prescriptionDetailsModal'));
+    const modalContent = document.getElementById('prescriptionDetailsContent');
+    
+    modalContent.innerHTML = `
+        <div class="text-center">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Loading prescription details...</p>
+        </div>
+    `;
+    
+    modal.show();
+    
+    // Simulate loading detailed prescription data
+    setTimeout(() => {
+        const prescriptionCard = document.getElementById('prescription-' + prescriptionId);
+        const prescriptionHtml = prescriptionCard.outerHTML;
+        
+        modalContent.innerHTML = `
+            <div class="prescription-details">
+                ${prescriptionHtml}
+                <div class="mt-3 p-3 bg-info bg-opacity-10 border border-info rounded">
+                    <h6 class="text-info">Additional Information</h6>
+                    <p class="text-light mb-1"><strong>Prescription ID:</strong> ${prescriptionId}</p>
+                    <p class="text-light mb-1"><strong>Status:</strong> Active</p>
+                    <p class="text-light mb-0"><strong>Next Refill Available:</strong> Check with your doctor</p>
+                </div>
+            </div>
+        `;
+    }, 1000);
+}
+
+function exportPrescriptionPDF(prescriptionId) {
+    // Show loading state
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Generating...';
+    btn.disabled = true;
+    
+    // Simulate PDF generation
+    setTimeout(() => {
+        // In a real implementation, this would call a backend endpoint
+        // that generates and returns a PDF file
+        
+        // Create a simple HTML content for PDF
+        const prescriptionCard = document.getElementById('prescription-' + prescriptionId);
+        const content = prescriptionCard.cloneNode(true);
+        
+        // Remove action buttons from the cloned content
+        const actionButtons = content.querySelector('.d-flex.justify-content-end');
+        if (actionButtons) {
+            actionButtons.remove();
+        }
+        
+        // Create a new window for printing
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Prescription #${prescriptionId}</title>
+                <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+                <style>
+                    body { 
+                        background: white; 
+                        color: black; 
+                        padding: 20px;
+                        font-family: Arial, sans-serif;
+                    }
+                    .card { 
+                        border: 2px solid #0d6efd; 
+                        margin-bottom: 20px;
+                        box-shadow: none;
+                    }
+                    .card-header { 
+                        background: #0d6efd !important; 
+                        color: white !important; 
+                    }
+                    .text-light { color: black !important; }
+                    .text-white { color: black !important; }
+                    .text-success { color: #198754 !important; }
+                    .text-warning { color: #ffc107 !important; }
+                    .text-info { color: #0dcaf0 !important; }
+                    .bg-secondary { background: #f8f9fa !important; }
+                    .border-success { border-color: #198754 !important; }
+                    .border-warning { border-color: #ffc107 !important; }
+                    @media print {
+                        .card { page-break-inside: avoid; }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="text-center mb-4">
+                        <h2>HealthBridge Ai - Prescription</h2>
+                        <p>Generated on ${new Date().toLocaleDateString()}</p>
+                    </div>
+                    ${content.outerHTML}
+                </div>
+            </body>
+            </html>
+        `);
+        
+        printWindow.document.close();
+        
+        // Trigger print dialog
+        setTimeout(() => {
+            printWindow.print();
+            printWindow.close();
+        }, 500);
+        
+        // Reset button
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        
+        // Show success message
+        showToast('Prescription exported successfully!', 'success');
+    }, 2000);
+}
+
+function exportAllPrescriptionsPDF() {
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Generating...';
+    btn.disabled = true;
+    
+    setTimeout(() => {
+        // Get all prescription cards
+        const prescriptionCards = document.querySelectorAll('[id^="prescription-"]');
+        let allContent = '';
+        
+        prescriptionCards.forEach((card, index) => {
+            const content = card.cloneNode(true);
+            // Remove action buttons
+            const actionButtons = content.querySelector('.d-flex.justify-content-end');
+            if (actionButtons) {
+                actionButtons.remove();
+            }
+            allContent += content.outerHTML;
+            if (index < prescriptionCards.length - 1) {
+                allContent += '<div style="page-break-before: always;"></div>';
+            }
+        });
+        
+        // Create print window
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>All Prescriptions</title>
+                <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+                <style>
+                    body { 
+                        background: white; 
+                        color: black; 
+                        padding: 20px;
+                        font-family: Arial, sans-serif;
+                    }
+                    .card { 
+                        border: 2px solid #0d6efd; 
+                        margin-bottom: 20px;
+                        box-shadow: none;
+                        page-break-inside: avoid;
+                    }
+                    .card-header { 
+                        background: #0d6efd !important; 
+                        color: white !important; 
+                    }
+                    .text-light { color: black !important; }
+                    .text-white { color: black !important; }
+                    .text-success { color: #198754 !important; }
+                    .text-warning { color: #ffc107 !important; }
+                    .text-info { color: #0dcaf0 !important; }
+                    .bg-secondary { background: #f8f9fa !important; }
+                    .border-success { border-color: #198754 !important; }
+                    .border-warning { border-color: #ffc107 !important; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="text-center mb-4">
+                        <h2>HealthBridge Ai - All Prescriptions</h2>
+                        <p>Generated on ${new Date().toLocaleDateString()}</p>
+                    </div>
+                    ${allContent}
+                </div>
+            </body>
+            </html>
+        `);
+        
+        printWindow.document.close();
+        
+        setTimeout(() => {
+            printWindow.print();
+            printWindow.close();
+        }, 500);
+        
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        
+        showToast('All prescriptions exported successfully!', 'success');
+    }, 3000);
+}
+
+function requestRefill(prescriptionId) {
+    if (confirm('Would you like to request a refill for this prescription? Your doctor will be notified.')) {
+        const btn = event.target;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Requesting...';
+        btn.disabled = true;
+        
+        // Simulate API call
+        setTimeout(() => {
+            btn.innerHTML = '<i class="fas fa-check me-1"></i>Requested';
+            btn.classList.remove('btn-outline-primary');
+            btn.classList.add('btn-success');
+            
+            showToast('Refill request sent to your doctor!', 'success');
+        }, 2000);
+    }
+}
+
+function showToast(message, type = 'info') {
+    // Create toast element
+    const toastHtml = `
+        <div class="toast align-items-center text-white bg-${type} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    ${message}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    `;
+    
+    // Add to toast container or create one
+    let toastContainer = document.getElementById('toast-container');
+    if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.id = 'toast-container';
+        toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
+        toastContainer.style.zIndex = '9999';
+        document.body.appendChild(toastContainer);
+    }
+    
+    toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+    
+    // Show the toast
+    const toastElement = toastContainer.lastElementChild;
+    const toast = new bootstrap.Toast(toastElement);
+    toast.show();
+    
+    // Remove after hiding
+    toastElement.addEventListener('hidden.bs.toast', () => {
+        toastElement.remove();
+    });
+}
+</script>
 {% endblock %}

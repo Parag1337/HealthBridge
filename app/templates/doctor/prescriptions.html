@@ -1,35 +1,368 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Doctor Prescriptions</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-</head>
-<body>
-    {% include 'base.html' %}
-    <div class="container">
-        <h1>Prescriptions</h1>
-        <table>
-            <thead>
-                <tr>
-                    <th>Patient Name</th>
-                    <th>Medication</th>
-                    <th>Dosage</th>
-                    <th>Date Issued</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for prescription in prescriptions %}
-                <tr>
-                    <td>{{ prescription.patient_name }}</td>
-                    <td>{{ prescription.medication }}</td>
-                    <td>{{ prescription.dosage }}</td>
-                    <td>{{ prescription.date_issued }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+{% extends "base.html" %}
+
+{% block title %}Prescriptions - Doctor Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="text-white">My Prescriptions</h2>
+                <a href="{{ url_for('doctor.dashboard') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+            <p class="text-muted">All prescriptions you have created for patients</p>
+        </div>
     </div>
-</body>
-</html>
+
+    {% if prescriptions %}
+        <div class="row">
+            <div class="col-12">
+                <div class="card bg-dark border-primary">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Prescription History ({{ prescriptions.total }} prescriptions)</h5>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-outline-light btn-sm" onclick="filterPrescriptions('all')">All</button>
+                            <button type="button" class="btn btn-outline-light btn-sm" onclick="filterPrescriptions('active')">Active</button>
+                            <button type="button" class="btn btn-outline-light btn-sm" onclick="filterPrescriptions('completed')">Completed</button>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-dark table-hover mb-0">
+                                <thead class="table-primary">
+                                    <tr>
+                                        <th>Patient</th>
+                                        <th>Medications</th>
+                                        <th>Lab Tests</th>
+                                        <th>Prescribed Date</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="prescriptionTableBody">
+                                    {% for prescription in prescriptions.items %}
+                                    <tr data-status="{{ prescription.status.lower() }}">
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-circle me-3">
+                                                    {{ prescription.patient.first_name[0] }}{{ prescription.patient.last_name[0] }}
+                                                </div>
+                                                <div>
+                                                    <strong>{{ prescription.patient.first_name }} {{ prescription.patient.last_name }}</strong>
+                                                    <br><small class="text-muted">{{ prescription.patient.email }}</small>
+                                                    <br><small class="text-info">Patient #{{ prescription.patient.id }}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            {% if prescription.medications %}
+                                                {% for med in prescription.medications[:2] %}
+                                                    <div class="mb-2">
+                                                        <strong class="text-info">{{ med.medication_name }}</strong>
+                                                        <div class="d-flex gap-1 flex-wrap">
+                                                            <span class="badge bg-info text-dark">{{ med.dosage }}</span>
+                                                            <span class="badge bg-secondary">{{ med.frequency }}</span>
+                                                            <span class="badge bg-warning text-dark">{{ med.duration }}</span>
+                                                        </div>
+                                                    </div>
+                                                {% endfor %}
+                                                {% if prescription.medications|length > 2 %}
+                                                    <small class="text-muted">+{{ prescription.medications|length - 2 }} more...</small>
+                                                {% endif %}
+                                            {% else %}
+                                                <div class="text-muted">
+                                                    <strong>{{ prescription.medication_name or 'No medication' }}</strong>
+                                                    {% if prescription.dosage %}
+                                                        <div class="d-flex gap-1 flex-wrap">
+                                                            <span class="badge bg-info text-dark">{{ prescription.dosage }}</span>
+                                                            <span class="badge bg-secondary">{{ prescription.frequency }}</span>
+                                                            <span class="badge bg-warning text-dark">{{ prescription.duration }}</span>
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if prescription.lab_tests %}
+                                                {% for test in prescription.lab_tests[:2] %}
+                                                    <div class="mb-1">
+                                                        <strong class="text-warning">{{ test.test_name }}</strong>
+                                                        <div class="d-flex gap-1 flex-wrap">
+                                                            <span class="badge bg-outline-warning">{{ test.test_type }}</span>
+                                                            <span class="badge {% if test.status == 'Pending' %}bg-warning text-dark{% elif test.status == 'Completed' %}bg-success{% elif test.status == 'In Progress' %}bg-info{% else %}bg-secondary{% endif %}">
+                                                                {{ test.status }}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                {% endfor %}
+                                                {% if prescription.lab_tests|length > 2 %}
+                                                    <small class="text-muted">+{{ prescription.lab_tests|length - 2 }} more...</small>
+                                                {% endif %}
+                                            {% else %}
+                                                <span class="text-muted">No lab tests</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {{ prescription.prescribed_date.strftime('%Y-%m-%d') }}
+                                        </td>
+                                        <td>
+                                            <span class="badge {% if prescription.status == 'Active' %}bg-success{% elif prescription.status == 'Completed' %}bg-secondary{% else %}bg-warning{% endif %}">
+                                                {{ prescription.status }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <a href="{{ url_for('doctor.prescription_detail', prescription_id=prescription.id) }}" 
+                                                   class="btn btn-info btn-sm" title="View Details">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <button class="btn btn-success btn-sm" title="Export PDF" 
+                                                        onclick="exportPrescriptionPDF('{{ prescription.id }}', '{{ prescription.patient.first_name }}', '{{ prescription.patient.last_name }}')">
+                                                    <i class="fas fa-file-pdf"></i>
+                                                </button>
+                                                <button class="btn btn-primary btn-sm" title="Edit Prescription" 
+                                                        onclick="editPrescription('{{ prescription.id }}')">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                {% if prescription.status == 'Active' %}
+                                                <button class="btn btn-warning btn-sm" title="Mark Completed" 
+                                                        onclick="updatePrescriptionStatus('{{ prescription.id }}', 'Completed')">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <!-- Pagination -->
+                    {% if prescriptions.pages > 1 %}
+                    <div class="card-footer bg-dark">
+                        <nav aria-label="Prescriptions pagination">
+                            <ul class="pagination justify-content-center mb-0">
+                                {% if prescriptions.has_prev %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ url_for('doctor.prescriptions', page=prescriptions.prev_num) }}">Previous</a>
+                                    </li>
+                                {% endif %}
+                                
+                                {% for page_num in prescriptions.iter_pages() %}
+                                    {% if page_num %}
+                                        {% if page_num != prescriptions.page %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="{{ url_for('doctor.prescriptions', page=page_num) }}">{{ page_num }}</a>
+                                            </li>
+                                        {% else %}
+                                            <li class="page-item active">
+                                                <span class="page-link">{{ page_num }}</span>
+                                            </li>
+                                        {% endif %}
+                                    {% else %}
+                                        <li class="page-item disabled">
+                                            <span class="page-link">...</span>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                {% if prescriptions.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ url_for('doctor.prescriptions', page=prescriptions.next_num) }}">Next</a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="row">
+            <div class="col-12">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    No prescriptions found. Prescriptions you create for patients will appear here.
+                    <br><br>
+                    <a href="{{ url_for('doctor.patients') }}" class="btn btn-primary">
+                        <i class="fas fa-users"></i> View Patients to Create Prescriptions
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Prescription Details Modal -->
+<div class="modal fade" id="prescriptionDetailsModal" tabindex="-1" aria-labelledby="prescriptionDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content bg-dark border-primary">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="prescriptionDetailsModalLabel">Prescription Details</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="prescriptionDetailsContent">
+                <!-- Prescription details will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<style>
+.avatar-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #4fc3f7, #29b6f6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+.table-dark th {
+    border-color: #495057;
+}
+
+.table-dark td {
+    border-color: #495057;
+}
+
+.table-hover tbody tr:hover td {
+    background-color: #2c3034;
+}
+
+.btn-group .btn {
+    font-size: 0.75rem;
+}
+</style>
+
+<script>
+function filterPrescriptions(status) {
+    const rows = document.querySelectorAll('#prescriptionTableBody tr');
+    
+    rows.forEach(row => {
+        if (status === 'all') {
+            row.style.display = '';
+        } else {
+            const rowStatus = row.getAttribute('data-status');
+            row.style.display = rowStatus === status ? '' : 'none';
+        }
+    });
+    
+    // Update button states
+    document.querySelectorAll('.btn-group .btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+}
+
+function showPrescriptionDetails(prescriptionId) {
+    console.log('Showing details for prescription ID:', prescriptionId);
+    
+    const modalContent = document.getElementById('prescriptionDetailsContent');
+    modalContent.innerHTML = `
+        <div class="text-center">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Loading prescription details...</p>
+        </div>
+    `;
+    
+    const modal = new bootstrap.Modal(document.getElementById('prescriptionDetailsModal'));
+    modal.show();
+    
+    // Simulate loading prescription data
+    setTimeout(() => {
+        modalContent.innerHTML = `
+            <div class="alert alert-info">
+                <h6>Prescription ID: ${prescriptionId}</h6>
+                <p>Detailed prescription information would be displayed here including:</p>
+                <ul>
+                    <li>Complete medication details</li>
+                    <li>Full instructions</li>
+                    <li>Patient medical history</li>
+                    <li>Prescription notes</li>
+                    <li>Refill information</li>
+                </ul>
+                <div class="mt-3">
+                    <button class="btn btn-secondary me-2" onclick="printPrescription('${prescriptionId}')">
+                        <i class="fas fa-print"></i> Print
+                    </button>
+                    <button class="btn btn-primary" onclick="sendToPharmacy('${prescriptionId}')">
+                        <i class="fas fa-paper-plane"></i> Send to Pharmacy
+                    </button>
+                </div>
+            </div>
+        `;
+    }, 1000);
+}
+
+function updatePrescriptionStatus(prescriptionId, newStatus) {
+    // This would send an AJAX request to update the prescription status
+    console.log(`Updating prescription ${prescriptionId} to status: ${newStatus}`);
+    
+    // For demonstration, show a success message
+    alert(`Prescription status updated to: ${newStatus}`);
+    
+    // In a real implementation, you would refresh the page or update the UI
+    location.reload();
+}
+
+function editPrescription(prescriptionId) {
+    console.log('Editing prescription:', prescriptionId);
+    
+    // For now, redirect to a hypothetical edit page
+    // In the future, this could open a modal with the edit form
+    const editUrl = `/doctor/edit-prescription/${prescriptionId}`;
+    
+    if (confirm('Do you want to edit this prescription? This will allow you to modify medications and lab tests.')) {
+        window.location.href = editUrl;
+    }
+}
+
+function exportPrescriptionPDF(prescriptionId, patientFirstName, patientLastName) {
+    console.log('Exporting prescription to PDF:', prescriptionId);
+    
+    // Navigate to prescription detail page and trigger PDF export
+    const detailUrl = `/doctor/prescription/${prescriptionId}`;
+    const newWindow = window.open(detailUrl, '_blank');
+    
+    // Wait for the page to load and then trigger PDF export
+    newWindow.onload = function() {
+        setTimeout(() => {
+            newWindow.focus();
+            newWindow.print();
+        }, 1000);
+    };
+}
+
+function printPrescription(prescriptionId) {
+    console.log('Printing prescription:', prescriptionId);
+    // Navigate to prescription detail page for printing
+    const detailUrl = `/doctor/prescription/${prescriptionId}`;
+    window.open(detailUrl, '_blank');
+}
+
+function sendToPharmacy(prescriptionId) {
+    console.log('Sending prescription to pharmacy:', prescriptionId);
+    // Implement pharmacy integration
+    alert('Pharmacy integration would be implemented here');
+}
+
+// Initialize filter buttons
+document.addEventListener('DOMContentLoaded', function() {
+    // Set "All" button as active by default
+    document.querySelector('.btn-group .btn').classList.add('active');
+});
+</script>
+{% endblock %}

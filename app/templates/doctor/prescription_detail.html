@@ -1,0 +1,323 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="text-light">Prescription Details</h2>
+                    <p class="text-info mb-0">
+                        <strong>Patient:</strong> {{ prescription.patient.first_name }} {{ prescription.patient.last_name }} |
+                        <strong>Date:</strong> {{ prescription.created_at.strftime('%B %d, %Y') if prescription.created_at else 'Unknown' }} |
+                        <strong>Status:</strong> 
+                        <span class="badge {% if prescription.status == 'Active' %}bg-success{% elif prescription.status == 'Completed' %}bg-primary{% else %}bg-secondary{% endif %}">
+                            {{ prescription.status }}
+                        </span>
+                    </p>
+                </div>
+                <div>
+                    <button onclick="exportToPDF()" class="btn btn-success me-2">
+                        <i class="fas fa-file-pdf"></i> Export PDF
+                    </button>
+                    <a href="{{ url_for('doctor.prescriptions') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Prescriptions
+                    </a>
+                </div>
+            </div>
+
+            <div id="prescription-content">
+                <!-- Prescription Header for PDF -->
+                <div class="pdf-header d-none">
+                    <div class="text-center mb-4">
+                        <h1 class="h3">Medical Prescription</h1>
+                        <hr class="my-3">
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <strong>Doctor:</strong> Dr. {{ prescription.doctor.first_name }} {{ prescription.doctor.last_name }}<br>
+                            <strong>Patient:</strong> {{ prescription.patient.first_name }} {{ prescription.patient.last_name }}<br>
+                            <strong>Date:</strong> {{ prescription.created_at.strftime('%B %d, %Y') if prescription.created_at else 'Unknown' }}
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <strong>Prescription ID:</strong> #{{ prescription.id }}<br>
+                            <strong>Status:</strong> {{ prescription.status }}<br>
+                            <strong>Generated:</strong> {{ prescription.created_at.strftime('%d/%m/%Y %H:%M') if prescription.created_at else 'Unknown' }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Basic Prescription Info -->
+                <div class="card bg-dark border-secondary mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-clipboard-list"></i> Prescription Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong class="text-info">Patient:</strong> <span class="text-light">{{ prescription.patient.first_name }} {{ prescription.patient.last_name }}</span></p>
+                                <p><strong class="text-info">Doctor:</strong> <span class="text-light">Dr. {{ prescription.doctor.first_name }} {{ prescription.doctor.last_name }}</span></p>
+                                <p><strong class="text-info">Prescription ID:</strong> <span class="text-light">#{{ prescription.id }}</span></p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong class="text-info">Date Created:</strong> <span class="text-light">{{ prescription.created_at.strftime('%B %d, %Y at %I:%M %p') if prescription.created_at else 'Unknown' }}</span></p>
+                                <p><strong class="text-info">Status:</strong> 
+                                    <span class="badge {% if prescription.status == 'Active' %}bg-success{% elif prescription.status == 'Completed' %}bg-primary{% else %}bg-secondary{% endif %}">
+                                        {{ prescription.status }}
+                                    </span>
+                                </p>
+                                {% if prescription.notes %}
+                                <p><strong class="text-info">Notes:</strong> <span class="text-light">{{ prescription.notes }}</span></p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Medications Section -->
+                {% if medications %}
+                <div class="card bg-dark border-secondary mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-pills"></i> Prescribed Medications ({{ medications|length }})</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-dark table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Medication</th>
+                                        <th>Dosage</th>
+                                        <th>Frequency</th>
+                                        <th>Duration</th>
+                                        <th>Instructions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for medication in medications %}
+                                    <tr>
+                                        <td class="text-light"><strong>{{ medication.medication_name }}</strong></td>
+                                        <td class="text-info">{{ medication.dosage }}</td>
+                                        <td class="text-info">{{ medication.frequency }}</td>
+                                        <td class="text-info">{{ medication.duration or 'As needed' }}</td>
+                                        <td class="text-light">{{ medication.instructions or 'No special instructions' }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Lab Tests Section -->
+                {% if lab_tests %}
+                <div class="card bg-dark border-secondary mb-4">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0"><i class="fas fa-flask"></i> Recommended Lab Tests ({{ lab_tests|length }})</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-dark table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Test Name</th>
+                                        <th>Instructions</th>
+                                        <th>Urgency</th>
+                                        <th>Notes</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for test in lab_tests %}
+                                    <tr>
+                                        <td class="text-light"><strong>{{ test.test_name }}</strong></td>
+                                        <td class="text-info">{{ test.instructions or 'Standard procedure' }}</td>
+                                        <td>
+                                            <span class="badge {% if test.urgency == 'High' %}bg-danger{% elif test.urgency == 'Medium' %}bg-warning text-dark{% else %}bg-success{% endif %}">
+                                                {{ test.urgency or 'Normal' }}
+                                            </span>
+                                        </td>
+                                        <td class="text-light">{{ test.notes or 'No additional notes' }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Legacy Medicine Field (for backward compatibility) -->
+                {% if prescription.medicine and not medications %}
+                <div class="card bg-dark border-secondary mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-pill"></i> Prescribed Medicine (Legacy)</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-light">{{ prescription.medicine }}</p>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Edit History Section -->
+                {% if edits %}
+                <div class="card bg-dark border-secondary mb-4">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0"><i class="fas fa-history"></i> Edit History ({{ edits|length }})</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-dark table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Editor</th>
+                                        <th>Changes</th>
+                                        <th>Reason</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for edit in edits %}
+                                    <tr>
+                                        <td class="text-info">{{ edit.created_at.strftime('%m/%d/%Y %H:%M') if edit.created_at else 'Unknown' }}</td>
+                                        <td class="text-light">Dr. {{ edit.editor.first_name }} {{ edit.editor.last_name }}</td>
+                                        <td class="text-light">{{ edit.changes_made }}</td>
+                                        <td class="text-light">{{ edit.reason or 'No reason provided' }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Actions -->
+                <div class="card bg-dark border-secondary">
+                    <div class="card-header bg-dark text-white">
+                        <h5 class="mb-0"><i class="fas fa-tools"></i> Actions</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="btn-group" role="group">
+                            <button onclick="exportToPDF()" class="btn btn-success">
+                                <i class="fas fa-file-pdf"></i> Export as PDF
+                            </button>
+                            <button onclick="window.print()" class="btn btn-info">
+                                <i class="fas fa-print"></i> Print
+                            </button>
+                            <a href="{{ url_for('doctor.prescriptions') }}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Back to Prescriptions
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+        
+        #prescription-content, #prescription-content * {
+            visibility: visible;
+        }
+        
+        #prescription-content {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            background: white !important;
+            color: black !important;
+        }
+        
+        .pdf-header {
+            display: block !important;
+        }
+        
+        .card {
+            background: white !important;
+            border: 1px solid #ddd !important;
+            box-shadow: none !important;
+        }
+        
+        .card-header {
+            background: #f8f9fa !important;
+            color: black !important;
+            border-bottom: 1px solid #ddd !important;
+        }
+        
+        .card-body {
+            color: black !important;
+        }
+        
+        .table-dark {
+            background: white !important;
+            color: black !important;
+        }
+        
+        .table-dark th,
+        .table-dark td {
+            color: black !important;
+            border-color: #ddd !important;
+        }
+        
+        .text-light,
+        .text-info,
+        .text-white {
+            color: black !important;
+        }
+        
+        .bg-dark,
+        .bg-primary,
+        .bg-success,
+        .bg-warning,
+        .bg-info,
+        .bg-secondary {
+            background: #f8f9fa !important;
+            color: black !important;
+        }
+        
+        .badge {
+            border: 1px solid #ddd;
+            color: black !important;
+        }
+        
+        .btn-group {
+            display: none !important;
+        }
+        
+        h2, h5 {
+            color: black !important;
+        }
+    }
+</style>
+
+<script>
+    function exportToPDF() {
+        // Show PDF header
+        const pdfHeaders = document.querySelectorAll('.pdf-header');
+        pdfHeaders.forEach(header => {
+            header.classList.remove('d-none');
+        });
+        
+        // Set document title for PDF
+        const originalTitle = document.title;
+        document.title = `Prescription_${prescription.patient.first_name}_${prescription.patient.last_name}_${prescription.id}`;
+        
+        // Trigger print dialog
+        window.print();
+        
+        // Restore original title and hide PDF headers
+        setTimeout(() => {
+            document.title = originalTitle;
+            pdfHeaders.forEach(header => {
+                header.classList.add('d-none');
+            });
+        }, 1000);
+    }
+</script>
+{% endblock %}
