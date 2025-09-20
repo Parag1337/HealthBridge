@@ -5,6 +5,7 @@ from app.models.user import User
 from app.models.appointment import Appointment
 from app.models.prescription import Prescription
 from app.models.prescription_components import PrescriptionMedication, LabTest, PrescriptionEdit
+from app.utils.email import send_prescription_email
 from datetime import datetime, date, timedelta
 from sqlalchemy import and_, or_
 
@@ -413,13 +414,24 @@ def create_prescription(patient_id):
         
         db.session.commit()
         
+        # Get the created medications and lab tests for email
+        created_medications = PrescriptionMedication.query.filter_by(prescription_id=prescription.id).all()
+        created_lab_tests = LabTest.query.filter_by(prescription_id=prescription.id).all()
+        
+        # Send prescription email to patient
+        try:
+            send_prescription_email(patient, prescription, current_user, created_medications, created_lab_tests)
+        except Exception as email_error:
+            print(f"Failed to send prescription email: {str(email_error)}")
+            # Don't fail the prescription creation if email fails
+        
         med_count = len(medications_data)
         test_count = len(lab_tests_data)
         
         success_msg = f'Prescription created successfully for {patient.first_name} {patient.last_name} with {med_count} medication(s)'
         if test_count > 0:
             success_msg += f' and {test_count} lab test(s)'
-        success_msg += '!'
+        success_msg += '! Patient has been notified via email.'
         
         flash(success_msg, 'success')
         return redirect(url_for('doctor.prescriptions'))

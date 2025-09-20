@@ -5,6 +5,7 @@ from app.models.user import User
 from app.models.appointment import Appointment
 from app.models.prescription import Prescription
 from app.models.prescription_components import PrescriptionMedication, LabTest, PrescriptionEdit
+from app.utils.email import send_appointment_confirmation_email
 from datetime import datetime, date, timedelta
 from sqlalchemy import and_, or_
 
@@ -145,7 +146,9 @@ def doctors():
         return redirect(url_for('main.index'))
     
     # Get doctors who have treated this patient
-    doctors_query = db.session.query(User).join(Appointment).filter(
+    doctors_query = db.session.query(User).join(
+        Appointment, User.id == Appointment.doctor_id
+    ).filter(
         and_(User.role == 'doctor', Appointment.patient_id == current_user.id)
     ).distinct()
     
@@ -308,7 +311,9 @@ def appointments():
     )
     
     # Get doctors for filter dropdown
-    doctors = db.session.query(User).join(Appointment).filter(
+    doctors = db.session.query(User).join(
+        Appointment, User.id == Appointment.doctor_id
+    ).filter(
         and_(User.role == 'doctor', Appointment.patient_id == current_user.id)
     ).distinct().all()
     
@@ -369,7 +374,15 @@ def book_appointment():
     try:
         db.session.add(appointment)
         db.session.commit()
-        flash('Appointment booked successfully!', 'success')
+        
+        # Send confirmation email to patient
+        try:
+            send_appointment_confirmation_email(current_user, appointment, doctor)
+        except Exception as email_error:
+            print(f"Failed to send appointment confirmation email: {str(email_error)}")
+            # Don't fail the appointment booking if email fails
+        
+        flash('Appointment booked successfully! Check your email for confirmation.', 'success')
         return redirect(url_for('patient.appointments'))
     except Exception as e:
         db.session.rollback()

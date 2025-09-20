@@ -108,7 +108,7 @@
                                         </span>
                                         <br>
                                         <div class="btn-group" role="group">
-                                            {% if appointment.status == 'scheduled' and appointment.date >= date.today() %}
+                                            {% if appointment.status == 'scheduled' and appointment.date >= get_date().today() %}
                                             <button class="btn btn-sm btn-warning" onclick="rescheduleAppointment({{ appointment.id }})">
                                                 <i class="fas fa-edit"></i> Reschedule
                                             </button>
