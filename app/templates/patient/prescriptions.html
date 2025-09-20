@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block title %}My Prescriptions - HealthBridge Ai{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="text-white">My Prescriptions</h2>
+                <a href="{{ url_for('patient.dashboard') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-12">
+            <div class="card bg-dark border-primary">
+                <div class="card-body">
+                    {% if prescriptions.items %}
+                        {% for prescription in prescriptions.items %}
+                        <div class="card bg-secondary border-primary mb-3">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-md-8">
+                                        <h5 class="text-white mb-2">
+                                            <i class="fas fa-pills me-2"></i>
+                                            {{ prescription.medication_name }}
+                                        </h5>
+                                        <p class="text-muted mb-1">
+                                            <strong>Dosage:</strong> {{ prescription.dosage }}
+                                            <span class="ms-3"><strong>Frequency:</strong> {{ prescription.frequency }}</span>
+                                        </p>
+                                        <p class="text-muted mb-1">
+                                            <strong>Prescribed by:</strong> Dr. {{ prescription.doctor.first_name }} {{ prescription.doctor.last_name }}
+                                        </p>
+                                        <p class="text-muted mb-0">
+                                            <i class="fas fa-calendar me-1"></i>
+                                            Prescribed on {{ prescription.created_at.strftime('%B %d, %Y') }}
+                                        </p>
+                                        {% if prescription.instructions %}
+                                        <p class="text-white mt-2 mb-0">
+                                            <strong>Instructions:</strong> {{ prescription.instructions }}
+                                        </p>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-4 text-end">
+                                        <span class="badge fs-6 bg-success">Active</span>
+                                        {% if prescription.refills_remaining %}
+                                        <div class="mt-2">
+                                            <small class="text-muted">
+                                                {{ prescription.refills_remaining }} refills remaining
+                                            </small>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        
+                        <!-- Pagination -->
+                        {% if prescriptions.pages > 1 %}
+                        <nav aria-label="Prescriptions pagination" class="mt-4">
+                            <ul class="pagination justify-content-center">
+                                {% if prescriptions.has_prev %}
+                                    <li class="page-item">
+                                        <a class="page-link bg-dark text-primary border-primary" 
+                                           href="{{ url_for('patient.prescriptions', page=prescriptions.prev_num) }}">Previous</a>
+                                    </li>
+                                {% endif %}
+                                
+                                {% for page_num in prescriptions.iter_pages() %}
+                                    {% if page_num %}
+                                        {% if page_num != prescriptions.page %}
+                                            <li class="page-item">
+                                                <a class="page-link bg-dark text-primary border-primary" 
+                                                   href="{{ url_for('patient.prescriptions', page=page_num) }}">{{ page_num }}</a>
+                                            </li>
+                                        {% else %}
+                                            <li class="page-item active">
+                                                <span class="page-link bg-primary border-primary">{{ page_num }}</span>
+                                            </li>
+                                        {% endif %}
+                                    {% else %}
+                                        <li class="page-item disabled">
+                                            <span class="page-link bg-dark text-muted border-primary">...</span>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                {% if prescriptions.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link bg-dark text-primary border-primary" 
+                                           href="{{ url_for('patient.prescriptions', page=prescriptions.next_num) }}">Next</a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                        {% endif %}
+                        
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-prescription-bottle fa-4x text-muted mb-3"></i>
+                            <h4 class="text-white">No Prescriptions Yet</h4>
+                            <p class="text-muted mb-4">You don't have any prescriptions yet. Visit a doctor to get prescriptions.</p>
+                            <a href="{{ url_for('patient.book_appointment') }}" class="btn btn-primary btn-lg">
+                                <i class="fas fa-calendar-plus me-2"></i>Book an Appointment
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

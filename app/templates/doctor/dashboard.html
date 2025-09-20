@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}Doctor Dashboard - HealthBridge Ai{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="text-white mb-4">Welcome, Dr. {{ current_user.first_name }}!</h2>
+        </div>
+    </div>
+    
+    <!-- Quick Stats -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card bg-dark border-primary">
+                <div class="card-body text-center">
+                    <i class="fas fa-calendar-day fa-3x text-primary mb-3"></i>
+                    <h3 class="text-white">{{ today_appointments|length }}</h3>
+                    <p class="text-muted">Appointments Today</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card bg-dark border-primary">
+                <div class="card-body text-center">
+                    <i class="fas fa-users fa-3x text-primary mb-3"></i>
+                    <h3 class="text-white">{{ patients_count }}</h3>
+                    <p class="text-muted">Total Patients</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card bg-dark border-primary">
+                <div class="card-body text-center">
+                    <i class="fas fa-calendar-alt fa-3x text-primary mb-3"></i>
+                    <h3 class="text-white">{{ upcoming_appointments|length }}</h3>
+                    <p class="text-muted">Upcoming Appointments</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Today's Appointments -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-dark border-primary">
+                <div class="card-header">
+                    <h5 class="text-white mb-0">
+                        <i class="fas fa-calendar-day me-2"></i>Today's Appointments
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if today_appointments %}
+                        {% for appointment in today_appointments %}
+                        <div class="card bg-secondary border-primary mb-3">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-md-8">
+                                        <h6 class="text-white mb-1">
+                                            {{ appointment.patient.first_name }} {{ appointment.patient.last_name }}
+                                        </h6>
+                                        <p class="text-muted mb-1">
+                                            <i class="fas fa-clock me-1"></i>{{ appointment.time.strftime('%I:%M %p') }}
+                                        </p>
+                                        <p class="text-white mb-0">
+                                            <strong>Reason:</strong> {{ appointment.reason }}
+                                        </p>
+                                    </div>
+                                    <div class="col-md-4 text-end">
+                                        <span class="badge bg-warning">{{ appointment.status.title() }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted text-center">No appointments scheduled for today</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Upcoming Appointments -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card bg-dark border-primary">
+                <div class="card-header">
+                    <h5 class="text-white mb-0">
+                        <i class="fas fa-calendar-alt me-2"></i>Upcoming Appointments
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if upcoming_appointments %}
+                        {% for appointment in upcoming_appointments %}
+                        <div class="card bg-secondary border-primary mb-3">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-md-8">
+                                        <h6 class="text-white mb-1">
+                                            {{ appointment.patient.first_name }} {{ appointment.patient.last_name }}
+                                        </h6>
+                                        <p class="text-muted mb-1">
+                                            <i class="fas fa-calendar me-1"></i>{{ appointment.date.strftime('%B %d, %Y') }}
+                                            <i class="fas fa-clock ms-3 me-1"></i>{{ appointment.time.strftime('%I:%M %p') }}
+                                        </p>
+                                        <p class="text-white mb-0">
+                                            <strong>Reason:</strong> {{ appointment.reason }}
+                                        </p>
+                                    </div>
+                                    <div class="col-md-4 text-end">
+                                        <span class="badge bg-info">{{ appointment.status.title() }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted text-center">No upcoming appointments</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

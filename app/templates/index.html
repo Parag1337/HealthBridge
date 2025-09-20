@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+
+{% block title %}HealthBridge Ai - Smart Healthcare Management{% endblock %}
+
+{% block content %}
+    <!-- Hero Section -->
+    <header class="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1>Smart Healthcare Management System</h1>
+                <p>Revolutionizing healthcare with AI-powered appointment booking, prescription management, and personalized medical assistance.</p>
+                <div class="hero-buttons">
+                    <a href="{{ url_for('auth.register') }}" class="btn-primary">Book Appointment</a>
+                    <a href="{{ url_for('auth.register') }}" class="btn-secondary">Join as Doctor</a>
+                </div>
+            </div>
+            <div class="hero-image">
+                <div class="hero-placeholder">📱💊🏥</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="container">
+            <h2>Our Features</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">📅</div>
+                    <h3>Smart Appointment Booking</h3>
+                    <p>Book appointments with your preferred doctors, manage schedules, and receive automated reminders.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💊</div>
+                    <h3>Digital Prescriptions</h3>
+                    <p>Access digital prescriptions, medication reminders, and track your treatment progress seamlessly.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🤖</div>
+                    <h3>AI Health Assistant</h3>
+                    <p>Get instant answers to health queries, symptom analysis, and personalized health recommendations.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Health Analytics</h3>
+                    <p>Track your health trends, medication adherence, and get insights into your wellness journey.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">👨‍⚕️</div>
+                    <h3>Doctor Dashboard</h3>
+                    <p>Comprehensive tools for doctors to manage patients, create prescriptions, and analyze treatment outcomes.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3>Secure & Private</h3>
+                    <p>Bank-level security ensures your medical data is protected and compliant with healthcare regulations.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about">
+        <div class="container">
+            <div class="about-content">
+                <div class="about-text">
+                    <h2>About HealthBridge Ai</h2>
+                    <p>HealthBridge Ai is a revolutionary platform that bridges the gap between patients and healthcare providers through intelligent technology. Our mission is to make healthcare accessible, efficient, and personalized for everyone.</p>
+                    <p>With cutting-edge AI technology, we provide seamless appointment management, prescription tracking, and health monitoring to ensure you receive the best possible care.</p>
+                    <div class="stats">
+                        <div class="stat">
+                            <h3>10,000+</h3>
+                            <p>Active Patients</p>
+                        </div>
+                        <div class="stat">
+                            <h3>500+</h3>
+                            <p>Certified Doctors</p>
+                        </div>
+                        <div class="stat">
+                            <h3>50,000+</h3>
+                            <p>Appointments Booked</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="about-image">
+                    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="HealthBridge Ai Logo" class="about-logo" />
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials">
+        <div class="container">
+            <h2>What Our Users Say</h2>
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <div class="testimonial-content">
+                        <p>"HealthBridge Ai has transformed how I manage my health. The AI assistant is incredibly helpful and the prescription reminders ensure I never miss my medication."</p>
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">👩</div>
+                        <div class="author-info">
+                            <h4>Sarah Johnson</h4>
+                            <p>Patient</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-content">
+                        <p>"As a doctor, this platform has streamlined my practice. Managing patient records and creating digital prescriptions has never been easier."</p>
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">👨‍⚕️</div>
+                        <div class="author-info">
+                            <h4>Dr. Michael Chen</h4>
+                            <p>Cardiologist</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-content">
+                        <p>"The appointment booking system is so intuitive. I can easily find available slots and book appointments with my preferred specialists."</p>
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">👴</div>
+                        <div class="author-info">
+                            <h4>Robert Williams</h4>
+                            <p>Patient</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Chatbot Widget -->
+    <div class="chatbot-widget">
+        <div class="chatbot-icon">💬</div>
+        <div class="chatbot-tooltip">AI Assistant</div>
+    </div>
+{% endblock %}
+
+{% block footer %}
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>HealthBridge Ai</h3>
+                    <p>Making healthcare accessible and efficient for everyone through intelligent technology.</p>
+                    <div class="social-links">
+                        <a href="#" class="social-link">📘</a>
+                        <a href="#" class="social-link">🐦</a>
+                        <a href="#" class="social-link">📷</a>
+                        <a href="#" class="social-link">💼</a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#about">About Us</a></li>
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>For Patients</h4>
+                    <ul>
+                        <li><a href="{{ url_for('auth.register') }}">Register</a></li>
+                        <li><a href="{{ url_for('auth.login') }}">Patient Login</a></li>
+                        <li><a href="#">Find Doctors</a></li>
+                        <li><a href="#">Book Appointment</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>For Doctors</h4>
+                    <ul>
+                        <li><a href="{{ url_for('auth.register') }}">Join Network</a></li>
+                        <li><a href="{{ url_for('auth.login') }}">Doctor Login</a></li>
+                        <li><a href="#">Practice Tools</a></li>
+                        <li><a href="#">Support</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact Info</h4>
+                    <p>📧 info@healthbridgeai.com</p>
+                    <p>📞 +1 (555) 123-4567</p>
+                    <p>📍 123 Health Street, Medical City, MC 12345</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 HealthBridge Ai. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+{% endblock %}

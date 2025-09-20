@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}My Profile - HealthBridge Ai{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card bg-dark border-primary">
+                <div class="card-header text-center">
+                    <h3 class="text-white mb-0">
+                        <i class="fas fa-user me-2"></i>My Profile
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label class="form-label text-white">First Name</label>
+                                <input type="text" class="form-control bg-dark text-white border-primary" 
+                                       value="{{ user.first_name }}" readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label class="form-label text-white">Last Name</label>
+                                <input type="text" class="form-control bg-dark text-white border-primary" 
+                                       value="{{ user.last_name }}" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label class="form-label text-white">Email</label>
+                                <input type="email" class="form-control bg-dark text-white border-primary" 
+                                       value="{{ user.email }}" readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label class="form-label text-white">Phone</label>
+                                <input type="text" class="form-control bg-dark text-white border-primary" 
+                                       value="{{ user.phone or 'Not provided' }}" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label class="form-label text-white">Date of Birth</label>
+                                <input type="text" class="form-control bg-dark text-white border-primary" 
+                                       value="{{ user.date_of_birth.strftime('%B %d, %Y') if user.date_of_birth else 'Not provided' }}" readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label class="form-label text-white">Gender</label>
+                                <input type="text" class="form-control bg-dark text-white border-primary" 
+                                       value="{{ user.gender.title() if user.gender else 'Not provided' }}" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% if user.address %}
+                    <div class="form-group mb-3">
+                        <label class="form-label text-white">Address</label>
+                        <textarea class="form-control bg-dark text-white border-primary" rows="3" readonly>{{ user.address }}</textarea>
+                    </div>
+                    {% endif %}
+                    
+                    {% if user.emergency_contact %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label class="form-label text-white">Emergency Contact</label>
+                                <input type="text" class="form-control bg-dark text-white border-primary" 
+                                       value="{{ user.emergency_contact }}" readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label class="form-label text-white">Emergency Contact Phone</label>
+                                <input type="text" class="form-control bg-dark text-white border-primary" 
+                                       value="{{ user.emergency_contact_phone or 'Not provided' }}" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label class="form-label text-white">Member Since</label>
+                                <input type="text" class="form-control bg-dark text-white border-primary" 
+                                       value="{{ user.created_at.strftime('%B %d, %Y') }}" readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label class="form-label text-white">Account Status</label>
+                                <input type="text" class="form-control bg-dark text-white border-primary" 
+                                       value="{{ 'Active' if user.is_active else 'Inactive' }}" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <a href="{{ url_for('patient.dashboard') }}" class="btn btn-primary btn-lg me-3">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                        </a>
+                        <button type="button" class="btn btn-outline-primary btn-lg" onclick="alert('Profile editing feature coming soon!')">
+                            <i class="fas fa-edit me-2"></i>Edit Profile
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

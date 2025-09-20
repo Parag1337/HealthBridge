@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Appointment - HealthBridge AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="..\static\css\style.css">
+</head>
+<body>
+    <div class="bg-pattern"></div>
+    <div class="bg-grid"></div>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">HealthBridge AI</a>
+             <ul class="nav-links">
+                <li><a href="index.html#home">Home</a></li>
+                <li><a href="index.html#services">Services</a></li>
+                <li><a href="index.html#doctors">Doctors</a></li>
+                <li><a href="index.html#about">About</a></li>
+                <li><a href="index.html#contact">Contact</a></li>
+            </ul>
+            <div class="nav-buttons">
+                <a href="signin.html" class="btn btn-outline">Sign In</a>
+                <a href="booking.html" class="btn btn-primary">Get Started</a>
+            </div>
+            <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+        </div>
+    </nav>
+
+    <div class="mobile-menu" id="mobileMenu">
+        <button class="mobile-close" onclick="toggleMobileMenu()">×</button>
+        <ul class="nav-links">
+            <li><a href="index.html#home" onclick="toggleMobileMenu()">Home</a></li>
+            <li><a href="index.html#services" onclick="toggleMobileMenu()">Services</a></li>
+            <li><a href="index.html#doctors" onclick="toggleMobileMenu()">Doctors</a></li>
+            <li><a href="index.html#about" onclick="toggleMobileMenu()">About</a></li>
+            <li><a href="index.html#contact" onclick="toggleMobileMenu()">Contact</a></li>
+        </ul>
+        <div class="nav-buttons">
+            <a href="signin.html" class="btn btn-outline">Sign In</a>
+            <a href="booking.html" class="btn btn-primary">Get Started</a>
+        </div>
+    </div>
+
+    <section class="booking-section">
+        <div class="booking-container">
+            <div class="section-header">
+                <div class="section-badge">APPOINTMENT</div>
+                <h2 class="section-title">Book Your Consultation</h2>
+                <p class="section-subtitle">Follow the steps below to schedule your appointment with one of our experts.</p>
+            </div>
+
+            <div class="booking-form-container">
+                <div class="progress-bar-container">
+                    <div class="progress-step active" data-step="1">Service</div>
+                    <div class="progress-step" data-step="2">Date & Time</div>
+                    <div class="progress-step" data-step="3">Details</div>
+                    <div class="progress-step" data-step="4">Confirm</div>
+                </div>
+
+                <form id="booking-form">
+                    <div class="form-step active" data-step="1">
+                        <h3 class="step-title">1. Select a Service</h3>
+                        <div class="service-selection-grid">
+                            <div class="selectable-card" data-value="General Consultation">
+                                <h4>General Consultation</h4>
+                                <p>A general check-up with a primary care physician.</p>
+                            </div>
+                            <div class="selectable-card" data-value="Cardiology">
+                                <h4>Cardiology</h4>
+                                <p>Consultation for heart and blood vessel conditions.</p>
+                            </div>
+                             <div class="selectable-card" data-value="Neurology">
+                                <h4>Neurology</h4>
+                                <p>For issues related to the brain, spine, and nerves.</p>
+                            </div>
+                            <div class="selectable-card" data-value="Pediatrics">
+                                <h4>Pediatrics</h4>
+                                <p>Healthcare for infants, children, and adolescents.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-step" data-step="2">
+                        <h3 class="step-title">2. Choose a Date and Time</h3>
+                        <div class="date-time-picker">
+                            <div class="calendar">
+                                <div class="calendar-header">August 2025</div>
+                                <div class="calendar-grid">
+                                    <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+                                    <button type="button" class="day">24</button><button type="button" class="day">25</button><button type="button" class="day">26</button><button type="button" class="day">27</button><button type="button" class="day">28</button><button type="button" class="day">29</button><button type="button" class="day">30</button>
+                                    <button type="button" class="day selected" data-value="Sunday, August 31, 2025">31</button>
+                                </div>
+                            </div>
+                            <div class="time-slots">
+                                <button type="button" class="time-slot" data-value="09:00 AM">09:00 AM</button>
+                                <button type="button" class="time-slot" data-value="09:30 AM">09:30 AM</button>
+                                <button type="button" class="time-slot" data-value="10:00 AM">10:00 AM</button>
+                                <button type="button" class="time-slot" data-value="11:00 AM">11:00 AM</button>
+                                <button type="button" class="time-slot" data-value="02:00 PM">02:00 PM</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-step" data-step="3">
+                         <h3 class="step-title">3. Your Information</h3>
+                         <div class="form-group">
+                            <input id="fname" type="text" placeholder="First Name" required>
+                            <input id="lname" type="text" placeholder="Last Name" required>
+                        </div>
+                        <div class="form-group-vertical">
+                            <input id="email" type="email" placeholder="Email Address" required>
+                        </div>
+                        <div class="form-group-vertical">
+                             <textarea placeholder="Reason for visit (optional)" rows="4"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-step" data-step="4">
+                        <h3 class="step-title">4. Confirm Your Appointment</h3>
+                        <div class="confirmation-summary">
+                            <p><strong>Service:</strong> <span id="conf-service">Not Selected</span></p>
+                            <p><strong>Date:</strong> <span id="conf-date">Not Selected</span></p>
+                            <p><strong>Time:</strong> <span id="conf-time">Not Selected</span></p>
+                            <p><strong>Patient:</strong> <span id="conf-name">Not Filled</span></p>
+                            <p>A confirmation will be sent to <span id="conf-email">your email</span>.</p>
+                        </div>
+                    </div>
+                    <div class="form-navigation">
+                        <button type="button" class="btn btn-outline" id="prevBtn" style="display: none;">Previous</button>
+                        <button type="button" class="btn btn-primary" id="nextBtn">Next</button>
+                        <button type="submit" class="btn btn-primary" id="submitBtn" style="display: none;">Confirm Booking</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        </footer>
+    
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const submitBtn = document.getElementById('submitBtn');
+        const formSteps = document.querySelectorAll('.form-step');
+        const progressSteps = document.querySelectorAll('.progress-step');
+        let currentStep = 1;
+        const bookingDetails = {};
+
+        function createSelectionHandler(selector) {
+            const elements = document.querySelectorAll(selector);
+            elements.forEach(el => {
+                el.addEventListener('click', () => {
+                    elements.forEach(e => e.classList.remove('selected'));
+                    el.classList.add('selected');
+                });
+            });
+        }
+        createSelectionHandler('.selectable-card');
+        createSelectionHandler('.day');
+        createSelectionHandler('.time-slot');
+
+        nextBtn.addEventListener('click', () => {
+            if (currentStep < formSteps.length) {
+                saveStepData(currentStep);
+                currentStep++;
+                updateFormSteps();
+            }
+        });
+        prevBtn.addEventListener('click', () => {
+            if (currentStep > 1) {
+                currentStep--;
+                updateFormSteps();
+            }
+        });
+        function saveStepData(step) {
+            if (step === 1) {
+                const selectedService = document.querySelector('.selectable-card.selected');
+                if (selectedService) bookingDetails.service = selectedService.dataset.value;
+            }
+            if (step === 2) {
+                const selectedDay = document.querySelector('.day.selected');
+                const selectedTime = document.querySelector('.time-slot.selected');
+                if (selectedDay) bookingDetails.date = selectedDay.dataset.value;
+                if (selectedTime) bookingDetails.time = selectedTime.dataset.value;
+            }
+            if (step === 3) {
+                bookingDetails.firstName = document.getElementById('fname').value;
+                bookingDetails.lastName = document.getElementById('lname').value;
+                bookingDetails.email = document.getElementById('email').value;
+            }
+        }
+        function populateConfirmation() {
+            document.getElementById('conf-service').textContent = bookingDetails.service || 'Not selected';
+            document.getElementById('conf-date').textContent = bookingDetails.date || 'Not selected';
+            document.getElementById('conf-time').textContent = bookingDetails.time || 'Not selected';
+            document.getElementById('conf-name').textContent = `${bookingDetails.firstName || ''} ${bookingDetails.lastName || ''}`;
+            document.getElementById('conf-email').textContent = bookingDetails.email || 'your email';
+        }
+        function updateFormSteps() {
+            formSteps.forEach(step => {
+                step.classList.remove('active');
+                if (parseInt(step.dataset.step) === currentStep) {
+                    step.classList.add('active');
+                }
+            });
+            progressSteps.forEach((step, index) => {
+                step.classList.toggle('active', index < currentStep);
+            });
+            if (currentStep === formSteps.length) {
+                populateConfirmation();
+                nextBtn.style.display = 'none';
+                submitBtn.style.display = 'inline-block';
+            } else {
+                nextBtn.style.display = 'inline-block';
+                submitBtn.style.display = 'none';
+            }
+            prevBtn.style.display = currentStep > 1 ? 'inline-block' : 'none';
+        }
+    });
+
+    // Mobile menu script for this page
+    const mobileMenu = document.getElementById('mobileMenu');
+    function toggleMobileMenu() {
+        if (mobileMenu) {
+            mobileMenu.classList.toggle('active');
+        }
+    };
+    </script>
+</body>
+</html>

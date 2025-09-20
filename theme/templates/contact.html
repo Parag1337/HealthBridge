@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - HealthBridge AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="..\static\css\style.css">
+</head>
+<body>
+    <div class="bg-pattern"></div>
+    <div class="bg-grid"></div>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">HealthBridge AI</a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="services.html">Services</a></li>
+                <li><a href="doctors.html">Doctors</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html" class="active">Contact</a></li>
+            </ul>
+            <div class="nav-buttons">
+                <a href="signin.html" class="btn btn-outline">Sign In</a>
+                <a href="booking.html" class="btn btn-primary">Get Started</a>
+            </div>
+            <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+        </div>
+    </nav>
+    
+    <main>
+        <section class="contact" style="padding-top: 8rem; background: var(--bg-primary);">
+            <div class="services-container">
+                <div class="section-header">
+                    <div class="section-badge">GET IN TOUCH</div>
+                    <h2 class="section-title">We're Here to Help</h2>
+                    <p class="section-subtitle">Have questions about our platform or need support? Reach out to us.</p>
+                </div>
+                <div class="contact-page-content">
+                    <div class="contact-info">
+                        <div class="contact-details-list">
+                            <div class="contact-detail-item"><span class="icon">📧</span><div><h4>Patient Support</h4><p>support@healthbridgeai.com</p></div></div>
+                            <div class="contact-detail-item"><span class="icon">📞</span><div><h4>Phone</h4><p>1-800-HEALTH-AI</p></div></div>
+                            <div class="contact-detail-item"><span class="icon">🏥</span><div><h4>Headquarters</h4><p>123 Medical Plaza, San Francisco, CA</p></div></div>
+                        </div>
+                        <div class="map-container"><img src="https://placehold.co/600x300/212836/94a3b8?text=Map+of+Our+Location" alt="Map"></div>
+                    </div>
+                    <div class="contact-form-container">
+                         <form class="contact-form" style="background: var(--bg-card); padding: 2.5rem; border-radius: 16px;">
+                            <div class="form-group"><input type="text" placeholder="Your Name" required><input type="email" placeholder="Your Email" required></div>
+                            <div class="form-group-vertical"><input type="text" placeholder="Subject" required></div>
+                            <div class="form-group-vertical"><textarea placeholder="Your Message" rows="6" required></textarea></div>
+                            <button type="submit" class="btn btn-primary btn-full">Send Message</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="faq-section">
+            <div class="services-container">
+                <div class="section-header">
+                    <h2 class="section-title">Frequently Asked Questions</h2>
+                </div>
+                <div class="faq-item"><h3 class="faq-question">How do I book an appointment?</h3></div>
+                <div class="faq-item"><h3 class="faq-question">Is my personal health information secure?</h3></div>
+                <div class="faq-item"><h3 class="faq-question">What insurance plans do you accept?</h3></div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <!-- Your footer code -->
+    </footer>
+
+    <script>
+        const mobileMenu = document.getElementById('mobileMenu');
+        function toggleMobileMenu() { if (mobileMenu) { mobileMenu.classList.toggle('active'); } };
+    </script>
+</body>
+</html>

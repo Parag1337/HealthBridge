@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Dashboard - HealthBridge Ai</title>
+    <link rel="stylesheet" href="..\static\css\style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2>HealthBridge Ai</h2>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="#" class="nav-link" onclick="showSection('home')">🏠 Home</a></li>
+                <li><a href="#" class="nav-link" onclick="showSection('appointments')">📅 Appointments</a></li>
+                <li><a href="#" class="nav-link" onclick="showSection('prescriptions')">💊 Prescriptions</a></li>
+                <li><a href="#" class="nav-link" onclick="showSection('ai-assistant')">🤖 AI Assistant</a></li>
+                <li><a href="#" class="nav-link" onclick="showSection('profile')">👤 Profile</a></li>
+                <li><a href="index.html" class="nav-link">🚪 Logout</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard Layout -->
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <ul class="sidebar-menu">
+                <li><a href="#" class="active" onclick="showSection('home')">🏠 Dashboard Home</a></li>
+                <li><a href="#" onclick="showSection('appointments')">📅 Appointments</a></li>
+                <li><a href="#" onclick="showSection('prescriptions')">💊 Prescriptions</a></li>
+                <li><a href="#" onclick="showSection('ai-assistant')">🤖 AI Assistant</a></li>
+                <li><a href="#" onclick="showSection('profile')">👤 Profile</a></li>
+                <li><a href="index.html">🚪 Logout</a></li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="dashboard-main">
+            <!-- Dashboard Header -->
+            <div class="dashboard-header">
+                <h1>Welcome back, John!</h1>
+                <div class="user-info">
+                    <div class="user-avatar">JD</div>
+                    <div>
+                        <div>John Doe</div>
+                        <small>Patient ID: P12345</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Home Section -->
+            <section id="home" class="dashboard-section active">
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">3</div>
+                        <div class="stat-label">Upcoming Appointments</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">2</div>
+                        <div class="stat-label">Active Prescriptions</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">15</div>
+                        <div class="stat-label">Total Visits</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">5</div>
+                        <div class="stat-label">Pending Reminders</div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions & Recommendations -->
+                <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                        <h3>🚨 Next Appointment</h3>
+                        <div class="card-content">
+                            <p><strong>Dr. Sarah Wilson</strong></p>
+                            <p>Cardiology Consultation</p>
+                            <p>📅 March 25, 2024 at 2:00 PM</p>
+                            <p>📍 Heart Care Clinic, Room 301</p>
+                            <button class="btn-small mt-20">View Details</button>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-card">
+                        <h3>💊 Medication Reminder</h3>
+                        <div class="card-content">
+                            <p><strong>Lisinopril 10mg</strong></p>
+                            <p>Take 1 tablet daily with food</p>
+                            <p>⏰ Next dose: 8:00 AM tomorrow</p>
+                            <p>📊 7 days remaining</p>
+                            <button class="btn-small mt-20">Mark as Taken</button>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-card">
+                        <h3>👨‍⚕️ Recommended Doctors</h3>
+                        <div class="card-content">
+                            <div style="margin-bottom: 15px;">
+                                <p><strong>Dr. Michael Chen</strong></p>
+                                <p>Dermatologist • ⭐ 4.8</p>
+                            </div>
+                            <div style="margin-bottom: 15px;">
+                                <p><strong>Dr. Lisa Rodriguez</strong></p>
+                                <p>Orthopedic • ⭐ 4.9</p>
+                            </div>
+                            <button class="btn-small mt-20">View All</button>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-card">
+                        <h3>📊 Health Insights</h3>
+                        <div class="card-content">
+                            <p>✅ Blood pressure stable</p>
+                            <p>⚠️ Cholesterol slightly elevated</p>
+                            <p>📈 Weight trending upward</p>
+                            <p>💡 Consider cardio exercise</p>
+                            <button class="btn-small mt-20">View Report</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Appointments Section -->
+            <section id="appointments" class="dashboard-section">
+                <div class="dashboard-card mb-20">
+                    <h3>📅 Book New Appointment</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Specialization</label>
+                            <select class="form-control">
+                                <option>Select Specialization</option>
+                                <option>Cardiology</option>
+                                <option>Dermatology</option>
+                                <option>Neurology</option>
+                                <option>Orthopedics</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Preferred Date</label>
+                            <input type="date" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Preferred Time</label>
+                            <select class="form-control">
+                                <option>Morning (9AM - 12PM)</option>
+                                <option>Afternoon (12PM - 5PM)</option>
+                                <option>Evening (5PM - 8PM)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <button class="btn-auth">Search Available Slots</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Upcoming Appointments -->
+                <div class="data-table">
+                    <div class="table-header">
+                        <h3>📅 Upcoming Appointments</h3>
+                        <button class="btn-small">View All</button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Doctor</th>
+                                <th>Specialization</th>
+                                <th>Date & Time</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Dr. Sarah Wilson</td>
+                                <td>Cardiology</td>
+                                <td>Mar 25, 2024 - 2:00 PM</td>
+                                <td><span class="status confirmed">Confirmed</span></td>
+                                <td><button class="btn-small">Reschedule</button></td>
+                            </tr>
+                            <tr>
+                                <td>Dr. Michael Chen</td>
+                                <td>Dermatology</td>
+                                <td>Mar 28, 2024 - 10:30 AM</td>
+                                <td><span class="status pending">Pending</span></td>
+                                <td><button class="btn-small">Cancel</button></td>
+                            </tr>
+                            <tr>
+                                <td>Dr. Lisa Rodriguez</td>
+                                <td>Orthopedic</td>
+                                <td>Apr 2, 2024 - 3:15 PM</td>
+                                <td><span class="status confirmed">Confirmed</span></td>
+                                <td><button class="btn-small">View Details</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Appointment History -->
+                <div class="data-table">
+                    <div class="table-header">
+                        <h3>📋 Recent Appointment History</h3>
+                        <button class="btn-small">View All History</button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Doctor</th>
+                                <th>Date</th>
+                                <th>Diagnosis</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Dr. Sarah Wilson</td>
+                                <td>Mar 15, 2024</td>
+                                <td>Routine Checkup</td>
+                                <td><span class="status completed">Completed</span></td>
+                                <td><button class="btn-small">View Report</button></td>
+                            </tr>
+                            <tr>
+                                <td>Dr. James Parker</td>
+                                <td>Feb 28, 2024</td>
+                                <td>Hypertension Follow-up</td>
+                                <td><span class="status completed">Completed</span></td>
+                                <td><button class="btn-small">View Report</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Prescriptions Section -->
+            <section id="prescriptions" class="dashboard-section">
+                <!-- Current Prescriptions -->
+                <div class="data-table">
+                    <div class="table-header">
+                        <h3>💊 Current Prescriptions</h3>
+                        <button class="btn-small">Download All</button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Medication</th>
+                                <th>Dosage</th>
+                                <th>Frequency</th>
+                                <th>Prescribed By</th>
+                                <th>Expires</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Lisinopril</td>
+                                <td>10mg</td>
+                                <td>Once daily</td>
+                                <td>Dr. Sarah Wilson</td>
+                                <td>Apr 15, 2024</td>
+                                <td><button class="btn-small">Set Reminder</button></td>
+                            </tr>
+                            <tr>
+                                <td>Metformin</td>
+                                <td>500mg</td>
+                                <td>Twice daily</td>
+                                <td>Dr. Sarah Wilson</td>
+                                <td>May 1, 2024</td>
+                                <td><button class="btn-small">Refill Request</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Medication Reminders -->
+                <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                        <h3>⏰ Today's Medication Schedule</h3>
+                        <div class="card-content">
+                            <div style="margin-bottom: 15px; padding: 10px; background: #e8f5e8; border-radius: 8px;">
+                                <p><strong>8:00 AM - Lisinopril 10mg</strong></p>
+                                <p>✅ Taken</p>
+                            </div>
+                            <div style="margin-bottom: 15px; padding: 10px; background: #fff3cd; border-radius: 8px;">
+                                <p><strong>12:00 PM - Metformin 500mg</strong></p>
+                                <p>⏰ Upcoming</p>
+                                <button class="btn-small">Mark as Taken</button>
+                            </div>
+                            <div style="padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                                <p><strong>8:00 PM - Metformin 500mg</strong></p>
+                                <p>🕐 Scheduled</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-card">
+                        <h3>📊 Medication Adherence</h3>
+                        <div class="card-content">
+                            <p><strong>This Month: 92%</strong></p>
+                            <div style="background: #e9ecef; height: 10px; border-radius: 5px; margin: 15px 0;">
+                                <div style="background: #28a745; height: 100%; width: 92%; border-radius: 5px;"></div>
+                            </div>
+                            <p>✅ 27 doses taken on time</p>
+                            <p>⚠️ 2 doses missed</p>
+                            <p>🎯 Goal: 95% adherence</p>
+                            <button class="btn-small mt-20">View Detailed Report</button>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-card">
+                        <h3>🔔 Refill Alerts</h3>
+                        <div class="card-content">
+                            <div style="margin-bottom: 15px;">
+                                <p><strong>Lisinopril</strong></p>
+                                <p>7 days remaining</p>
+                                <p>🟡 Order soon</p>
+                            </div>
+                            <div style="margin-bottom: 15px;">
+                                <p><strong>Metformin</strong></p>
+                                <p>21 days remaining</p>
+                                <p>🟢 Sufficient stock</p>
+                            </div>
+                            <button class="btn-small mt-20">Request Refill</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Prescription History -->
+                <div class="data-table">
+                    <div class="table-header">
+                        <h3>📋 Prescription History</h3>
+                        <button class="btn-small">Download History</button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Doctor</th>
+                                <th>Medications</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Mar 15, 2024</td>
+                                <td>Dr. Sarah Wilson</td>
+                                <td>Lisinopril, Metformin</td>
+                                <td><span class="status completed">Active</span></td>
+                                <td><button class="btn-small">View</button></td>
+                            </tr>
+                            <tr>
+                                <td>Dec 20, 2023</td>
+                                <td>Dr. James Parker</td>
+                                <td>Antibiotics Course</td>
+                                <td><span class="status completed">Completed</span></td>
+                                <td><button class="btn-small">View</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- AI Assistant Section -->
+            <section id="ai-assistant" class="dashboard-section">
+                <div class="ai-chat">
+                    <div class="chat-header">
+                        <span>🤖</span>
+                        <h3>AI Health Assistant</h3>
+                    </div>
+                    <div class="chat-messages">
+                        <div class="message-placeholder">
+                            <p>👋 Hello! I'm your AI Health Assistant.</p>
+                            <p>I can help you with:</p>
+                            <ul style="text-align: left; margin-top: 15px;">
+                                <li>• Symptom analysis and guidance</li>
+                                <li>• Medication information and interactions</li>
+                                <li>• General health questions</li>
+                                <li>• Appointment scheduling assistance</li>
+                                <li>• Prescription reminders</li>
+                            </ul>
+                            <p style="margin-top: 15px;">Type your question below to get started!</p>
+                        </div>
+                    </div>
+                    <div class="chat-input-container">
+                        <textarea class="chat-input" placeholder="Ask me anything about your health..." rows="2"></textarea>
+                        <button class="btn-small" style="margin-top: 10px; width: 100px;">Send</button>
+                    </div>
+                </div>
+
+                <!-- Quick Health Tips -->
+                <div class="dashboard-grid" style="margin-top: 30px;">
+                    <div class="dashboard-card">
+                        <h3>💡 Today's Health Tip</h3>
+                        <div class="card-content">
+                            <p><strong>Stay Hydrated</strong></p>
+                            <p>Drink at least 8 glasses of water daily to maintain optimal health and support your cardiovascular system.</p>
+                            <p>💧 Today's intake: 4/8 glasses</p>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-card">
+                        <h3>🎯 Health Goals</h3>
+                        <div class="card-content">
+                            <p><strong>Weekly Exercise</strong></p>
+                            <p>Target: 150 minutes</p>
+                            <div style="background: #e9ecef; height: 8px; border-radius: 4px; margin: 10px 0;">
+                                <div style="background: #007bff; height: 100%; width: 60%; border-radius: 4px;"></div>
+                            </div>
+                            <p>Progress: 90/150 minutes</p>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-card">
+                        <h3>📈 Health Trends</h3>
+                        <div class="card-content">
+                            <p><strong>Blood Pressure</strong></p>
+                            <p>Last reading: 125/80 mmHg</p>
+                            <p>📊 Trending: Stable</p>
+                            <p>Next check: Mar 30, 2024</p>
+                            <button class="btn-small mt-20">Log Reading</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Profile Section -->
+            <section id="profile" class="dashboard-section">
+                <div class="form-grid">
+                    <div class="form-section">
+                        <h3>👤 Personal Information</h3>
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" class="form-control" value="John Doe" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" class="form-control" value="john.doe@email.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Phone Number</label>
+                            <input type="tel" class="form-control" value="+1 (555) 123-4567">
+                        </div>
+                        <div class="form-group">
+                            <label>Date of Birth</label>
+                            <input type="date" class="form-control" value="1985-06-15" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>Address</label>
+                            <textarea class="form-control" rows="3">123 Main Street, Apartment 4B
+City, State 12345</textarea>
+                        </div>
+                        <button class="btn-auth">Update Information</button>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>🏥 Medical History</h3>
+                        <div class="form-group">
+                            <label>Blood Type</label>
+                            <input type="text" class="form-control" value="O+" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>Allergies</label>
+                            <textarea class="form-control" rows="2">Peanuts, Shellfish</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Chronic Conditions</label>
+                            <textarea class="form-control" rows="2">Hypertension, Type 2 Diabetes</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Emergency Contact</label>
+                            <input type="text" class="form-control" value="Jane Doe - (555) 987-6543">
+                        </div>
+                        <div class="form-group">
+                            <label>Insurance Provider</label>
+                            <input type="text" class="form-control" value="HealthPlus Insurance">
+                        </div>
+                        <button class="btn-auth">Update Medical Info</button>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="data-table">
+                    <div class="table-header">
+                        <h3>📊 Account Activity</h3>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Activity</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Mar 20, 2024</td>
+                                <td>Appointment Booked</td>
+                                <td>Dr. Sarah Wilson - Cardiology</td>
+                            </tr>
+                            <tr>
+                                <td>Mar 18, 2024</td>
+                                <td>Medication Reminder Set</td>
+                                <td>Lisinopril - Daily 8:00 AM</td>
+                            </tr>
+                            <tr>
+                                <td>Mar 15, 2024</td>
+                                <td>Profile Updated</td>
+                                <td>Emergency contact information</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Chatbot Widget -->
+    <div class="chatbot-widget">
+        <div class="chatbot-icon">💬</div>
+        <div class="chatbot-tooltip">Quick AI Chat</div>
+    </div>
+
+    <script>
+        // Section navigation
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.dashboard-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Remove active class from all sidebar links
+            document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Add active class to corresponding sidebar link
+            event.target.classList.add('active');
+        }
+
+        // Mobile menu toggle
+        document.querySelector('.hamburger').addEventListener('click', function() {
+            document.querySelector('.nav-menu').classList.toggle('active');
+        });
+
+        // Add fade-in animation to sections
+        document.querySelectorAll('.dashboard-section').forEach(section => {
+            section.classList.add('fade-in');
+        });
+    </script>
+
+    <style>
+        .dashboard-section {
+            display: none;
+        }
+        
+        .dashboard-section.active {
+            display: block;
+        }
+        
+        .sidebar-menu a.active {
+            background: #495057;
+            color: white;
+            border-left-color: #007bff;
+        }
+    </style>
+</body>
+</html>

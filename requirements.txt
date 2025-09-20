@@ -1,0 +1,21 @@
+# Core Flask Dependencies
+Flask==2.3.3
+Flask-Login==0.6.3
+Flask-SQLAlchemy==3.0.5
+Werkzeug==2.3.7
+
+# Database Dependencies
+Flask-MySQLdb==1.0.1
+mysqlclient==2.2.0
+
+# Environment and Configuration
+python-dotenv==1.0.0
+
+# Optional Dependencies for Future Features
+Flask-Migrate==4.0.5
+Flask-Cors==4.0.0
+requests==2.31.0
+
+# Development and Testing (optional)
+pytest==7.4.2
+pytest-flask==1.2.0

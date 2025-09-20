@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - HealthBridge Ai</title>
+    <link rel="stylesheet" href="..\static\css\style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2>HealthBridge Ai</h2>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="index.html#about" class="nav-link">About</a></li>
+                <li><a href="index.html#features" class="nav-link">Features</a></li>
+                <li><a href="login.html" class="nav-link active">Login</a></li>
+                <li><a href="signup.html" class="nav-link signup-btn">Sign Up</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Login Container -->
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="text-center mb-20">
+                <h2>Welcome Back</h2>
+                <p>Sign in to your HealthBridge Ai account</p>
+            </div>
+            
+            <!-- Login Tabs -->
+            <div class="auth-tabs">
+                <button class="auth-tab active" onclick="switchTab('patient')">Patient Login</button>
+                <button class="auth-tab" onclick="switchTab('doctor')">Doctor Login</button>
+            </div>
+
+            <!-- Patient Login Form -->
+            <form class="auth-form active" id="patient-login">
+                <div class="form-group">
+                    <label for="patient-email">Email Address</label>
+                    <input type="email" id="patient-email" class="form-control" placeholder="Enter your email" required>
+                </div>
+                <div class="form-group">
+                    <label for="patient-password">Password</label>
+                    <input type="password" id="patient-password" class="form-control" placeholder="Enter your password" required>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox"> Remember me
+                    </label>
+                </div>
+                <button type="button" class="btn-auth" onclick="loginUser('patient')">Sign In as Patient</button>
+                <div class="auth-link">
+                    <a href="#">Forgot your password?</a>
+                </div>
+            </form>
+
+            <!-- Doctor Login Form -->
+            <form class="auth-form" id="doctor-login">
+                <div class="form-group">
+                    <label for="doctor-email">Email Address</label>
+                    <input type="email" id="doctor-email" class="form-control" placeholder="Enter your email" required>
+                </div>
+                <div class="form-group">
+                    <label for="doctor-password">Password</label>
+                    <input type="password" id="doctor-password" class="form-control" placeholder="Enter your password" required>
+                </div>
+                <div class="form-group">
+                    <label for="doctor-id">Doctor ID</label>
+                    <input type="text" id="doctor-id" class="form-control" placeholder="Enter your doctor ID" required>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox"> Remember me
+                    </label>
+                </div>
+                <button type="button" class="btn-auth" onclick="loginUser('doctor')">Sign In as Doctor</button>
+                <div class="auth-link">
+                    <a href="#">Forgot your password?</a>
+                </div>
+            </form>
+
+            <div class="auth-link mt-20">
+                Don't have an account? <a href="signup.html">Sign up here</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chatbot Widget -->
+    <div class="chatbot-widget">
+        <div class="chatbot-icon">💬</div>
+        <div class="chatbot-tooltip">AI Assistant</div>
+    </div>
+
+    <script>
+        function switchTab(type) {
+            // Remove active class from all tabs and forms
+            document.querySelectorAll('.auth-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.auth-form').forEach(form => form.classList.remove('active'));
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+            
+            // Show corresponding form
+            if (type === 'patient') {
+                document.getElementById('patient-login').classList.add('active');
+            } else {
+                document.getElementById('doctor-login').classList.add('active');
+            }
+        }
+
+        function loginUser(type) {
+            // This is a placeholder function for login logic
+            if (type === 'patient') {
+                alert('Patient login functionality would be implemented here');
+                // Redirect to patient dashboard (placeholder)
+                window.location.href = 'patient-dashboard.html';
+            } else {
+                alert('Doctor login functionality would be implemented here');
+                // Redirect to doctor dashboard (placeholder)
+                window.location.href = 'doctor-dashboard.html';
+            }
+        }
+
+        // Mobile menu toggle
+        document.querySelector('.hamburger').addEventListener('click', function() {
+            document.querySelector('.nav-menu').classList.toggle('active');
+        });
+    </script>
+</body>
+</html>

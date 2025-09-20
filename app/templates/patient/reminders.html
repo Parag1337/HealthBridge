@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medicine Reminders</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    {% include 'base.html' %}
+    <div class="container">
+        <h1>Medicine Reminders</h1>
+        <div class="reminders-list">
+            {% if reminders %}
+                <ul>
+                    {% for reminder in reminders %}
+                        <li>
+                            <strong>{{ reminder.medication_name }}</strong> - 
+                            Take {{ reminder.dosage }} at {{ reminder.time }} 
+                            <span class="reminder-status">{{ reminder.status }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No reminders set.</p>
+            {% endif %}
+        </div>
+        <a href="{{ url_for('patient.dashboard') }}" class="btn">Back to Dashboard</a>
+    </div>
+</body>
+</html>

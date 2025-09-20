@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Services - HealthBridge AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="..\static\css\style.css">
+</head>
+<body>
+    <div class="bg-pattern"></div>
+    <div class="bg-grid"></div>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">HealthBridge AI</a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="services.html" class="active">Services</a></li>
+                <li><a href="doctors.html">Doctors</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+            <div class="nav-buttons">
+                <a href="signin.html" class="btn btn-outline">Sign In</a>
+                <a href="booking.html" class="btn btn-primary">Get Started</a>
+            </div>
+            <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+        </div>
+    </nav>
+
+    <div class="mobile-menu" id="mobileMenu">
+        </div>
+    
+    <section class="services" style="padding-top: 8rem;">
+        <div class="services-container">
+            <div class="section-header">
+                <div class="section-badge">COMPREHENSIVE CARE</div>
+                <h2 class="section-title">Healthcare Services</h2>
+                <p class="section-subtitle">Experience the future of healthcare with our AI-powered platform designed to make medical care accessible, efficient, and personalized for every patient.</p>
+            </div>
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-header"><div class="service-icon">📅</div><h3 class="service-title">Smart Appointment Booking</h3></div>
+                    <p class="service-description">AI-powered scheduling system that matches you with the right healthcare professionals based on your needs and preferences.</p>
+                    <ul class="service-features"><li>Real-time scheduling</li><li>Doctor matching</li><li>Reminder notifications</li></ul><a href="#" class="service-link">Learn More</a>
+                </div>
+                <div class="service-card">
+                    <div class="service-header"><div class="service-icon">💊</div><h3 class="service-title">Digital Prescriptions</h3></div>
+                    <p class="service-description">Secure electronic prescription management with automated refill reminders and drug interaction monitoring.</p>
+                    <ul class="service-features"><li>E-prescriptions</li><li>Medicine tracking</li><li>Dosage reminders</li></ul><a href="#" class="service-link">Learn More</a>
+                </div>
+                <div class="service-card">
+                    <div class="service-header"><div class="service-icon">🤖</div><h3 class="service-title">AI Health Assistant</h3></div>
+                    <p class="service-description">24/7 intelligent health support providing instant answers to medical questions and personalized health guidance.</p>
+                    <ul class="service-features"><li>24/7 availability</li><li>Medicine info</li><li>Side effect alerts</li></ul><a href="#" class="service-link">Learn More</a>
+                </div>
+                <div class="service-card">
+                    <div class="service-header"><div class="service-icon">👨‍⚕️</div><h3 class="service-title">Doctor Recommendations</h3></div>
+                    <p class="service-description">Advanced AI matching system that connects you with specialists based on your medical history and specific needs.</p>
+                    <ul class="service-features"><li>AI matching</li><li>Personalized suggestions</li></ul><a href="#" class="service-link">Learn More</a>
+                </div>
+                <div class="service-card">
+                    <div class="service-header"><div class="service-icon">📊</div><h3 class="service-title">Health Analytics</h3></div>
+                    <p class="service-description">Comprehensive health tracking with AI-powered insights to help you understand and improve your overall wellness.</p>
+                    <ul class="service-features"><li>Health tracking</li><li>Progress visualization</li></ul><a href="#" class="service-link">Learn More</a>
+                </div>
+                <div class="service-card">
+                    <div class="service-header"><div class="service-icon">🔒</div><h3 class="service-title">Secure Health Records</h3></div>
+                    <p class="service-description">HIPAA-compliant secure storage and management of all your medical records with blockchain-level security.</p>
+                    <ul class="service-features"><li>End-to-end encryption</li><li>Total privacy</li></ul><a href="#" class="service-link">Learn More</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        </footer>
+
+    <script>
+        const mobileMenu = document.getElementById('mobileMenu');
+        function toggleMobileMenu() {
+            if (mobileMenu) {
+                mobileMenu.classList.toggle('active');
+            }
+        };
+    </script>
+</body>
+</html>

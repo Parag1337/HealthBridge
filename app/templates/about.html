@@ -1,0 +1,118 @@
+{% extends "base.html" %}{% extends 'base.html' %}
+
+{% block title %}About Us - Smart Healthcare App{% endblock %}
+
+{% block title %}About Us - HealthBridge Ai{% endblock %}{% block content %}
+
+<div class="bg-pattern"></div>
+
+{% block extra_head %}<div class="bg-grid"></div>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet"><nav class="navbar">
+
+{% endblock %}    <div class="nav-container">
+
+        <a href="{{ url_for('index') }}" class="logo">Smart Healthcare App</a>
+
+{% block content %}        <ul class="nav-links">
+
+    <div class="bg-pattern"></div>            <li><a href="{{ url_for('index') }}">Home</a></li>
+
+    <div class="bg-grid"></div>            <li><a href="{{ url_for('services') }}">Services</a></li>
+
+            <li><a href="{{ url_for('doctors') }}">Doctors</a></li>
+
+    <main>            <li><a href="{{ url_for('about') }}" class="active">About</a></li>
+
+        <section class="about-hero">            <li><a href="{{ url_for('contact') }}">Contact</a></li>
+
+            <div class="services-container">        </ul>
+
+                <div class="section-badge">OUR MISSION</div>        <div class="nav-buttons">
+
+                <h1 class="section-title">To Make Intelligent Healthcare Accessible to Everyone.</h1>            <a href="{{ url_for('signin') }}" class="btn btn-outline">Sign In</a>
+
+                <p class="section-subtitle">We are leveraging artificial intelligence to bridge the gap between patients and world-class medical care, creating a healthier future for all.</p>            <a href="{{ url_for('booking') }}" class="btn btn-primary">Get Started</a>
+
+            </div>        </div>
+
+        </section>        <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+
+    </div>
+
+        <section class="about-story"></nav>
+
+            <div class="services-container about-story-content"><main>
+
+                <div class="about-text">    <section class="about-hero">
+
+                    <h2 class="section-title" style="text-align: left;">Our Story</h2>        <div class="services-container">
+
+                    <p class="about-description" style="max-width: 100%;">Founded in 2022 by a team of doctors and AI researchers, HealthBridge AI was born from a simple idea: healthcare should be proactive, not reactive. We saw the potential for technology to empower patients and assist doctors in providing more personalized, efficient, and compassionate care. Today, we are a leading platform in digital health, trusted by thousands of patients and providers worldwide.</p>            <div class="section-badge">OUR MISSION</div>
+
+                </div>            <h1 class="section-title">To Make Intelligent Healthcare Accessible to Everyone.</h1>
+
+                <img src="https://placehold.co/600x400/212836/94a3b8?text=Innovation+Lab" alt="HealthBridge AI Team">            <p class="section-subtitle">We are leveraging artificial intelligence to bridge the gap between patients and world-class medical care, creating a healthier future for all.</p>
+
+            </div>        </div>
+
+        </section>    </section>
+
+    <section class="about-story">
+
+        <section class="values">        <div class="services-container about-story-content">
+
+            <div class="services-container">            <div class="about-text">
+
+                <h2 class="section-title">Our Values</h2>                <h2 class="section-title" style="text-align: left;">Our Story</h2>
+
+                <div class="values-grid">                <p class="about-description" style="max-width: 100%;">Founded in 2022 by a team of doctors and AI researchers, Smart Healthcare App was born from a simple idea: healthcare should be proactive, not reactive. We saw the potential for technology to empower patients and assist doctors in providing more personalized, efficient, and compassionate care. Today, we are a leading platform in digital health, trusted by thousands of patients and providers worldwide.</p>
+
+                    <div class="value-item">            </div>
+
+                        <div class="value-icon">🎯</div>            <img src="https://placehold.co/600x400/212836/94a3b8?text=Innovation+Lab" alt="Smart Healthcare Team">
+
+                        <h3>Patient-Centered</h3>        </div>
+
+                        <p>Every decision we make puts patient health and experience at the center.</p>    </section>
+
+                    </div>    <section class="about-team" style="background: var(--bg-secondary);">
+
+                    <div class="value-item">        <div class="services-container">
+
+                        <div class="value-icon">🔬</div>            <div class="section-header">
+
+                        <h3>Evidence-Based</h3>                <div class="section-badge">LEADERSHIP</div>
+
+                        <p>Our AI recommendations are grounded in the latest medical research and data.</p>                <h2 class="section-title">Meet Our Team</h2>
+
+                    </div>                <p class="section-subtitle">We are a passionate team of clinicians, engineers, and innovators dedicated to our mission.</p>
+
+                    <div class="value-item">            </div>
+
+                        <div class="value-icon">🤝</div>            <div class="team-grid">
+
+                        <h3>Collaborative</h3>                <div class="team-member-card"><img src="https://placehold.co/120x120/3b82f6/ffffff?text=JD" alt="CEO"><h3 class="team-member-name">Dr. Jane Doe</h3><p class="team-member-title">Founder & CEO</p></div>
+
+                        <p>We believe in empowering the doctor-patient relationship, not replacing it.</p>                <div class="team-member-card"><img src="https://placehold.co/120x120/3b82f6/ffffff?text=JS" alt="CTO"><h3 class="team-member-name">John Smith</h3><p class="team-member-title">Chief Technology Officer</p></div>
+
+                    </div>                <div class="team-member-card"><img src="https://placehold.co/120x120/3b82f6/ffffff?text=ER" alt="CMO"><h3 class="team-member-name">Dr. Emily Rogers</h3><p class="team-member-title">Chief Medical Officer</p></div>
+
+                    <div class="value-item">            </div>
+
+                        <div class="value-icon">🔒</div>        </div>
+
+                        <h3>Privacy First</h3>    </section>
+
+                        <p>Your health data is protected with industry-leading security and privacy measures.</p></main>
+
+                    </div><script>
+
+                </div>    const mobileMenu = document.getElementById('mobileMenu');
+
+            </div>    function toggleMobileMenu() { if (mobileMenu) { mobileMenu.classList.toggle('active'); } };
+
+        </section></script>
+
+    </main>{% endblock %}
+{% endblock %}

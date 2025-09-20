@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}My Appointments - HealthBridge Ai{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="text-white">My Appointments</h2>
+                <a href="{{ url_for('patient.book_appointment') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Book New Appointment
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-12">
+            <div class="card bg-dark border-primary">
+                <div class="card-body">
+                    {% if appointments.items %}
+                        {% for appointment in appointments.items %}
+                        <div class="card bg-secondary border-primary mb-3">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-md-8">
+                                        <h5 class="text-white mb-2">
+                                            <i class="fas fa-user-md me-2"></i>
+                                            Dr. {{ appointment.doctor.first_name }} {{ appointment.doctor.last_name }}
+                                        </h5>
+                                        <p class="text-muted mb-1">
+                                            <i class="fas fa-calendar me-2"></i>
+                                            {{ appointment.date.strftime('%A, %B %d, %Y') }}
+                                            <i class="fas fa-clock ms-3 me-2"></i>
+                                            {{ appointment.time.strftime('%I:%M %p') }}
+                                        </p>
+                                        <p class="text-white mb-0">
+                                            <strong>Reason:</strong> {{ appointment.reason }}
+                                        </p>
+                                    </div>
+                                    <div class="col-md-4 text-end">
+                                        <span class="badge fs-6 bg-{{ 'success' if appointment.status == 'completed' else 'warning' if appointment.status == 'scheduled' else 'danger' }}">
+                                            {{ appointment.status.title() }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        
+                        <!-- Pagination -->
+                        {% if appointments.pages > 1 %}
+                        <nav aria-label="Appointments pagination" class="mt-4">
+                            <ul class="pagination justify-content-center">
+                                {% if appointments.has_prev %}
+                                    <li class="page-item">
+                                        <a class="page-link bg-dark text-primary border-primary" 
+                                           href="{{ url_for('patient.appointments', page=appointments.prev_num) }}">Previous</a>
+                                    </li>
+                                {% endif %}
+                                
+                                {% for page_num in appointments.iter_pages() %}
+                                    {% if page_num %}
+                                        {% if page_num != appointments.page %}
+                                            <li class="page-item">
+                                                <a class="page-link bg-dark text-primary border-primary" 
+                                                   href="{{ url_for('patient.appointments', page=page_num) }}">{{ page_num }}</a>
+                                            </li>
+                                        {% else %}
+                                            <li class="page-item active">
+                                                <span class="page-link bg-primary border-primary">{{ page_num }}</span>
+                                            </li>
+                                        {% endif %}
+                                    {% else %}
+                                        <li class="page-item disabled">
+                                            <span class="page-link bg-dark text-muted border-primary">...</span>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                {% if appointments.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link bg-dark text-primary border-primary" 
+                                           href="{{ url_for('patient.appointments', page=appointments.next_num) }}">Next</a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                        {% endif %}
+                        
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-calendar-times fa-4x text-muted mb-3"></i>
+                            <h4 class="text-white">No Appointments Yet</h4>
+                            <p class="text-muted mb-4">You haven't booked any appointments yet.</p>
+                            <a href="{{ url_for('patient.book_appointment') }}" class="btn btn-primary btn-lg">
+                                <i class="fas fa-plus me-2"></i>Book Your First Appointment
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

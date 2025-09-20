@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - HealthBridge AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="..\static\css\style.css">
+</head>
+<body>
+    <div class="bg-pattern"></div>
+    <div class="bg-grid"></div>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">HealthBridge AI</a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="services.html">Services</a></li>
+                <li><a href="doctors.html">Doctors</a></li>
+                <li><a href="about.html" class="active">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+            <div class="nav-buttons">
+                <a href="signin.html" class="btn btn-outline">Sign In</a>
+                <a href="booking.html" class="btn btn-primary">Get Started</a>
+            </div>
+            <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+        </div>
+    </nav>
+    
+    <main>
+        <section class="about-hero">
+            <div class="services-container">
+                <div class="section-badge">OUR MISSION</div>
+                <h1 class="section-title">To Make Intelligent Healthcare Accessible to Everyone.</h1>
+                <p class="section-subtitle">We are leveraging artificial intelligence to bridge the gap between patients and world-class medical care, creating a healthier future for all.</p>
+            </div>
+        </section>
+
+        <section class="about-story">
+            <div class="services-container about-story-content">
+                <div class="about-text">
+                    <h2 class="section-title" style="text-align: left;">Our Story</h2>
+                    <p class="about-description" style="max-width: 100%;">Founded in 2022 by a team of doctors and AI researchers, HealthBridge AI was born from a simple idea: healthcare should be proactive, not reactive. We saw the potential for technology to empower patients and assist doctors in providing more personalized, efficient, and compassionate care. Today, we are a leading platform in digital health, trusted by thousands of patients and providers worldwide.</p>
+                </div>
+                <img src="https://placehold.co/600x400/212836/94a3b8?text=Innovation+Lab" alt="HealthBridge AI Team">
+            </div>
+        </section>
+
+        <section class="about-team" style="background: var(--bg-secondary);">
+            <div class="services-container">
+                <div class="section-header">
+                    <div class="section-badge">LEADERSHIP</div>
+                    <h2 class="section-title">Meet Our Team</h2>
+                    <p class="section-subtitle">We are a passionate team of clinicians, engineers, and innovators dedicated to our mission.</p>
+                </div>
+                <div class="team-grid">
+                    <div class="team-member-card"><img src="https://placehold.co/120x120/3b82f6/ffffff?text=JD" alt="CEO"><h3 class="team-member-name">Dr. Jane Doe</h3><p class="team-member-title">Founder & CEO</p></div>
+                    <div class="team-member-card"><img src="https://placehold.co/120x120/3b82f6/ffffff?text=JS" alt="CTO"><h3 class="team-member-name">John Smith</h3><p class="team-member-title">Chief Technology Officer</p></div>
+                    <div class="team-member-card"><img src="https://placehold.co/120x120/3b82f6/ffffff?text=ER" alt="CMO"><h3 class="team-member-name">Dr. Emily Rogers</h3><p class="team-member-title">Chief Medical Officer</p></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <!-- Your footer code -->
+    </footer>
+
+    <script>
+        const mobileMenu = document.getElementById('mobileMenu');
+        function toggleMobileMenu() { if (mobileMenu) { mobileMenu.classList.toggle('active'); } };
+    </script>
+</body>
+</html>
