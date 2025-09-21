@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_mail import Mail
 import os
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -43,7 +43,7 @@ def create_app():
     with app.app_context():
         db.create_all()
 
-    # Make date and datetime available to all templates
+    # Make date, datetime, and timedelta available to all templates
     @app.template_global()
     def get_date():
         return date
@@ -51,5 +51,43 @@ def create_app():
     @app.template_global()
     def get_datetime():
         return datetime
+    
+    @app.template_global()
+    def get_timedelta():
+        from datetime import timedelta
+        return timedelta
+    
+    @app.template_global()
+    def get_duration(start_time, end_time):
+        """Calculate duration between two times and return formatted string"""
+        if not start_time or not end_time:
+            return "N/A"
+        
+        # If they're datetime objects, extract time
+        if hasattr(start_time, 'time'):
+            start_time = start_time.time()
+        if hasattr(end_time, 'time'):
+            end_time = end_time.time()
+        
+        # Convert to datetime for calculation
+        start_dt = datetime.combine(date.today(), start_time)
+        end_dt = datetime.combine(date.today(), end_time)
+        
+        # Handle case where end time is before start time (next day)
+        if end_dt < start_dt:
+            end_dt += timedelta(days=1)
+        
+        duration = end_dt - start_dt
+        minutes = int(duration.total_seconds() / 60)
+        
+        if minutes < 60:
+            return f"{minutes} min"
+        else:
+            hours = minutes // 60
+            remaining_minutes = minutes % 60
+            if remaining_minutes == 0:
+                return f"{hours}h"
+            else:
+                return f"{hours}h {remaining_minutes}m"
 
     return app

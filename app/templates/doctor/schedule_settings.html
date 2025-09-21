@@ -1,0 +1,301 @@
+{% extends "base.html" %}
+
+{% block title %}Schedule Settings{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-calendar-check"></i> Schedule Settings</h2>
+                <a href="{{ url_for('doctor.schedule_overview') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-eye"></i> View Schedule Overview
+                </a>
+            </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST" id="scheduleForm">
+                <!-- Slot Configuration Section -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5><i class="fas fa-cog"></i> Slot Configuration</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="slot_duration_minutes" class="form-label">Slot Duration (minutes)</label>
+                                    <select class="form-select" id="slot_duration_minutes" name="slot_duration_minutes" required>
+                                        <option value="15" {{ 'selected' if slot_config and slot_config.slot_duration_minutes == 15 }}>15 minutes</option>
+                                        <option value="30" {{ 'selected' if slot_config and slot_config.slot_duration_minutes == 30 else 'selected' if not slot_config }}>30 minutes</option>
+                                        <option value="45" {{ 'selected' if slot_config and slot_config.slot_duration_minutes == 45 }}>45 minutes</option>
+                                        <option value="60" {{ 'selected' if slot_config and slot_config.slot_duration_minutes == 60 }}>60 minutes</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="buffer_time_minutes" class="form-label">Buffer Time Between Appointments (minutes)</label>
+                                    <select class="form-select" id="buffer_time_minutes" name="buffer_time_minutes" required>
+                                        <option value="0" {{ 'selected' if slot_config and slot_config.buffer_time_minutes == 0 }}>No buffer</option>
+                                        <option value="5" {{ 'selected' if slot_config and slot_config.buffer_time_minutes == 5 else 'selected' if not slot_config }}>5 minutes</option>
+                                        <option value="10" {{ 'selected' if slot_config and slot_config.buffer_time_minutes == 10 }}>10 minutes</option>
+                                        <option value="15" {{ 'selected' if slot_config and slot_config.buffer_time_minutes == 15 }}>15 minutes</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="max_patients_per_day" class="form-label">Maximum Patients Per Day</label>
+                                    <input type="number" class="form-control" id="max_patients_per_day" name="max_patients_per_day" 
+                                           min="1" max="50" value="{{ slot_config.max_patients_per_day if slot_config else 20 }}" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="advance_booking_days" class="form-label">Advance Booking (days)</label>
+                                    <input type="number" class="form-control" id="advance_booking_days" name="advance_booking_days" 
+                                           min="1" max="365" value="{{ slot_config.advance_booking_days if slot_config else 30 }}" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="last_minute_booking_hours" class="form-label">Last Minute Booking Cutoff (hours)</label>
+                                    <select class="form-select" id="last_minute_booking_hours" name="last_minute_booking_hours" required>
+                                        <option value="1" {{ 'selected' if slot_config and slot_config.last_minute_booking_hours == 1 }}>1 hour</option>
+                                        <option value="2" {{ 'selected' if slot_config and slot_config.last_minute_booking_hours == 2 else 'selected' if not slot_config }}>2 hours</option>
+                                        <option value="4" {{ 'selected' if slot_config and slot_config.last_minute_booking_hours == 4 }}>4 hours</option>
+                                        <option value="12" {{ 'selected' if slot_config and slot_config.last_minute_booking_hours == 12 }}>12 hours</option>
+                                        <option value="24" {{ 'selected' if slot_config and slot_config.last_minute_booking_hours == 24 }}>24 hours</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="auto_generate_slots" name="auto_generate_slots" 
+                                               {{ 'checked' if slot_config and slot_config.auto_generate_slots else 'checked' if not slot_config }}>
+                                        <label class="form-check-label" for="auto_generate_slots">
+                                            <strong>Auto-generate time slots</strong>
+                                            <small class="text-muted d-block">Automatically create bookable slots based on your schedule</small>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Weekly Schedule Section -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5><i class="fas fa-calendar-week"></i> Weekly Schedule</h5>
+                    </div>
+                    <div class="card-body">
+                        {% set days = [
+                            ('monday', 'Monday', 0),
+                            ('tuesday', 'Tuesday', 1),
+                            ('wednesday', 'Wednesday', 2),
+                            ('thursday', 'Thursday', 3),
+                            ('friday', 'Friday', 4),
+                            ('saturday', 'Saturday', 5),
+                            ('sunday', 'Sunday', 6)
+                        ] %}
+
+                        {% for day_name, day_label, day_index in days %}
+                            <div class="row mb-3 day-schedule" data-day="{{ day_name }}">
+                                <div class="col-md-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input day-checkbox" type="checkbox" 
+                                               id="{{ day_name }}_working" name="{{ day_name }}_working"
+                                               {{ 'checked' if weekly_schedule and day_index in weekly_schedule }}>
+                                        <label class="form-check-label" for="{{ day_name }}_working">
+                                            <strong>{{ day_label }}</strong>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small">Start Time</label>
+                                    <input type="time" class="form-control time-input" 
+                                           name="{{ day_name }}_start_time" id="{{ day_name }}_start_time"
+                                           value="{{ weekly_schedule[day_index].start_time if weekly_schedule and day_index in weekly_schedule else '09:00' }}"
+                                           {{ 'disabled' if not weekly_schedule or day_index not in weekly_schedule }}>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small">End Time</label>
+                                    <input type="time" class="form-control time-input" 
+                                           name="{{ day_name }}_end_time" id="{{ day_name }}_end_time"
+                                           value="{{ weekly_schedule[day_index].end_time if weekly_schedule and day_index in weekly_schedule else '17:00' }}"
+                                           {{ 'disabled' if not weekly_schedule or day_index not in weekly_schedule }}>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label small text-muted">Status</label>
+                                    <div class="status-indicator">
+                                        <span class="badge bg-success working-badge" style="display: {{ 'block' if weekly_schedule and day_index in weekly_schedule else 'none' }}">Working</span>
+                                        <span class="badge bg-secondary off-badge" style="display: {{ 'none' if weekly_schedule and day_index in weekly_schedule else 'block' }}">Day Off</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr>
+                        {% endfor %}
+
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle"></i>
+                                    <strong>Quick Setup:</strong>
+                                    <button type="button" class="btn btn-sm btn-outline-primary mx-2" onclick="setWeekdaysSchedule()">
+                                        Set Weekdays (Mon-Fri)
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary mx-2" onclick="clearAllDays()">
+                                        Clear All
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url_for('doctor.home') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save Schedule Settings
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Handle day checkbox changes
+document.addEventListener('DOMContentLoaded', function() {
+    const dayCheckboxes = document.querySelectorAll('.day-checkbox');
+    
+    dayCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const dayRow = this.closest('.day-schedule');
+            const timeInputs = dayRow.querySelectorAll('.time-input');
+            const workingBadge = dayRow.querySelector('.working-badge');
+            const offBadge = dayRow.querySelector('.off-badge');
+            
+            if (this.checked) {
+                timeInputs.forEach(input => input.disabled = false);
+                workingBadge.style.display = 'block';
+                offBadge.style.display = 'none';
+            } else {
+                timeInputs.forEach(input => input.disabled = true);
+                workingBadge.style.display = 'none';
+                offBadge.style.display = 'block';
+            }
+        });
+    });
+});
+
+// Quick setup functions
+function setWeekdaysSchedule() {
+    const weekdays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+    weekdays.forEach(day => {
+        const checkbox = document.getElementById(day + '_working');
+        const startTime = document.getElementById(day + '_start_time');
+        const endTime = document.getElementById(day + '_end_time');
+        
+        checkbox.checked = true;
+        startTime.disabled = false;
+        startTime.value = '09:00';
+        endTime.disabled = false;
+        endTime.value = '17:00';
+        
+        // Trigger change event
+        checkbox.dispatchEvent(new Event('change'));
+    });
+}
+
+function clearAllDays() {
+    const allDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+    allDays.forEach(day => {
+        const checkbox = document.getElementById(day + '_working');
+        checkbox.checked = false;
+        checkbox.dispatchEvent(new Event('change'));
+    });
+}
+
+// Form validation
+document.getElementById('scheduleForm').addEventListener('submit', function(e) {
+    const checkedDays = document.querySelectorAll('.day-checkbox:checked');
+    
+    if (checkedDays.length === 0) {
+        e.preventDefault();
+        alert('Please select at least one working day.');
+        return false;
+    }
+    
+    // Validate time ranges for checked days
+    let hasValidation = true;
+    checkedDays.forEach(checkbox => {
+        const dayName = checkbox.name.replace('_working', '');
+        const startTime = document.getElementById(dayName + '_start_time').value;
+        const endTime = document.getElementById(dayName + '_end_time').value;
+        
+        if (!startTime || !endTime) {
+            hasValidation = false;
+            return;
+        }
+        
+        if (startTime >= endTime) {
+            hasValidation = false;
+            return;
+        }
+    });
+    
+    if (!hasValidation) {
+        e.preventDefault();
+        alert('Please ensure all working days have valid start and end times, with start time before end time.');
+        return false;
+    }
+});
+</script>
+
+<style>
+.day-schedule {
+    border-left: 3px solid #dee2e6;
+    padding-left: 15px;
+}
+
+.day-schedule:hover {
+    border-left-color: #007bff;
+    background-color: #f8f9fa;
+}
+
+.status-indicator {
+    margin-top: 8px;
+}
+
+.time-input:disabled {
+    background-color: #f8f9fa;
+}
+
+.card-header h5 {
+    margin: 0;
+    color: #495057;
+}
+</style>
+{% endblock %}

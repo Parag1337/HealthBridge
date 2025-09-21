@@ -1,0 +1,340 @@
+{% extends "base.html" %}
+
+{% block title %}Doctor Home - HealthBridge Ai{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <!-- Welcome Header -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h3 class="text-primary mb-1">
+                        <i class="fas fa-heartbeat"></i> Welcome Dr. {{ current_user.last_name }}
+                    </h3>
+                    <p class="text-muted mb-0">{{ today.strftime('%A, %B %d, %Y') }}</p>
+                </div>
+                <div class="text-end">
+                    <div class="badge bg-primary fs-6" id="current-time"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5>Today's Appointments</h5>
+                            <h2>{{ total_today }}</h2>
+                        </div>
+                        <i class="fas fa-calendar-day fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5>Completed</h5>
+                            <h2>{{ completed_today }}</h2>
+                        </div>
+                        <i class="fas fa-check-circle fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-warning text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5>Pending</h5>
+                            <h2>{{ pending_today }}</h2>
+                        </div>
+                        <i class="fas fa-clock fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Today's Schedule -->
+        <div class="col-md-8">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-calendar-check text-primary"></i> Today's Schedule
+                    </h5>
+                    <a href="{{ url_for('doctor.appointments') }}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-expand-arrows-alt"></i> Full View
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if today_appointments %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>Patient</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for appointment, patient in today_appointments %}
+                                    <tr class="{% if appointment.status == 'completed' %}table-success{% elif appointment.status == 'in-progress' %}table-warning{% endif %}">
+                                        <td>
+                                            <strong>{{ appointment.time.strftime('%I:%M %p') }}</strong>
+                                        </td>
+                                        <td>
+                                            <div>
+                                                <strong>{{ patient.first_name }} {{ patient.last_name }}</strong>
+                                                {% if patient.phone %}
+                                                    <br><small class="text-muted">{{ patient.phone }}</small>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            {% if appointment.status == 'scheduled' %}
+                                                <span class="badge bg-primary">Scheduled</span>
+                                            {% elif appointment.status == 'in-progress' %}
+                                                <span class="badge bg-warning">In Progress</span>
+                                            {% elif appointment.status == 'completed' %}
+                                                <span class="badge bg-success">Completed</span>
+                                            {% elif appointment.status == 'cancelled' %}
+                                                <span class="badge bg-danger">Cancelled</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if appointment.status == 'scheduled' %}
+                                                <button class="btn btn-success btn-sm" onclick="startAppointment({{ appointment.id }})">
+                                                    <i class="fas fa-play"></i> Start
+                                                </button>
+                                            {% elif appointment.status == 'in-progress' %}
+                                                <button class="btn btn-primary btn-sm" onclick="completeAppointment({{ appointment.id }})">
+                                                    <i class="fas fa-check"></i> Complete
+                                                </button>
+                                            {% elif appointment.status == 'completed' %}
+                                                <button class="btn btn-outline-info btn-sm" onclick="viewPatient({{ patient.id }})">
+                                                    <i class="fas fa-eye"></i> View
+                                                </button>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No appointments scheduled for today</h5>
+                            <p class="text-muted">Enjoy your free day!</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Current Patients -->
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-users text-primary"></i> Recent Patients
+                    </h5>
+                    <a href="{{ url_for('doctor.current_patients') }}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-list"></i> View All
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if current_patients %}
+                        <div class="list-group list-group-flush">
+                            {% for patient in current_patients %}
+                            <div class="list-group-item border-0 px-0">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">{{ patient.first_name }} {{ patient.last_name }}</h6>
+                                        {% if patient.phone %}
+                                            <small class="text-muted">{{ patient.phone }}</small>
+                                        {% endif %}
+                                    </div>
+                                    <button class="btn btn-outline-primary btn-sm" onclick="viewPatient({{ patient.id }})">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-user-plus fa-2x text-muted mb-3"></i>
+                            <p class="text-muted">No recent patients</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Next Appointment Alert -->
+    {% if next_appointment %}
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-bell fa-lg me-3"></i>
+                    <div>
+                        <strong>Next Appointment:</strong> 
+                        {{ next_appointment[1].first_name }} {{ next_appointment[1].last_name }} 
+                        at {{ next_appointment[0].time.strftime('%I:%M %p') }}
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Quick Actions -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title text-primary">Quick Actions</h6>
+                    <div class="btn-group" role="group">
+                        <a href="{{ url_for('doctor.home') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-tachometer-alt"></i> Full Dashboard
+                        </a>
+                        <a href="{{ url_for('doctor.appointments') }}" class="btn btn-outline-success">
+                            <i class="fas fa-calendar-check"></i> Manage Appointments
+                        </a>
+                        <a href="{{ url_for('doctor.prescriptions') }}" class="btn btn-outline-info">
+                            <i class="fas fa-prescription"></i> Prescriptions
+                        </a>
+                        <a href="{{ url_for('doctor.current_patients') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-users"></i> All Patients
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Real-time clock
+function updateClock() {
+    const now = new Date();
+    const timeString = now.toLocaleTimeString();
+    document.getElementById('current-time').textContent = timeString;
+}
+
+// Update clock every second
+setInterval(updateClock, 1000);
+updateClock(); // Initial call
+
+// Appointment management functions
+function startAppointment(appointmentId) {
+    if (confirm('Start this appointment?')) {
+        fetch(`/doctor/appointment/${appointmentId}/start`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Failed to start appointment: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while starting the appointment.');
+        });
+    }
+}
+
+function completeAppointment(appointmentId) {
+    if (confirm('Mark this appointment as completed?')) {
+        fetch(`/doctor/appointment/${appointmentId}/complete`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Failed to complete appointment: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while completing the appointment.');
+        });
+    }
+}
+
+function viewPatient(patientId) {
+    window.location.href = `/doctor/patient/${patientId}/history`;
+}
+
+// Auto-refresh every 2 minutes to keep data current
+setTimeout(function() {
+    location.reload();
+}, 120000);
+</script>
+
+<style>
+.card {
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 123, 255, 0.1);
+}
+
+.list-group-item {
+    transition: background-color 0.2s;
+}
+
+.list-group-item:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+@media (max-width: 768px) {
+    .container-fluid {
+        padding: 0 15px;
+    }
+    
+    .btn-group {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .btn-group .btn {
+        margin-bottom: 5px;
+        border-radius: 0.375rem !important;
+    }
+}
+</style>
+{% endblock %}

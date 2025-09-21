@@ -1,0 +1,363 @@
+{% extends "base.html" %}
+
+{% block title %}Medical Documents - HealthBridge Ai{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="text-primary mb-1">
+                        <i class="fas fa-folder-open"></i> Medical Documents
+                    </h2>
+                    <p class="text-muted mb-0">Access your test results, reports, and medical documents</p>
+                </div>
+                <div>
+                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#uploadModal">
+                        <i class="fas fa-upload"></i> Upload Document
+                    </button>
+                    <a href="{{ url_for('patient.health_records') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-arrow-left"></i> Back to Health Records
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Document Categories -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <div class="text-center p-3 bg-primary bg-opacity-10 rounded">
+                                <i class="fas fa-vial fa-2x text-primary mb-2"></i>
+                                <h6>Lab Reports</h6>
+                                <p class="mb-0 small text-muted">Blood tests, urine analysis</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center p-3 bg-info bg-opacity-10 rounded">
+                                <i class="fas fa-x-ray fa-2x text-info mb-2"></i>
+                                <h6>Imaging</h6>
+                                <p class="mb-0 small text-muted">X-rays, MRI, CT scans</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center p-3 bg-success bg-opacity-10 rounded">
+                                <i class="fas fa-file-medical-alt fa-2x text-success mb-2"></i>
+                                <h6>Reports</h6>
+                                <p class="mb-0 small text-muted">Medical reports, summaries</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center p-3 bg-warning bg-opacity-10 rounded">
+                                <i class="fas fa-prescription fa-2x text-warning mb-2"></i>
+                                <h6>Prescriptions</h6>
+                                <p class="mb-0 small text-muted">Digital prescriptions</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Documents List -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-files-medical"></i> Your Documents
+                        </h5>
+                        <div class="d-flex gap-2">
+                            <select class="form-select form-select-sm" style="width: auto;">
+                                <option value="all">All Documents</option>
+                                <option value="lab">Lab Reports</option>
+                                <option value="imaging">Imaging</option>
+                                <option value="reports">Reports</option>
+                                <option value="prescriptions">Prescriptions</option>
+                            </select>
+                            <input type="text" class="form-control form-control-sm" placeholder="Search documents..." style="width: 200px;">
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if documents %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Document Name</th>
+                                        <th>Type</th>
+                                        <th>Date</th>
+                                        <th>Doctor</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for doc in documents %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                {% if doc.type == 'Lab Report' %}
+                                                    <i class="fas fa-vial text-primary me-2"></i>
+                                                {% elif doc.type == 'Imaging' %}
+                                                    <i class="fas fa-x-ray text-info me-2"></i>
+                                                {% elif doc.type == 'Report' %}
+                                                    <i class="fas fa-file-medical-alt text-success me-2"></i>
+                                                {% else %}
+                                                    <i class="fas fa-file-alt text-secondary me-2"></i>
+                                                {% endif %}
+                                                <div>
+                                                    <strong>{{ doc.name }}</strong>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-light text-dark">{{ doc.type }}</span>
+                                        </td>
+                                        <td>{{ doc.date }}</td>
+                                        <td>{{ doc.doctor }}</td>
+                                        <td>
+                                            {% if doc.status == 'Normal' or doc.status == 'Clear' or doc.status == 'Complete' %}
+                                                <span class="badge bg-success">{{ doc.status }}</span>
+                                            {% else %}
+                                                <span class="badge bg-warning">{{ doc.status }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <button class="btn btn-outline-primary" onclick="viewDocument('{{ doc.name }}')" title="View">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button class="btn btn-outline-success" onclick="downloadDocument('{{ doc.name }}')" title="Download">
+                                                    <i class="fas fa-download"></i>
+                                                </button>
+                                                <button class="btn btn-outline-info" onclick="shareDocument('{{ doc.name }}')" title="Share">
+                                                    <i class="fas fa-share"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-folder-open fa-4x text-muted mb-3"></i>
+                            <h5 class="text-muted">No documents found</h5>
+                            <p class="text-muted">Your medical documents and test results will appear here</p>
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadModal">
+                                <i class="fas fa-upload"></i> Upload Your First Document
+                            </button>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    {% if documents %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0">
+                        <i class="fas fa-clock"></i> Recent Activity
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        {% for doc in documents[:3] %}
+                        <div class="d-flex mb-3">
+                            <div class="me-3">
+                                <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;">
+                                    <i class="fas fa-file text-white small"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <p class="mb-1"><strong>{{ doc.name }}</strong> uploaded</p>
+                                <small class="text-muted">{{ doc.date }} by {{ doc.doctor }}</small>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Upload Modal -->
+<div class="modal fade" id="uploadModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-upload"></i> Upload Medical Document
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="uploadForm">
+                    <div class="mb-3">
+                        <label for="documentFile" class="form-label">Select Document</label>
+                        <input type="file" class="form-control" id="documentFile" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" required>
+                        <div class="form-text">Supported formats: PDF, JPG, PNG, DOC, DOCX (Max 10MB)</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="documentName" class="form-label">Document Name</label>
+                        <input type="text" class="form-control" id="documentName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="documentType" class="form-label">Document Type</label>
+                        <select class="form-select" id="documentType" required>
+                            <option value="">Select type...</option>
+                            <option value="Lab Report">Lab Report</option>
+                            <option value="Imaging">Imaging</option>
+                            <option value="Report">Medical Report</option>
+                            <option value="Prescription">Prescription</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="documentDate" class="form-label">Document Date</label>
+                        <input type="date" class="form-control" id="documentDate" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="documentNotes" class="form-label">Notes (Optional)</label>
+                        <textarea class="form-control" id="documentNotes" rows="3" placeholder="Any additional notes about this document..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="uploadDocument()">
+                    <i class="fas fa-upload"></i> Upload Document
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Document Viewer Modal -->
+<div class="modal fade" id="viewModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="viewModalTitle">Document Viewer</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="documentViewer" class="text-center">
+                    <p class="text-muted">Loading document...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function viewDocument(docName) {
+    const modal = new bootstrap.Modal(document.getElementById('viewModal'));
+    document.getElementById('viewModalTitle').textContent = docName;
+    document.getElementById('documentViewer').innerHTML = `
+        <div class="p-5">
+            <i class="fas fa-file-alt fa-4x text-muted mb-3"></i>
+            <h5>Document Preview</h5>
+            <p class="text-muted">Document viewer would be implemented here</p>
+            <p><strong>${docName}</strong></p>
+        </div>
+    `;
+    modal.show();
+}
+
+function downloadDocument(docName) {
+    // Simulate download
+    alert('Downloading: ' + docName);
+}
+
+function shareDocument(docName) {
+    // Simulate share functionality
+    if (navigator.share) {
+        navigator.share({
+            title: 'Medical Document',
+            text: 'Sharing medical document: ' + docName
+        });
+    } else {
+        alert('Share functionality would be implemented here for: ' + docName);
+    }
+}
+
+function uploadDocument() {
+    const form = document.getElementById('uploadForm');
+    const formData = new FormData(form);
+    
+    // Validate form
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+    
+    // Simulate upload
+    const modal = bootstrap.Modal.getInstance(document.getElementById('uploadModal'));
+    modal.hide();
+    
+    // Show success message
+    setTimeout(() => {
+        alert('Document uploaded successfully!');
+        // In real implementation, would refresh the page or update the document list
+    }, 500);
+}
+
+// Search functionality
+document.querySelector('input[placeholder="Search documents..."]').addEventListener('input', function(e) {
+    const searchTerm = e.target.value.toLowerCase();
+    const rows = document.querySelectorAll('tbody tr');
+    
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(searchTerm) ? '' : 'none';
+    });
+});
+
+// Filter functionality
+document.querySelector('select.form-select').addEventListener('change', function(e) {
+    const filterType = e.target.value;
+    const rows = document.querySelectorAll('tbody tr');
+    
+    rows.forEach(row => {
+        if (filterType === 'all') {
+            row.style.display = '';
+        } else {
+            const typeCell = row.cells[1].textContent.toLowerCase();
+            const showRow = typeCell.includes(filterType.toLowerCase()) || 
+                           (filterType === 'lab' && typeCell.includes('lab report')) ||
+                           (filterType === 'prescriptions' && typeCell.includes('prescription'));
+            row.style.display = showRow ? '' : 'none';
+        }
+    });
+});
+
+// Add file name to upload input
+document.getElementById('documentFile').addEventListener('change', function(e) {
+    const fileName = e.target.files[0]?.name;
+    if (fileName) {
+        const nameWithoutExt = fileName.replace(/\.[^/.]+$/, "");
+        document.getElementById('documentName').value = nameWithoutExt;
+    }
+});
+</script>
+{% endblock %}

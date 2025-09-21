@@ -8,10 +8,17 @@ class Appointment(db.Model):
     date = db.Column(db.Date, nullable=False)
     time = db.Column(db.Time, nullable=False)
     reason = db.Column(db.Text, nullable=True)
-    status = db.Column(db.String(20), default='scheduled')  # scheduled, completed, cancelled
+    status = db.Column(db.String(20), default='scheduled')  # scheduled, confirmed, in-progress, completed, cancelled
+    appointment_type = db.Column(db.String(20), default='in-person')  # in-person, online, hybrid
     patient_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     doctor_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Additional fields for appointment management
+    started_at = db.Column(db.DateTime, nullable=True)
+    completed_at = db.Column(db.DateTime, nullable=True)
+    notes = db.Column(db.Text, nullable=True)
 
     # Relationships to User model with different foreign keys
     patient = db.relationship('User', foreign_keys=[patient_id], backref='patient_appointments')

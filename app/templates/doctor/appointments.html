@@ -1,36 +1,422 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Doctor Appointments</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-</head>
-<body>
-    {% include 'base.html' %}
-    <div class="container">
-        <h1>Your Appointments</h1>
-        <table>
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Time</th>
-                    <th>Patient Name</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for appointment in appointments %}
-                <tr>
-                    <td>{{ appointment.date }}</td>
-                    <td>{{ appointment.time }}</td>
-                    <td>{{ appointment.patient_name }}</td>
-                    <td>{{ appointment.status }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        <a href="{{ url_for('doctor.dashboard') }}" class="btn">Back to Dashboard</a>
+{% extends "base.html" %}
+
+{% block title %}Today's Appointments - Doctor Portal{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-calendar-check"></i> Today's Appointments</h2>
+                <div class="d-flex align-items-center">
+                    <div class="me-3">
+                        <span class="badge bg-primary">{{ current_time }}</span>
+                    </div>
+                    <button class="btn btn-outline-secondary btn-sm" onclick="refreshPage()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
-</body>
-</html>
+
+    <!-- Appointment Status Summary -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h5 class="card-title">Scheduled</h5>
+                            <h3>{{ scheduled_count }}</h3>
+                        </div>
+                        <i class="fas fa-clock fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h5 class="card-title">In Progress</h5>
+                            <h3>{{ in_progress_count }}</h3>
+                        </div>
+                        <i class="fas fa-user-md fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h5 class="card-title">Completed</h5>
+                            <h3>{{ completed_count }}</h3>
+                        </div>
+                        <i class="fas fa-check-circle fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h5 class="card-title">Total Today</h5>
+                            <h3>{{ total_count }}</h3>
+                        </div>
+                        <i class="fas fa-list fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Appointments by Status -->
+    <div class="row">
+        <!-- Scheduled Appointments -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-clock"></i> Scheduled Appointments</h5>
+                </div>
+                <div class="card-body">
+                    {% if scheduled_appointments %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>Patient</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for appointment in scheduled_appointments %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ appointment.time.strftime('%I:%M %p') }}</strong>
+                                        </td>
+                                        <td>
+                                            <div>
+                                                <strong>{{ appointment.patient.user.username }}</strong><br>
+                                                <small class="text-muted">{{ appointment.patient.phone if appointment.patient.phone else 'No phone' }}</small>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-success" 
+                                                    onclick="startAppointment({{ appointment.id }})">
+                                                <i class="fas fa-play"></i> Start
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-calendar-times fa-3x mb-3"></i>
+                            <p>No scheduled appointments for today</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- In Progress Appointments -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-warning text-white">
+                    <h5 class="mb-0"><i class="fas fa-user-md"></i> In Progress</h5>
+                </div>
+                <div class="card-body">
+                    {% if in_progress_appointments %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>Patient</th>
+                                        <th>Duration</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for appointment in in_progress_appointments %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ appointment.time.strftime('%I:%M %p') }}</strong>
+                                        </td>
+                                        <td>
+                                            <div>
+                                                <strong>{{ appointment.patient.user.username }}</strong><br>
+                                                <small class="text-muted">{{ appointment.patient.phone if appointment.patient.phone else 'No phone' }}</small>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-warning" id="duration-{{ appointment.id }}">
+                                                Calculating...
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-primary" 
+                                                    onclick="completeAppointment({{ appointment.id }})">
+                                                <i class="fas fa-check"></i> Complete
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-user-clock fa-3x mb-3"></i>
+                            <p>No appointments currently in progress</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Completed Appointments -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-check-circle"></i> Completed Appointments</h5>
+                </div>
+                <div class="card-body">
+                    {% if completed_appointments %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>Patient</th>
+                                        <th>Duration</th>
+                                        <th>Completed At</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for appointment in completed_appointments %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ appointment.time.strftime('%I:%M %p') }}</strong>
+                                        </td>
+                                        <td>
+                                            <div>
+                                                <strong>{{ appointment.patient.user.username }}</strong><br>
+                                                <small class="text-muted">{{ appointment.patient.phone if appointment.patient.phone else 'No phone' }}</small>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            {% if appointment.completed_at %}
+                                                <span class="badge bg-info">
+                                                    {{ get_duration(appointment.time, appointment.completed_at) }}
+                                                </span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">N/A</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if appointment.completed_at %}
+                                                {{ appointment.completed_at.strftime('%I:%M %p') }}
+                                            {% else %}
+                                                <span class="text-muted">N/A</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <button class="btn btn-outline-primary" 
+                                                        onclick="viewPatientHistory({{ appointment.patient.id }})">
+                                                    <i class="fas fa-history"></i> History
+                                                </button>
+                                                <button class="btn btn-outline-success" 
+                                                        onclick="addPrescription({{ appointment.id }})">
+                                                    <i class="fas fa-prescription"></i> Prescribe
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-calendar-check fa-3x mb-3"></i>
+                            <p>No completed appointments for today</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Quick Actions</h5>
+                    <div class="btn-group" role="group">
+                        <a href="{{ url_for('doctor.home') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-dashboard"></i> Dashboard
+                        </a>
+                        <a href="{{ url_for('doctor.patients') }}" class="btn btn-outline-info">
+                            <i class="fas fa-users"></i> All Patients
+                        </a>
+                        <a href="{{ url_for('doctor.prescriptions') }}" class="btn btn-outline-success">
+                            <i class="fas fa-prescription"></i> Prescriptions
+                        </a>
+                        <button class="btn btn-outline-warning" onclick="printSchedule()">
+                            <i class="fas fa-print"></i> Print Schedule
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Real-time clock update
+function updateClock() {
+    const now = new Date();
+    const timeString = now.toLocaleTimeString();
+    document.querySelectorAll('.badge.bg-primary').forEach(badge => {
+        if (badge.textContent.includes(':')) {
+            badge.textContent = timeString;
+        }
+    });
+}
+
+// Update duration for in-progress appointments
+function updateDurations() {
+    {% for appointment in in_progress_appointments %}
+    const startTime = new Date('{{ appointment.time.strftime("%Y-%m-%d %H:%M:%S") }}');
+    const now = new Date();
+    const duration = Math.floor((now - startTime) / (1000 * 60)); // minutes
+    const durationElement = document.getElementById('duration-{{ appointment.id }}');
+    if (durationElement) {
+        durationElement.textContent = duration + ' min';
+    }
+    {% endfor %}
+}
+
+// Auto-refresh functions
+function refreshPage() {
+    location.reload();
+}
+
+function startAppointment(appointmentId) {
+    if (confirm('Start this appointment?')) {
+        fetch(`/doctor/appointment/${appointmentId}/start`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Failed to start appointment: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while starting the appointment.');
+        });
+    }
+}
+
+function completeAppointment(appointmentId) {
+    if (confirm('Mark this appointment as completed?')) {
+        fetch(`/doctor/appointment/${appointmentId}/complete`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Failed to complete appointment: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while completing the appointment.');
+        });
+    }
+}
+
+function viewPatientHistory(patientId) {
+    window.open(`/doctor/patient/${patientId}/history`, '_blank');
+}
+
+function addPrescription(appointmentId) {
+    window.open(`/doctor/prescription/new?appointment=${appointmentId}`, '_blank');
+}
+
+function printSchedule() {
+    window.print();
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    updateClock();
+    updateDurations();
+    
+    // Update every minute
+    setInterval(updateClock, 60000);
+    setInterval(updateDurations, 60000);
+    
+    // Auto-refresh every 5 minutes
+    setTimeout(refreshPage, 300000);
+});
+</script>
+
+<style>
+@media print {
+    .btn, .card-header, .badge:not(.bg-info) {
+        -webkit-print-color-adjust: exact;
+        color-adjust: exact;
+    }
+    
+    .btn {
+        display: none;
+    }
+    
+    .card {
+        border: 1px solid #000 !important;
+        break-inside: avoid;
+    }
+}
+
+.table-responsive {
+    border-radius: 0.375rem;
+}
+
+.card-header {
+    border-radius: 0.375rem 0.375rem 0 0 !important;
+}
+
+.btn-group-sm > .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+}
+</style>
+{% endblock %}

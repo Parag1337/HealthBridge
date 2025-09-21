@@ -1,10 +1,58 @@
-from flask import Blueprint, request, render_template, redirect, url_for, flash
+from flask import Blueprint, request, render_template, redirect, url_for, flash, current_app
 from flask_login import login_user, logout_user, login_required, current_user
 from app import db
 from app.models.user import User
 from datetime import datetime
+import os
+from werkzeug.utils import secure_filename
+import uuid
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
+
+def save_profile_photo(file):
+    """Save uploaded profile photo and return filename"""
+    if file and file.filename:
+        # Check file extension
+        allowed_extensions = {'png', 'jpg', 'jpeg', 'gif'}
+        filename = secure_filename(file.filename)
+        if '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions:
+            # Generate unique filename
+            unique_filename = f"{uuid.uuid4()}_{filename}"
+            
+            # Create upload directory if it doesn't exist
+            upload_dir = os.path.join(current_app.root_path, 'static', 'uploads', 'profiles')
+            os.makedirs(upload_dir, exist_ok=True)
+            
+            # Save file
+            file_path = os.path.join(upload_dir, unique_filename)
+            file.save(file_path)
+            
+            return unique_filename
+    return None
+
+def allowed_file(filename):
+    """Check if file extension is allowed for uploads"""
+    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def save_profile_photo(file):
+    """Save uploaded profile photo and return filename"""
+    if file and allowed_file(file.filename):
+        # Generate unique filename
+        filename = secure_filename(file.filename)
+        name, ext = os.path.splitext(filename)
+        unique_filename = f"{uuid.uuid4().hex}{ext}"
+        
+        # Create upload directory if it doesn't exist
+        upload_dir = os.path.join(current_app.root_path, 'static', 'uploads', 'profiles')
+        os.makedirs(upload_dir, exist_ok=True)
+        
+        # Save file
+        file_path = os.path.join(upload_dir, unique_filename)
+        file.save(file_path)
+        
+        return unique_filename
+    return None
 
 @bp.route('/register', methods=['GET', 'POST'])
 def register():
@@ -95,7 +143,7 @@ def login():
         if user_type == 'patient':
             return redirect(url_for('patient.dashboard'))
         elif user_type == 'doctor':
-            return redirect(url_for('doctor.dashboard'))
+            return redirect(url_for('doctor.home'))
         else:
             return redirect(url_for('main.index'))
     else:
@@ -108,3 +156,83 @@ def logout():
     logout_user()
     flash('You have been logged out', 'info')
     return redirect(url_for('main.index'))
+
+@bp.route('/edit-profile', methods=['GET', 'POST'])
+@login_required
+def edit_profile():
+    if request.method == 'GET':
+        return render_template('auth/edit_profile.html', user=current_user)
+    
+    # Handle POST request for profile update
+    try:
+        # Update basic info
+        current_user.first_name = request.form.get('first_name')
+        current_user.last_name = request.form.get('last_name')
+        current_user.email = request.form.get('email')
+        current_user.phone = request.form.get('phone')
+        
+        # Update role-specific fields
+        if current_user.role == 'patient':
+            if request.form.get('date_of_birth'):
+                current_user.date_of_birth = datetime.strptime(request.form.get('date_of_birth'), '%Y-%m-%d').date()
+            current_user.gender = request.form.get('gender')
+            current_user.address = request.form.get('address')
+            current_user.emergency_contact = request.form.get('emergency_contact')
+            current_user.blood_type = request.form.get('blood_type')
+            current_user.allergies = request.form.get('allergies')
+            
+        elif current_user.role == 'doctor':
+            # Handle profile photo upload
+            profile_photo = request.files.get('profile_photo')
+            if profile_photo and profile_photo.filename:
+                new_filename = save_profile_photo(profile_photo)
+                if new_filename:
+                    # Delete old photo if exists
+                    if current_user.profile_photo:
+                        old_path = os.path.join(current_app.root_path, 'static', 'uploads', 'profiles', current_user.profile_photo)
+                        if os.path.exists(old_path):
+                            os.remove(old_path)
+                    current_user.profile_photo = new_filename
+                else:
+                    flash('Invalid file format. Please upload JPG, PNG, or GIF files only.', 'error')
+                    return render_template('auth/edit_profile.html', user=current_user)
+            
+            # Update doctor fields
+            current_user.specialization = request.form.get('specialization')
+            current_user.license_number = request.form.get('license_number')
+            current_user.qualification = request.form.get('qualification')
+            if request.form.get('experience'):
+                current_user.experience = int(request.form.get('experience'))
+            if request.form.get('consultation_fee'):
+                current_user.consultation_fee = float(request.form.get('consultation_fee'))
+            current_user.about = request.form.get('about')
+            current_user.address = request.form.get('address')
+        
+        # Handle password change if provided
+        new_password = request.form.get('new_password')
+        confirm_password = request.form.get('confirm_password')
+        
+        if new_password:
+            if new_password != confirm_password:
+                flash('New passwords do not match', 'error')
+                return render_template('auth/edit_profile.html', user=current_user)
+            
+            if len(new_password) < 6:
+                flash('Password must be at least 6 characters long', 'error')
+                return render_template('auth/edit_profile.html', user=current_user)
+            
+            current_user.set_password(new_password)
+        
+        db.session.commit()
+        flash('Profile updated successfully!', 'success')
+        
+        # Redirect based on user type
+        if current_user.role == 'doctor':
+            return redirect(url_for('doctor.home'))
+        else:
+            return redirect(url_for('patient.dashboard'))
+            
+    except Exception as e:
+        db.session.rollback()
+        flash('Failed to update profile. Please try again.', 'error')
+        return render_template('auth/edit_profile.html', user=current_user)

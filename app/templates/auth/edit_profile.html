@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Profile - HealthBridge Ai{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-user-edit"></i> Edit Profile</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        <div class="row">
+                            <!-- Basic Information -->
+                            <div class="col-md-12">
+                                <h5 class="text-primary mb-3"><i class="fas fa-user"></i> Basic Information</h5>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="first_name" class="form-label">First Name</label>
+                                <input type="text" class="form-control" id="first_name" name="first_name" 
+                                       value="{{ user.first_name }}" required>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="last_name" class="form-label">Last Name</label>
+                                <input type="text" class="form-control" id="last_name" name="last_name" 
+                                       value="{{ user.last_name }}" required>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" name="email" 
+                                       value="{{ user.email }}" required>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="phone" class="form-label">Phone</label>
+                                <input type="tel" class="form-control" id="phone" name="phone" 
+                                       value="{{ user.phone }}">
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Role-specific fields -->
+                        {% if user.role == 'patient' %}
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <h5 class="text-primary mb-3"><i class="fas fa-heartbeat"></i> Patient Information</h5>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="date_of_birth" class="form-label">Date of Birth</label>
+                                    <input type="date" class="form-control" id="date_of_birth" name="date_of_birth" 
+                                           value="{{ user.date_of_birth }}">
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="gender" class="form-label">Gender</label>
+                                    <select class="form-select" id="gender" name="gender">
+                                        <option value="">Select Gender</option>
+                                        <option value="male" {{ 'selected' if user.gender == 'male' }}>Male</option>
+                                        <option value="female" {{ 'selected' if user.gender == 'female' }}>Female</option>
+                                        <option value="other" {{ 'selected' if user.gender == 'other' }}>Other</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="blood_type" class="form-label">Blood Type</label>
+                                    <select class="form-select" id="blood_type" name="blood_type">
+                                        <option value="">Select Blood Type</option>
+                                        <option value="A+" {{ 'selected' if user.blood_type == 'A+' }}>A+</option>
+                                        <option value="A-" {{ 'selected' if user.blood_type == 'A-' }}>A-</option>
+                                        <option value="B+" {{ 'selected' if user.blood_type == 'B+' }}>B+</option>
+                                        <option value="B-" {{ 'selected' if user.blood_type == 'B-' }}>B-</option>
+                                        <option value="AB+" {{ 'selected' if user.blood_type == 'AB+' }}>AB+</option>
+                                        <option value="AB-" {{ 'selected' if user.blood_type == 'AB-' }}>AB-</option>
+                                        <option value="O+" {{ 'selected' if user.blood_type == 'O+' }}>O+</option>
+                                        <option value="O-" {{ 'selected' if user.blood_type == 'O-' }}>O-</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="emergency_contact" class="form-label">Emergency Contact</label>
+                                    <input type="tel" class="form-control" id="emergency_contact" name="emergency_contact" 
+                                           value="{{ user.emergency_contact }}">
+                                </div>
+                                
+                                <div class="col-md-12 mb-3">
+                                    <label for="allergies" class="form-label">Allergies</label>
+                                    <textarea class="form-control" id="allergies" name="allergies" rows="3" 
+                                              placeholder="List any allergies or medical conditions">{{ user.allergies }}</textarea>
+                                </div>
+                                
+                                <div class="col-md-12 mb-3">
+                                    <label for="address" class="form-label">Address</label>
+                                    <textarea class="form-control" id="address" name="address" rows="3" 
+                                              placeholder="Your full address">{{ user.address }}</textarea>
+                                </div>
+                            </div>
+                            
+                        {% elif user.role == 'doctor' %}
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <h5 class="text-primary mb-3"><i class="fas fa-user-md"></i> Doctor Information</h5>
+                                </div>
+                                
+                                <!-- Profile Photo Upload -->
+                                <div class="col-md-12 mb-4">
+                                    <label for="profile_photo" class="form-label">Profile Photo</label>
+                                    {% if user.profile_photo %}
+                                    <div class="mb-2">
+                                        <img src="{{ url_for('static', filename='uploads/profiles/' + user.profile_photo) }}" 
+                                             alt="Current profile photo" class="img-thumbnail" style="max-width: 150px; max-height: 150px;">
+                                        <p class="small text-muted mt-1">Current photo</p>
+                                    </div>
+                                    {% endif %}
+                                    <input type="file" class="form-control" id="profile_photo" name="profile_photo" 
+                                           accept="image/*">
+                                    <small class="form-text text-muted">Upload a professional photo (JPG, PNG, max 5MB)</small>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="specialization" class="form-label">Specialization</label>
+                                    <input type="text" class="form-control" id="specialization" name="specialization" 
+                                           value="{{ user.specialization }}" placeholder="e.g., Cardiologist">
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="license_number" class="form-label">License Number</label>
+                                    <input type="text" class="form-control" id="license_number" name="license_number" 
+                                           value="{{ user.license_number }}">
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="qualification" class="form-label">Qualification</label>
+                                    <input type="text" class="form-control" id="qualification" name="qualification" 
+                                           value="{{ user.qualification }}" placeholder="e.g., MBBS, MD">
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="experience" class="form-label">Experience (Years)</label>
+                                    <input type="number" class="form-control" id="experience" name="experience" 
+                                           value="{{ user.experience }}" min="0">
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="consultation_fee" class="form-label">Consultation Fee (₹)</label>
+                                    <input type="number" step="0.01" class="form-control" id="consultation_fee" name="consultation_fee" 
+                                           value="{{ user.consultation_fee }}" placeholder="0.00">
+                                </div>
+                                
+                                <div class="col-md-12 mb-3">
+                                    <label for="about" class="form-label">About / Bio</label>
+                                    <textarea class="form-control" id="about" name="about" rows="4" 
+                                              placeholder="Tell patients about yourself, your experience, and specialties...">{{ user.about }}</textarea>
+                                </div>
+                                
+                                <div class="col-md-12 mb-3">
+                                    <label for="address" class="form-label">Clinic/Hospital Address</label>
+                                    <textarea class="form-control" id="address" name="address" rows="3" 
+                                              placeholder="Your clinic or hospital address">{{ user.address }}</textarea>
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        <hr class="my-4">
+
+                        <!-- Password Change Section -->
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h5 class="text-primary mb-3"><i class="fas fa-lock"></i> Change Password</h5>
+                                <p class="text-muted small">Leave blank if you don't want to change your password</p>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="new_password" class="form-label">New Password</label>
+                                <input type="password" class="form-control" id="new_password" name="new_password" 
+                                       minlength="6">
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="confirm_password" class="form-label">Confirm New Password</label>
+                                <input type="password" class="form-control" id="confirm_password" name="confirm_password" 
+                                       minlength="6">
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Submit Button -->
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="d-flex justify-content-between">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> Update Profile
+                                    </button>
+                                    {% if user.role == 'doctor' %}
+                                        <a href="{{ url_for('doctor.home') }}" class="btn btn-secondary">
+                                            <i class="fas fa-times"></i> Cancel
+                                        </a>
+                                    {% else %}
+                                        <a href="{{ url_for('patient.dashboard') }}" class="btn btn-secondary">
+                                            <i class="fas fa-times"></i> Cancel
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Password confirmation validation
+document.getElementById('confirm_password').addEventListener('input', function() {
+    const password = document.getElementById('new_password').value;
+    const confirmPassword = this.value;
+    
+    if (password !== confirmPassword) {
+        this.setCustomValidity('Passwords do not match');
+    } else {
+        this.setCustomValidity('');
+    }
+});
+
+// New password validation
+document.getElementById('new_password').addEventListener('input', function() {
+    const confirmPassword = document.getElementById('confirm_password');
+    confirmPassword.dispatchEvent(new Event('input'));
+});
+</script>
+{% endblock %}

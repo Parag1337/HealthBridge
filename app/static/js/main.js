@@ -4,7 +4,7 @@
 function bookAppointment(doctorId, patientId, date, time) {
     // AJAX request to book an appointment
     $.ajax({
-        url: '/book_appointment',
+        url: '/find_doctors',
         method: 'POST',
         data: {
             doctor_id: doctorId,

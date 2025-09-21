@@ -1,0 +1,366 @@
+{% extends "base.html" %}
+
+{% block title %}Live Appointments - HealthBridge AI{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-clock text-primary"></i> Today's Appointments - Live Status</h2>
+                <div class="btn-group" role="group">
+                    <a href="{{ url_for('patient.appointments') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-calendar"></i> All Appointments
+                    </a>
+                    <button id="refreshBtn" class="btn btn-primary">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+            </div>
+
+            {% if appointments %}
+                <div class="row" id="appointmentsContainer">
+                    {% for appointment, doctor in appointments %}
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card appointment-card" data-appointment-id="{{ appointment.id }}">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <h5 class="card-title mb-0">
+                                        <i class="fas fa-user-md text-primary"></i>
+                                        Dr. {{ doctor.first_name }} {{ doctor.last_name }}
+                                    </h5>
+                                    <span class="badge status-badge" data-status="{{ appointment.status }}">
+                                        {{ appointment.status.title() }}
+                                    </span>
+                                </div>
+                                
+                                <div class="appointment-details">
+                                    <p class="mb-2">
+                                        <i class="fas fa-clock text-muted"></i>
+                                        <strong>Time:</strong> {{ appointment.time.strftime('%I:%M %p') }}
+                                    </p>
+                                    <p class="mb-2">
+                                        <i class="fas fa-stethoscope text-muted"></i>
+                                        <strong>Specialization:</strong> {{ doctor.specialization or 'General Medicine' }}
+                                    </p>
+                                    <p class="mb-3">
+                                        <i class="fas fa-clipboard text-muted"></i>
+                                        <strong>Reason:</strong> {{ appointment.reason }}
+                                    </p>
+                                </div>
+
+                                <!-- Status Timeline -->
+                                <div class="status-timeline mb-3">
+                                    <div class="timeline-item scheduled" data-status="scheduled">
+                                        <div class="timeline-point"></div>
+                                        <span>Scheduled</span>
+                                    </div>
+                                    <div class="timeline-item in-progress" data-status="in-progress">
+                                        <div class="timeline-point"></div>
+                                        <span>In Progress</span>
+                                    </div>
+                                    <div class="timeline-item completed" data-status="completed">
+                                        <div class="timeline-point"></div>
+                                        <span>Completed</span>
+                                    </div>
+                                </div>
+
+                                <!-- Doctor Contact & Location -->
+                                <div class="doctor-info">
+                                    {% if doctor.practice_phone %}
+                                    <p class="mb-2">
+                                        <i class="fas fa-phone text-success"></i>
+                                        <a href="tel:{{ doctor.practice_phone }}" class="text-decoration-none">
+                                            {{ doctor.practice_phone }}
+                                        </a>
+                                    </p>
+                                    {% endif %}
+                                    
+                                    {% if doctor.practice_address %}
+                                    <div class="location-info mb-2">
+                                        <i class="fas fa-map-marker-alt text-danger"></i>
+                                        <span class="practice-address">
+                                            {{ doctor.practice_address }}
+                                            {% if doctor.practice_city %}, {{ doctor.practice_city }}{% endif %}
+                                            {% if doctor.practice_state %}, {{ doctor.practice_state }}{% endif %}
+                                            {% if doctor.practice_zip_code %} {{ doctor.practice_zip_code }}{% endif %}
+                                        </span>
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Action Buttons -->
+                                <div class="appointment-actions mt-3">
+                                    {% if doctor.practice_latitude and doctor.practice_longitude %}
+                                    <button class="btn btn-sm btn-success navigate-btn" 
+                                            data-lat="{{ doctor.practice_latitude }}" 
+                                            data-lng="{{ doctor.practice_longitude }}"
+                                            data-address="{{ doctor.practice_address }}">
+                                        <i class="fas fa-directions"></i> Navigate
+                                    </button>
+                                    {% endif %}
+                                    
+                                    {% if doctor.practice_phone %}
+                                    <a href="tel:{{ doctor.practice_phone }}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-phone"></i> Call
+                                    </a>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Appointment Notes (shown when completed) -->
+                                <div class="appointment-notes mt-3" style="display: none;">
+                                    <h6><i class="fas fa-sticky-note"></i> Appointment Notes:</h6>
+                                    <div class="notes-content alert alert-info"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <div class="empty-state">
+                        <i class="fas fa-calendar-day fa-3x text-muted mb-3"></i>
+                        <h4 class="text-muted">No appointments scheduled for today</h4>
+                        <p class="text-muted">Check back tomorrow or schedule a new appointment.</p>
+                        <a href="{{ url_for('patient.find_doctors') }}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Book Appointment
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.appointment-card {
+    border: none;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.appointment-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+
+.status-badge {
+    font-size: 0.75rem;
+    padding: 0.5rem 0.75rem;
+}
+
+.status-badge[data-status="scheduled"] {
+    background-color: #ffc107;
+    color: #000;
+}
+
+.status-badge[data-status="in-progress"] {
+    background-color: #17a2b8;
+    color: #fff;
+    animation: pulse 2s infinite;
+}
+
+.status-badge[data-status="completed"] {
+    background-color: #28a745;
+    color: #fff;
+}
+
+.status-badge[data-status="cancelled"] {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+.status-timeline {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    margin: 1rem 0;
+    padding: 0 1rem;
+}
+
+.status-timeline::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 1rem;
+    right: 1rem;
+    height: 2px;
+    background-color: #e9ecef;
+    z-index: 1;
+}
+
+.timeline-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 2;
+}
+
+.timeline-point {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background-color: #e9ecef;
+    border: 2px solid #fff;
+    transition: all 0.3s;
+}
+
+.timeline-item span {
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+    color: #6c757d;
+}
+
+.timeline-item.active .timeline-point {
+    background-color: #007bff;
+}
+
+.timeline-item.completed .timeline-point {
+    background-color: #28a745;
+}
+
+.doctor-info {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.practice-address {
+    font-size: 0.9rem;
+    color: #495057;
+}
+
+.appointment-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.empty-state {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+</style>
+
+<script>
+let refreshInterval;
+
+document.addEventListener('DOMContentLoaded', function() {
+    updateAppointmentStatuses();
+    startAutoRefresh();
+    
+    // Refresh button
+    document.getElementById('refreshBtn').addEventListener('click', function() {
+        updateAppointmentStatuses();
+    });
+    
+    // Navigation buttons
+    document.querySelectorAll('.navigate-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const lat = this.dataset.lat;
+            const lng = this.dataset.lng;
+            const address = this.dataset.address;
+            
+            if (lat && lng) {
+                // Try Google Maps app first, fallback to web
+                const googleMapsApp = `comgooglemaps://?daddr=${lat},${lng}`;
+                const googleMapsWeb = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+                
+                // For mobile devices
+                if (/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                    window.open(googleMapsApp, '_blank');
+                    setTimeout(() => {
+                        window.open(googleMapsWeb, '_blank');
+                    }, 1000);
+                } else {
+                    window.open(googleMapsWeb, '_blank');
+                }
+            }
+        });
+    });
+});
+
+function updateAppointmentStatuses() {
+    const cards = document.querySelectorAll('.appointment-card');
+    
+    cards.forEach(card => {
+        const appointmentId = card.dataset.appointmentId;
+        fetchAppointmentStatus(appointmentId, card);
+    });
+}
+
+function fetchAppointmentStatus(appointmentId, card) {
+    fetch(`/patient/appointment/${appointmentId}/status`)
+        .then(response => response.json())
+        .then(data => {
+            updateAppointmentCard(card, data);
+        })
+        .catch(error => {
+            console.error('Error fetching appointment status:', error);
+        });
+}
+
+function updateAppointmentCard(card, data) {
+    const statusBadge = card.querySelector('.status-badge');
+    const timelineItems = card.querySelectorAll('.timeline-item');
+    const notesSection = card.querySelector('.appointment-notes');
+    
+    // Update status badge
+    statusBadge.textContent = data.status.charAt(0).toUpperCase() + data.status.slice(1);
+    statusBadge.dataset.status = data.status;
+    
+    // Update timeline
+    timelineItems.forEach(item => {
+        item.classList.remove('active', 'completed');
+        const itemStatus = item.dataset.status;
+        
+        if (itemStatus === data.status) {
+            item.classList.add('active');
+        } else if (isStatusPassed(itemStatus, data.status)) {
+            item.classList.add('completed');
+        }
+    });
+    
+    // Show notes if appointment is completed and has notes
+    if (data.status === 'completed' && data.notes) {
+        notesSection.style.display = 'block';
+        notesSection.querySelector('.notes-content').textContent = data.notes;
+    } else {
+        notesSection.style.display = 'none';
+    }
+}
+
+function isStatusPassed(itemStatus, currentStatus) {
+    const statusOrder = ['scheduled', 'in-progress', 'completed'];
+    const itemIndex = statusOrder.indexOf(itemStatus);
+    const currentIndex = statusOrder.indexOf(currentStatus);
+    
+    return itemIndex < currentIndex;
+}
+
+function startAutoRefresh() {
+    // Refresh every 30 seconds
+    refreshInterval = setInterval(updateAppointmentStatuses, 30000);
+}
+
+// Cleanup on page unload
+window.addEventListener('beforeunload', function() {
+    if (refreshInterval) {
+        clearInterval(refreshInterval);
+    }
+});
+</script>
+{% endblock %}

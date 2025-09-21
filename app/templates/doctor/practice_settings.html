@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Practice Settings - HealthBridge AI{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card bg-dark border-primary">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-clinic-medical"></i> Practice Information
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <label for="practice_address" class="form-label text-white">Practice Address</label>
+                                <textarea class="form-control" id="practice_address" name="practice_address" rows="2" 
+                                        placeholder="Enter your practice address">{{ current_user.practice_address or '' }}</textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="practice_city" class="form-label text-white">City</label>
+                                <input type="text" class="form-control" id="practice_city" name="practice_city" 
+                                       value="{{ current_user.practice_city or '' }}" placeholder="City">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="practice_state" class="form-label text-white">State</label>
+                                <input type="text" class="form-control" id="practice_state" name="practice_state" 
+                                       value="{{ current_user.practice_state or '' }}" placeholder="State">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="practice_zip_code" class="form-label text-white">ZIP Code</label>
+                                <input type="text" class="form-control" id="practice_zip_code" name="practice_zip_code" 
+                                       value="{{ current_user.practice_zip_code or '' }}" placeholder="ZIP">
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="practice_phone" class="form-label text-white">Practice Phone</label>
+                                <input type="tel" class="form-control" id="practice_phone" name="practice_phone" 
+                                       value="{{ current_user.practice_phone or '' }}" placeholder="(555) 123-4567">
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="practice_latitude" class="form-label text-white">Latitude (Optional)</label>
+                                <input type="number" step="0.000001" class="form-control" id="practice_latitude" name="practice_latitude" 
+                                       value="{{ current_user.practice_latitude or '' }}" placeholder="40.712776">
+                                <small class="text-muted">For precise navigation</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="practice_longitude" class="form-label text-white">Longitude (Optional)</label>
+                                <input type="number" step="0.000001" class="form-control" id="practice_longitude" name="practice_longitude" 
+                                       value="{{ current_user.practice_longitude or '' }}" placeholder="-74.005974">
+                                <small class="text-muted">For precise navigation</small>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>Note:</strong> This information will be shared with patients to help them locate your practice and navigate to appointments.
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('doctor.home') }}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Back to Dashboard
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save Practice Information
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

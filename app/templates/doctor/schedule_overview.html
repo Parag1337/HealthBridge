@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+
+{% block title %}Schedule Overview{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-calendar-alt"></i> Schedule Overview</h2>
+                <div>
+                    <a href="{{ url_for('doctor.schedule_settings') }}" class="btn btn-outline-primary me-2">
+                        <i class="fas fa-cog"></i> Schedule Settings
+                    </a>
+                    <a href="{{ url_for('doctor.availability_overrides') }}" class="btn btn-outline-warning">
+                        <i class="fas fa-calendar-times"></i> Availability Overrides
+                    </a>
+                </div>
+            </div>
+
+            <!-- Schedule Configuration Summary -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-cog"></i> Current Configuration</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if slot_config %}
+                                <div class="row">
+                                    <div class="col-6">
+                                        <p><strong>Slot Duration:</strong><br>{{ slot_config.slot_duration_minutes }} minutes</p>
+                                        <p><strong>Buffer Time:</strong><br>{{ slot_config.buffer_time_minutes }} minutes</p>
+                                        <p><strong>Max Patients/Day:</strong><br>{{ slot_config.max_patients_per_day }}</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p><strong>Advance Booking:</strong><br>{{ slot_config.advance_booking_days }} days</p>
+                                        <p><strong>Last Minute Cutoff:</strong><br>{{ slot_config.last_minute_booking_hours }} hours</p>
+                                        <p><strong>Auto Generate:</strong><br>
+                                            {% if slot_config.auto_generate_slots %}
+                                                <span class="badge bg-success">Enabled</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">Disabled</span>
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    No slot configuration found. Please set up your schedule settings first.
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-calendar-week"></i> Weekly Schedule</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if weekly_schedule %}
+                                {% set days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] %}
+                                {% for day_index in range(7) %}
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <strong>{{ days[day_index] }}:</strong>
+                                        {% if day_index in weekly_schedule %}
+                                            <span class="text-success">
+                                                {{ weekly_schedule[day_index].start_time.strftime('%I:%M %p') }} - 
+                                                {{ weekly_schedule[day_index].end_time.strftime('%I:%M %p') }}
+                                            </span>
+                                        {% else %}
+                                            <span class="text-muted">Day Off</span>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    No weekly schedule configured. Please set up your working hours.
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upcoming Overrides -->
+            {% if upcoming_overrides %}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5><i class="fas fa-calendar-times"></i> Upcoming Availability Overrides</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            {% for override in upcoming_overrides %}
+                                <div class="col-md-6 mb-3">
+                                    <div class="border rounded p-3">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <h6>{{ override.date.strftime('%B %d, %Y') }}</h6>
+                                                <p class="text-muted mb-1">{{ override.date.strftime('%A') }}</p>
+                                                {% if override.override_type == 'unavailable' %}
+                                                    <span class="badge bg-danger">Unavailable</span>
+                                                {% elif override.override_type == 'custom_hours' %}
+                                                    <span class="badge bg-warning text-dark">Custom Hours</span>
+                                                    {% if override.start_time and override.end_time %}
+                                                        <small class="d-block text-muted">
+                                                            {{ override.start_time.strftime('%I:%M %p') }} - {{ override.end_time.strftime('%I:%M %p') }}
+                                                        </small>
+                                                    {% endif %}
+                                                {% elif override.override_type == 'closed' %}
+                                                    <span class="badge bg-secondary">Closed</span>
+                                                {% endif %}
+                                                {% if override.reason %}
+                                                    <small class="d-block text-muted mt-1">{{ override.reason }}</small>
+                                                {% endif %}
+                                            </div>
+                                            {% if override.date == get_date().today() %}
+                                                <span class="badge bg-warning text-dark">Today</span>
+                                            {% elif override.date == get_date().today() + get_timedelta()(days=1) %}
+                                                <span class="badge bg-info">Tomorrow</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Upcoming Appointments -->
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-calendar-check"></i> Upcoming Appointments (Next 7 Days)</h5>
+                </div>
+                <div class="card-body">
+                    {% if appointments_by_date %}
+                        {% for appointment_date, appointments in appointments_by_date.items() %}
+                            <div class="mb-4">
+                                <h6 class="border-bottom pb-2">
+                                    {{ appointment_date.strftime('%B %d, %Y') }} - {{ appointment_date.strftime('%A') }}
+                                    {% if appointment_date == get_date().today() %}
+                                        <span class="badge bg-warning text-dark ms-2">Today</span>
+                                    {% elif appointment_date == get_date().today() + get_timedelta()(days=1) %}
+                                        <span class="badge bg-info ms-2">Tomorrow</span>
+                                    {% endif %}
+                                    <span class="badge bg-primary ms-2">{{ appointments|length }} appointment{{ 's' if appointments|length != 1 else '' }}</span>
+                                </h6>
+                                
+                                <div class="row">
+                                    {% for appointment in appointments %}
+                                        <div class="col-md-6 mb-2">
+                                            <div class="border-start border-3 border-primary ps-3">
+                                                <div class="d-flex justify-content-between align-items-start">
+                                                    <div>
+                                                        <strong>{{ appointment.time.strftime('%I:%M %p') }}</strong>
+                                                        <p class="mb-1">{{ appointment.patient.first_name }} {{ appointment.patient.last_name }}</p>
+                                                        <small class="text-muted">{{ appointment.reason if appointment.reason else 'General consultation' }}</small>
+                                                    </div>
+                                                    <div>
+                                                        {% if appointment.status == 'scheduled' %}
+                                                            <span class="badge bg-primary">Scheduled</span>
+                                                        {% elif appointment.status == 'in-progress' %}
+                                                            <span class="badge bg-warning text-dark">In Progress</span>
+                                                        {% elif appointment.status == 'completed' %}
+                                                            <span class="badge bg-success">Completed</span>
+                                                        {% elif appointment.status == 'cancelled' %}
+                                                            <span class="badge bg-danger">Cancelled</span>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-calendar-check fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No Upcoming Appointments</h5>
+                            <p class="text-muted">You don't have any scheduled appointments for the next 7 days.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <a href="{{ url_for('doctor.home') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card-header h5 {
+    margin: 0;
+    color: #495057;
+}
+
+.border-start {
+    border-left-width: 3px !important;
+}
+
+.badge {
+    font-size: 0.75em;
+}
+</style>
+{% endblock %}

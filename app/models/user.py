@@ -22,12 +22,28 @@ class User(UserMixin, db.Model):
     address = db.Column(db.Text, nullable=True)
     emergency_contact = db.Column(db.String(100), nullable=True)
     emergency_contact_phone = db.Column(db.String(15), nullable=True)
+    blood_type = db.Column(db.String(5), nullable=True)
+    allergies = db.Column(db.Text, nullable=True)
     
     # Additional fields for doctors
     specialization = db.Column(db.String(100), nullable=True)
     license_number = db.Column(db.String(50), nullable=True)
     qualification = db.Column(db.String(100), nullable=True)
     experience = db.Column(db.Integer, nullable=True)
+    consultation_fee = db.Column(db.Float, nullable=True, default=0.0)
+    profile_photo = db.Column(db.String(255), nullable=True)  # Store photo filename
+    rating = db.Column(db.Float, nullable=True, default=0.0)
+    total_patients = db.Column(db.Integer, nullable=True, default=0)
+    about = db.Column(db.Text, nullable=True)  # Doctor's bio/description
+    
+    # Doctor practice location fields
+    practice_address = db.Column(db.Text, nullable=True)
+    practice_city = db.Column(db.String(100), nullable=True)
+    practice_state = db.Column(db.String(50), nullable=True)
+    practice_zip_code = db.Column(db.String(20), nullable=True)
+    practice_latitude = db.Column(db.Float, nullable=True)
+    practice_longitude = db.Column(db.Float, nullable=True)
+    practice_phone = db.Column(db.String(15), nullable=True)
     
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)

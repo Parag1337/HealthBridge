@@ -1,0 +1,347 @@
+{% extends "base.html" %}
+
+{% block title %}Find Doctors - HealthBridge AI{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="text-primary mb-1">
+                        <i class="fas fa-user-md"></i> Best Doctors in Your City
+                    </h2>
+                    <p class="text-muted mb-0">({{ doctors|length }} doctors available)</p>
+                </div>
+                <div class="dropdown">
+                    <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-sort"></i> Sort by Relevance
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="?sort=relevance">Relevance</a></li>
+                        <li><a class="dropdown-item" href="?sort=rating">Highest Rating</a></li>
+                        <li><a class="dropdown-item" href="?sort=experience">Most Experienced</a></li>
+                        <li><a class="dropdown-item" href="?sort=fee">Lowest Fee</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filter Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <form method="GET" class="row g-3">
+                        <div class="col-md-4">
+                            <label for="specialization" class="form-label">Specialization</label>
+                            <select class="form-select" id="specialization" name="specialization">
+                                <option value="">All Specializations</option>
+                                <option value="Cardiologist" {{ 'selected' if request.args.get('specialization') == 'Cardiologist' }}>Cardiologist</option>
+                                <option value="Dermatologist" {{ 'selected' if request.args.get('specialization') == 'Dermatologist' }}>Dermatologist</option>
+                                <option value="Neurologist" {{ 'selected' if request.args.get('specialization') == 'Neurologist' }}>Neurologist</option>
+                                <option value="Orthopedic" {{ 'selected' if request.args.get('specialization') == 'Orthopedic' }}>Orthopedic</option>
+                                <option value="Gynecologist" {{ 'selected' if request.args.get('specialization') == 'Gynecologist' }}>Gynecologist</option>
+                                <option value="Pediatrician" {{ 'selected' if request.args.get('specialization') == 'Pediatrician' }}>Pediatrician</option>
+                                <option value="General Medicine" {{ 'selected' if request.args.get('specialization') == 'General Medicine' }}>General Medicine</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="min_fee" class="form-label">Min Fee (₹)</label>
+                            <input type="number" class="form-control" id="min_fee" name="min_fee" 
+                                   value="{{ request.args.get('min_fee', '') }}" placeholder="0">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="max_fee" class="form-label">Max Fee (₹)</label>
+                            <input type="number" class="form-control" id="max_fee" name="max_fee" 
+                                   value="{{ request.args.get('max_fee', '') }}" placeholder="5000">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">&nbsp;</label>
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-search"></i> Filter
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Doctors List -->
+    <div class="row">
+        {% for doctor in doctors %}
+        <div class="col-12 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Doctor Photo and Basic Info -->
+                        <div class="col-md-2 text-center">
+                            <div class="position-relative">
+                                {% if doctor.profile_photo %}
+                                    <img src="{{ url_for('static', filename='uploads/profiles/' + doctor.profile_photo) }}" 
+                                         alt="Dr. {{ doctor.first_name }} {{ doctor.last_name }}" 
+                                         class="rounded-circle img-fluid border border-primary" 
+                                         style="width: 100px; height: 100px; object-fit: cover;">
+                                {% else %}
+                                    <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center text-white" 
+                                         style="width: 100px; height: 100px; margin: 0 auto;">
+                                        <i class="fas fa-user-md fa-2x"></i>
+                                    </div>
+                                {% endif %}
+                                <!-- Apollo/Clinic Badge (if applicable) -->
+                                {% if doctor.practice_address %}
+                                <div class="position-absolute bottom-0 end-0">
+                                    <span class="badge bg-success rounded-pill">
+                                        <i class="fas fa-hospital"></i>
+                                    </span>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Doctor Details -->
+                        <div class="col-md-6">
+                            <div class="mb-2">
+                                <h5 class="text-primary mb-1">
+                                    Dr {{ doctor.first_name }} {{ doctor.last_name }}
+                                    {% if doctor.rating >= 4.5 %}
+                                    <i class="fas fa-crown text-warning" title="Top Rated Doctor"></i>
+                                    {% endif %}
+                                </h5>
+                                <p class="text-muted mb-1">{{ doctor.specialization or 'General Medicine' }}</p>
+                                <div class="mb-2">
+                                    <span class="text-primary fw-bold">
+                                        {{ doctor.experience or 0 }} YEARS
+                                    </span>
+                                    <span class="text-muted">• {{ doctor.qualification or 'MBBS' }}</span>
+                                </div>
+                                
+                                <!-- Rating -->
+                                <div class="mb-2">
+                                    <div class="d-flex align-items-center">
+                                        <span class="badge bg-success me-2">
+                                            <i class="fas fa-thumbs-up"></i> 
+                                            {{ (doctor.rating * 20)|round|int }}%
+                                        </span>
+                                        <small class="text-muted">({{ doctor.total_patients or 0 }}+ Patients)</small>
+                                    </div>
+                                </div>
+                                
+                                <!-- Location -->
+                                {% if doctor.practice_address %}
+                                <div class="mb-2">
+                                    <small class="text-muted">
+                                        <i class="fas fa-map-marker-alt"></i> 
+                                        {{ doctor.practice_address[:50] }}{% if doctor.practice_address|length > 50 %}...{% endif %}
+                                    </small>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Booking Info -->
+                        <div class="col-md-4 text-end">
+                            <div class="mb-3">
+                                <h4 class="text-success fw-bold mb-1">₹{{ doctor.consultation_fee or 500 }}</h4>
+                                <span class="badge bg-warning text-dark">No Booking Fees</span>
+                            </div>
+                            
+                            <!-- Available Today -->
+                            <div class="mb-3">
+                                <small class="text-success">
+                                    <i class="fas fa-check-circle"></i> Available Today
+                                </small>
+                            </div>
+                            
+                            <!-- Action Button -->
+                            <div class="d-grid">
+                                <button class="btn btn-primary btn-lg" 
+                                        onclick="bookAppointment('{{ doctor.id }}', '{{ doctor.first_name }} {{ doctor.last_name }}')">
+                                    <i class="fas fa-calendar-plus"></i> Book Appointment
+                                </button>
+                            </div>
+                            
+                            <!-- View Profile Link -->
+                            <div class="mt-2">
+                                <a href="#" class="text-muted small text-decoration-none" 
+                                   onclick="viewDoctorProfile('{{ doctor.id }}')">
+                                    <i class="fas fa-eye"></i> View Profile
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- About Section (if available) -->
+                    {% if doctor.about %}
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="bg-light p-3 rounded">
+                                <small class="text-muted">
+                                    <strong>About:</strong> {{ doctor.about[:200] }}{% if doctor.about|length > 200 %}...{% endif %}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12">
+            <div class="text-center py-5">
+                <i class="fas fa-user-md fa-4x text-muted mb-3"></i>
+                <h4 class="text-muted">No doctors found</h4>
+                <p class="text-muted">Try adjusting your search criteria</p>
+                <a href="{{ url_for('patient.find_doctors') }}" class="btn btn-primary">
+                    <i class="fas fa-refresh"></i> Clear Filters
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Pagination (if needed) -->
+    {% if doctors|length > 10 %}
+    <div class="row mt-4">
+        <div class="col-12 d-flex justify-content-center">
+            <nav aria-label="Doctors pagination">
+                <ul class="pagination">
+                    <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Doctor Profile Modal -->
+<div class="modal fade" id="doctorProfileModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Doctor Profile</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="doctorProfileContent">
+                <!-- Content will be loaded dynamically -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Booking Confirmation Modal -->
+<div class="modal fade" id="bookingModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-calendar-plus"></i> Book Smart Appointment
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="bookingForm" method="POST" action="{{ url_for('patient.find_doctors') }}">
+                    <input type="hidden" id="selected_doctor_id" name="doctor_id">
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Selected Doctor</label>
+                        <p id="selected_doctor_name" class="fw-bold text-primary"></p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="appointment_date" class="form-label">Appointment Date</label>
+                        <input type="date" class="form-control" id="appointment_date" name="appointment_date" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="appointment_time" class="form-label">Preferred Time</label>
+                        <select class="form-select" id="appointment_time" name="appointment_time" required>
+                            <option value="">Select time...</option>
+                            <option value="09:00">9:00 AM</option>
+                            <option value="10:00">10:00 AM</option>
+                            <option value="11:00">11:00 AM</option>
+                            <option value="12:00">12:00 PM</option>
+                            <option value="14:00">2:00 PM</option>
+                            <option value="15:00">3:00 PM</option>
+                            <option value="16:00">4:00 PM</option>
+                            <option value="17:00">5:00 PM</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="appointment_type" class="form-label">Appointment Type</label>
+                        <select class="form-select" id="appointment_type" name="appointment_type" required>
+                            <option value="in-person">In-Person Visit</option>
+                            <option value="online">Online Consultation</option>
+                        </select>
+                        <div class="form-text">
+                            <i class="fas fa-info-circle"></i> 
+                            Online consultations are conducted via video call. In-person visits are at the doctor's clinic.
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="reason" class="form-label">Reason for Visit</label>
+                        <textarea class="form-control" id="reason" name="reason" rows="3" 
+                                  placeholder="Briefly describe your symptoms or reason for consultation"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" form="bookingForm" class="btn btn-primary">
+                    <i class="fas fa-calendar-check"></i> Confirm Booking
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Set minimum date to today
+document.addEventListener('DOMContentLoaded', function() {
+    const dateInput = document.getElementById('appointment_date');
+    if (dateInput) {
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.min = today;
+    }
+});
+
+function bookAppointment(doctorId, doctorName) {
+    document.getElementById('selected_doctor_id').value = doctorId;
+    document.getElementById('selected_doctor_name').textContent = 'Dr. ' + doctorName;
+    
+    const bookingModal = new bootstrap.Modal(document.getElementById('bookingModal'));
+    bookingModal.show();
+}
+
+function viewDoctorProfile(doctorId) {
+    // TODO: Load doctor profile via AJAX
+    const profileModal = new bootstrap.Modal(document.getElementById('doctorProfileModal'));
+    document.getElementById('doctorProfileContent').innerHTML = `
+        <div class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Loading doctor profile...</p>
+        </div>
+    `;
+    profileModal.show();
+    
+    // Simulate loading profile data
+    setTimeout(() => {
+        document.getElementById('doctorProfileContent').innerHTML = `
+            <p>Detailed doctor profile will be implemented here.</p>
+            <p>Doctor ID: ${doctorId}</p>
+        `;
+    }, 1500);
+}
+</script>
+{% endblock %}
