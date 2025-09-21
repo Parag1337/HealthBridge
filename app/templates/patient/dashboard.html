@@ -1,61 +1,339 @@
 {% extends "base.html" %}
 
-{% block title %}Patient Dashboard - HealthBridge Ai{% endblock %}
+{% block title %}Patient Dashboard - HealthBridge{% endblock %}
 
 {% block content %}
-<div class="container-fluid mt-4">
-    <!-- Header with Quick Actions -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center flex-wrap">
-                <div>
-                    <h2 class="text-primary mb-1">
-                        <i class="fas fa-heartbeat"></i> Welcome back, {{ current_user.first_name }}!
-                    </h2>
-                    <p class="text-muted mb-0">Your health journey starts here</p>
-                </div>
-                <div class="d-flex flex-wrap gap-2">
-                    <a href="{{ url_for('patient.find_doctors') }}" class="btn btn-primary">
-                        <i class="fas fa-search"></i> Find Doctors
-                    </a>
-                    <a href="{{ url_for('patient.appointments') }}" class="btn btn-outline-primary">
-                        <i class="fas fa-calendar-alt"></i> My Appointments
-                    </a>
-                    <div class="text-end ms-3">
-                        <div id="currentTime" class="h6 text-primary mb-0"></div>
-                        <small class="text-muted" id="currentDate"></small>
+<!-- Welcome Header Section -->
+<div class="section">
+    <div class="row align-items-center">
+        <div class="col-lg-8">
+            <div class="mb-4">
+                <h1 class="display-6 fw-bold text-primary mb-2">
+                    <i class="fas fa-hand-wave me-3"></i>Welcome back, {{ current_user.first_name }}!
+                </h1>
+                <p class="lead text-secondary mb-0">Your health journey starts here. Stay on top of your appointments and health records.</p>
+            </div>
+        </div>
+        <div class="col-lg-4 text-lg-end">
+            <div class="bg-white rounded-xl shadow-sm p-4 border">
+                <div class="d-flex align-items-center justify-content-lg-end">
+                    <div class="me-3">
+                        <i class="fas fa-clock text-primary fa-2x"></i>
+                    </div>
+                    <div>
+                        <div id="currentTime" class="h5 text-primary mb-1 fw-bold"></div>
+                        <div id="currentDate" class="text-muted small"></div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="section">
+    <div class="bg-white rounded-xl shadow-sm p-4 border">
+        <h5 class="fw-bold text-gray-900 mb-4">
+            <i class="fas fa-bolt text-warning me-2"></i>Quick Actions
+        </h5>
+        <div class="row g-3">
+            <div class="col-md-3 col-sm-6">
+                <a href="{{ url_for('patient.book_appointment') }}" class="btn btn-primary btn-lg w-100 h-100 d-flex flex-column align-items-center justify-content-center p-4 text-decoration-none">
+                    <i class="fas fa-calendar-plus fa-2x mb-3"></i>
+                    <span class="fw-semibold">Book Appointment</span>
+                </a>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <a href="{{ url_for('telemedicine.book_online_appointment') }}" class="btn btn-success btn-lg w-100 h-100 d-flex flex-column align-items-center justify-content-center p-4 text-decoration-none">
+                    <i class="fas fa-video fa-2x mb-3"></i>
+                    <span class="fw-semibold">Video Consultation</span>
+                </a>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <a href="{{ url_for('patient.health_records') }}" class="btn btn-info btn-lg w-100 h-100 d-flex flex-column align-items-center justify-content-center p-4 text-decoration-none">
+                    <i class="fas fa-notes-medical fa-2x mb-3"></i>
+                    <span class="fw-semibold">Health Records</span>
+                </a>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <a href="{{ url_for('patient.reminders') }}" class="btn btn-warning btn-lg w-100 h-100 d-flex flex-column align-items-center justify-content-center p-4 text-decoration-none">
+                    <i class="fas fa-bell fa-2x mb-3"></i>
+                    <span class="fw-semibold">Reminders</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Health Stats Overview -->
+<div class="section">
+    <div class="row g-4">
+        <div class="col-lg-3 col-md-6">
+            <div class="stats-card">
+                <div class="stats-card-icon bg-primary text-white">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <div class="stats-card-value">{{ total_appointments or 0 }}</div>
+                <div class="stats-card-label">Total Appointments</div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="stats-card">
+                <div class="stats-card-icon bg-success text-white">
+                    <i class="fas fa-prescription-bottle"></i>
+                </div>
+                <div class="stats-card-value">{{ total_prescriptions or 0 }}</div>
+                <div class="stats-card-label">Prescriptions</div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="stats-card">
+                <div class="stats-card-icon bg-warning text-white">
+                    <i class="fas fa-pills"></i>
+                </div>
+                <div class="stats-card-value">{{ active_prescriptions or 0 }}</div>
+                <div class="stats-card-label">Active Medications</div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="stats-card">
+                <div class="stats-card-icon bg-info text-white">
+                    <i class="fas fa-user-md"></i>
+                </div>
+                <div class="stats-card-value">{{ unique_doctors or 0 }}</div>
+                <div class="stats-card-label">Doctors Consulted</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Next Appointment Alert -->
+{% if next_appointment %}
+<div class="section">
+    <div class="alert alert-info border-0 shadow-sm rounded-xl p-4">
+        <div class="row align-items-center">
+            <div class="col-auto">
+                <div class="bg-primary bg-opacity-10 rounded-circle p-3">
+                    <i class="fas fa-calendar-check fa-2x text-primary"></i>
+                </div>
+            </div>
+            <div class="col">
+                <h5 class="alert-heading mb-2 fw-bold">Your Next Appointment</h5>
+                <p class="mb-2">
+                    <strong>Dr. {{ next_appointment.doctor.first_name }} {{ next_appointment.doctor.last_name }}</strong> 
+                    on {{ next_appointment.date.strftime('%B %d, %Y') }} at {{ next_appointment.time.strftime('%I:%M %p') }}
+                </p>
+                <small class="text-muted">{{ next_appointment.reason or 'General consultation' }}</small>
+            </div>
+            <div class="col-auto">
+                <a href="{{ url_for('patient.appointments') }}" class="btn btn-primary">
+                    <i class="fas fa-eye me-2"></i>View Details
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Main Content Grid -->
+<div class="section">
+    <div class="row g-4">
+        <!-- Left Column - Appointments -->
+        <div class="col-lg-8">
+            <!-- Upcoming Appointments -->
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold mb-0">
+                        <i class="fas fa-calendar-alt text-primary me-2"></i>Upcoming Appointments
+                    </h5>
+                    <a href="{{ url_for('patient.appointments') }}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-arrow-right me-1"></i>View All
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if appointments %}
+                        <div class="list-group list-group-flush">
+                            {% for appointment in appointments[:3] %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 py-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-primary bg-opacity-10 rounded-circle p-2 me-3">
+                                        <i class="fas fa-user-md text-primary"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1 fw-semibold">Dr. {{ appointment.doctor.first_name }} {{ appointment.doctor.last_name }}</h6>
+                                        <div class="d-flex align-items-center text-muted">
+                                            <i class="fas fa-calendar me-1"></i>
+                                            <small>{{ appointment.date.strftime('%b %d, %Y') }} at {{ appointment.time.strftime('%I:%M %p') }}</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge 
+                                        {% if appointment.status == 'scheduled' %}bg-primary
+                                        {% elif appointment.status == 'confirmed' %}bg-success
+                                        {% elif appointment.status == 'in-progress' %}bg-warning
+                                        {% else %}bg-secondary{% endif %} rounded-pill">
+                                        {{ appointment.status.title() }}
+                                    </span>
+                                    {% if appointment.appointment_type == 'online' or appointment.appointment_type == 'telemedicine' %}
+                                    <div class="mt-1">
+                                        <small class="text-info">
+                                            <i class="fas fa-video me-1"></i>Online
+                                        </small>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                            <h6 class="text-muted">No upcoming appointments</h6>
+                            <p class="text-muted small mb-3">Schedule your next appointment to stay on top of your health</p>
+                            <a href="{{ url_for('patient.book_appointment') }}" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Book Your First Appointment
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Health Summary & Prescriptions -->
+        <div class="col-lg-4">
+            <!-- Health Summary Card -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="fw-bold mb-0">
+                        <i class="fas fa-heartbeat text-danger me-2"></i>Health Summary
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <div class="bg-light rounded-lg p-3">
+                                <h6 class="text-primary mb-3 fw-semibold">
+                                    <i class="fas fa-thermometer-half me-2"></i>Vital Signs
+                                </h6>
+                                <div class="row text-center">
+                                    <div class="col-6">
+                                        <div class="border-end">
+                                            <div class="fw-bold text-primary">120/80</div>
+                                            <small class="text-muted">Blood Pressure</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="fw-bold text-success">72 bpm</div>
+                                        <small class="text-muted">Heart Rate</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="bg-light rounded-lg p-3">
+                                <h6 class="text-success mb-3 fw-semibold">
+                                    <i class="fas fa-weight me-2"></i>Physical Metrics
+                                </h6>
+                                <div class="row text-center">
+                                    <div class="col-4">
+                                        <div class="fw-bold text-primary">70 kg</div>
+                                        <small class="text-muted">Weight</small>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="border-start border-end">
+                                            <div class="fw-bold text-primary">175 cm</div>
+                                            <small class="text-muted">Height</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="fw-bold text-success">22.9</div>
+                                        <small class="text-muted">BMI</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Prescriptions -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold mb-0">
+                        <i class="fas fa-pills text-warning me-2"></i>Recent Prescriptions
+                    </h5>
+                    <a href="{{ url_for('patient.prescriptions') }}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-arrow-right me-1"></i>View All
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if prescriptions %}
+                        {% for prescription in prescriptions[:3] %}
+                        <div class="d-flex justify-content-between align-items-center {% if not loop.last %}border-bottom pb-3 mb-3{% endif %}">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-warning bg-opacity-10 rounded-circle p-2 me-3">
+                                    <i class="fas fa-prescription-bottle text-warning"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-1 fw-semibold">{{ prescription.medicine_name }}</h6>
+                                    <small class="text-muted">{{ prescription.dosage }} - {{ prescription.frequency }}</small>
+                                </div>
+                            </div>
+                            <span class="badge bg-success rounded-pill">Active</span>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-prescription-bottle fa-2x text-muted mb-3"></i>
+                            <p class="text-muted small mb-0">No recent prescriptions</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
     </div>
 
     <!-- Next Appointment Alert -->
     {% if next_appointment %}
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="alert alert-info border-0 shadow-sm">
-                <div class="d-flex align-items-center">
-                    <i class="fas fa-calendar-check fa-2x text-info me-3"></i>
-                    <div class="flex-grow-1">
-                        <h5 class="alert-heading mb-1">Your Next Appointment</h5>
-                        <p class="mb-1">
-                            <strong>Dr. {{ next_appointment.doctor.first_name }} {{ next_appointment.doctor.last_name }}</strong>
-                            - {{ next_appointment.doctor.specialization or 'General Practice' }}
-                        </p>
-                        <p class="mb-0">
-                            <i class="fas fa-calendar"></i> {{ next_appointment.date.strftime('%A, %B %d, %Y') }} at 
-                            <i class="fas fa-clock"></i> {{ next_appointment.time.strftime('%I:%M %p') }}
-                            <span class="badge bg-info ms-2">{{ next_appointment.appointment_type.title() }}</span>
-                        </p>
-                    </div>
-                    <div>
-                        <a href="{{ url_for('patient.appointments') }}" class="btn btn-info">View Details</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- JavaScript for enhanced functionality -->
+<script>
+// Real-time clock and date update
+function updateDateTime() {
+    const now = new Date();
+    const timeOptions = { 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        second: '2-digit',
+        hour12: true 
+    };
+    const dateOptions = { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+    };
+    
+    const timeElement = document.getElementById('currentTime');
+    const dateElement = document.getElementById('currentDate');
+    
+    if (timeElement) {
+        timeElement.textContent = now.toLocaleTimeString('en-US', timeOptions);
+    }
+    
+    if (dateElement) {
+        dateElement.textContent = now.toLocaleDateString('en-US', dateOptions);
+    }
+}
+
+// Initialize and update time
+document.addEventListener('DOMContentLoaded', function() {
+    updateDateTime();
+    setInterval(updateDateTime, 1000);
+});
+</script>
     {% endif %}
 
     <!-- Enhanced Quick Stats -->
@@ -124,7 +402,7 @@
                                 <i class="fas fa-search-location fa-2x text-primary mb-2"></i>
                                 <h6>Find Doctors</h6>
                                 <p class="text-muted small">Search specialists and book appointments</p>
-                                <a href="{{ url_for('patient.find_doctors') }}" class="btn btn-primary btn-sm">
+                                <a href="{{ url_for('patient.doctors') }}" class="btn btn-primary btn-sm">
                                     <i class="fas fa-search"></i> Search Now
                                 </a>
                             </div>
@@ -134,7 +412,7 @@
                                 <i class="fas fa-video fa-2x text-success mb-2"></i>
                                 <h6>Telemedicine</h6>
                                 <p class="text-muted small">Online consultations from home</p>
-                                <a href="{{ url_for('patient.find_doctors') }}?type=online" class="btn btn-success btn-sm">
+                                <a href="{{ url_for('patient.doctors') }}?type=online" class="btn btn-success btn-sm">
                                     <i class="fas fa-video"></i> Join Online
                                 </a>
                             </div>
@@ -239,7 +517,7 @@
                         <div class="text-center py-4">
                             <i class="fas fa-calendar-plus fa-3x text-muted mb-3"></i>
                             <p class="text-muted">No upcoming appointments scheduled</p>
-                            <a href="{{ url_for('patient.find_doctors') }}" class="btn btn-primary">
+                            <a href="{{ url_for('patient.doctors') }}" class="btn btn-primary">
                                 <i class="fas fa-plus"></i> Book Your First Appointment
                             </a>
                         </div>
@@ -367,9 +645,7 @@
                         <a href="#" class="btn btn-outline-success">
                             <i class="fas fa-cog"></i> Settings
                         </a>
-                            </div>
-</div>
-{% endblock %}
+            {% endblock %}
 
 {% block extra_js %}
 <script>

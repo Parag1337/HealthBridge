@@ -901,3 +901,176 @@ def schedule_overview():
                          weekly_schedule=weekly_schedule,
                          upcoming_overrides=upcoming_overrides,
                          appointments_by_date=appointments_by_date)
+
+
+@bp.route('/telemedicine-requests')
+@login_required
+def telemedicine_requests():
+    """View pending telemedicine requests"""
+    if current_user.role != 'doctor':
+        flash('Access denied. Doctors only.', 'error')
+        return redirect(url_for('main.index'))
+    
+    # Get pending telemedicine appointments
+    pending_requests = Appointment.query.filter_by(
+        doctor_id=current_user.id,
+        appointment_type='telemedicine',
+        status='pending'
+    ).order_by(Appointment.date.asc(), Appointment.time.asc()).all()
+    
+    return render_template('doctor/telemedicine_requests.html',
+                         requests=pending_requests)
+
+
+@bp.route('/confirm-telemedicine/<int:appointment_id>', methods=['POST'])
+@login_required
+def confirm_telemedicine(appointment_id):
+    """Confirm telemedicine appointment and generate meeting link"""
+    if current_user.role != 'doctor':
+        return jsonify({'success': False, 'message': 'Access denied'}), 403
+    
+    try:
+        appointment = Appointment.query.filter_by(
+            id=appointment_id,
+            doctor_id=current_user.id,
+            appointment_type='telemedicine',
+            status='pending'
+        ).first()
+        
+        if not appointment:
+            return jsonify({'success': False, 'message': 'Appointment not found'}), 404
+        
+        data = request.get_json()
+        platform = data.get('platform', appointment.telemedicine_platform)
+        meeting_link = data.get('meeting_link', '')
+        
+        if not meeting_link:
+            # Generate meeting link based on platform
+            if platform == 'zoom':
+                meeting_link = f"https://zoom.us/j/{appointment_id}{current_user.id}"
+            elif platform == 'google-meet':
+                meeting_link = f"https://meet.google.com/new?authuser={current_user.email}"
+            else:
+                meeting_link = f"https://meeting.platform.com/room/{appointment_id}"
+        
+        # Update appointment
+        appointment.status = 'confirmed'
+        appointment.telemedicine_platform = platform
+        appointment.telemedicine_link = meeting_link
+        
+        db.session.commit()
+        
+        # Send email notification to patient with meeting link
+        # send_telemedicine_confirmation_email(appointment.patient.email, appointment)
+        
+        return jsonify({
+            'success': True,
+            'message': 'Telemedicine session confirmed successfully',
+            'meeting_link': meeting_link
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+
+@bp.route('/generate-meeting-link/<int:appointment_id>', methods=['POST'])
+@login_required
+def generate_meeting_link(appointment_id):
+    """Generate or update meeting link for telemedicine appointment"""
+    if current_user.role != 'doctor':
+        return jsonify({'success': False, 'message': 'Access denied'}), 403
+    
+    try:
+        appointment = Appointment.query.filter_by(
+            id=appointment_id,
+            doctor_id=current_user.id,
+            appointment_type='telemedicine'
+        ).first()
+        
+        if not appointment:
+            return jsonify({'success': False, 'message': 'Appointment not found'}), 404
+        
+        data = request.get_json()
+        platform = data.get('platform')
+        custom_link = data.get('custom_link')
+        
+        if custom_link:
+            meeting_link = custom_link
+        else:
+            # Generate platform-specific link
+            if platform == 'zoom':
+                meeting_id = f"{appointment_id}{current_user.id}{datetime.now().hour}"
+                meeting_link = f"https://zoom.us/j/{meeting_id}"
+            elif platform == 'google-meet':
+                # For Google Meet, you'd typically use Google Meet API
+                meeting_link = f"https://meet.google.com/new"
+            elif platform == 'microsoft-teams':
+                meeting_link = f"https://teams.microsoft.com/l/meetup-join/19%3ameeting_{appointment_id}@thread.v2/0"
+            else:
+                meeting_link = f"https://meeting.platform.com/room/{appointment_id}"
+        
+        # Update appointment
+        appointment.telemedicine_platform = platform
+        appointment.telemedicine_link = meeting_link
+        
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Meeting link generated successfully',
+            'meeting_link': meeting_link,
+            'platform': platform
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+
+@bp.route('/telemedicine-sessions')
+@login_required
+def telemedicine_sessions():
+    """View all telemedicine sessions for doctor"""
+    if current_user.role != 'doctor':
+        flash('Access denied. Doctors only.', 'error')
+        return redirect(url_for('main.index'))
+    
+    # Get all telemedicine appointments
+    telemedicine_appointments = Appointment.query.filter_by(
+        doctor_id=current_user.id,
+        appointment_type='telemedicine'
+    ).order_by(Appointment.date.desc(), Appointment.time.desc()).all()
+    
+    return render_template('doctor/telemedicine_sessions.html',
+                         appointments=telemedicine_appointments)
+
+
+@bp.route('/start-telemedicine/<int:appointment_id>')
+@login_required
+def start_telemedicine(appointment_id):
+    """Start/join telemedicine session"""
+    if current_user.role != 'doctor':
+        flash('Access denied. Doctors only.', 'error')
+        return redirect(url_for('main.index'))
+    
+    appointment = Appointment.query.filter_by(
+        id=appointment_id,
+        doctor_id=current_user.id,
+        appointment_type='telemedicine'
+    ).first()
+    
+    if not appointment:
+        flash('Telemedicine session not found.', 'error')
+        return redirect(url_for('doctor.telemedicine_sessions'))
+    
+    if not appointment.telemedicine_link:
+        flash('Meeting link not available. Please generate meeting link first.', 'warning')
+        return redirect(url_for('doctor.telemedicine_sessions'))
+    
+    # Mark appointment as in-progress
+    if appointment.status == 'confirmed':
+        appointment.start_appointment()
+    
+    # Redirect to the telemedicine platform
+    return redirect(appointment.telemedicine_link)

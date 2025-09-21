@@ -33,11 +33,12 @@ def create_app():
         return User.query.get(int(user_id))
 
     # Import and register blueprints
-    from .routes import main, auth, patient, doctor
+    from .routes import main, auth, patient, doctor, telemedicine
     app.register_blueprint(main.bp)
     app.register_blueprint(auth.bp)
     app.register_blueprint(patient.bp)
     app.register_blueprint(doctor.bp)
+    app.register_blueprint(telemedicine.bp)
 
     # Create database tables
     with app.app_context():

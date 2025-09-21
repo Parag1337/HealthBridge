@@ -1,0 +1,455 @@
+{% extends "base.html" %}
+
+{% block title %}Appointment History - HealthBridge Ai{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">
+                        <i class="fas fa-history"></i> Appointment History
+                    </h4>
+                    <div>
+                        <button class="btn btn-light btn-sm" onclick="toggleFilters()">
+                            <i class="fas fa-filter"></i> Filters
+                        </button>
+                        <a href="{{ url_for('appointment.book_appointment') }}" class="btn btn-success btn-sm">
+                            <i class="fas fa-plus"></i> Book New
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Filters Section (Initially Hidden) -->
+                <div id="filtersSection" class="card-body border-bottom bg-light" style="display: none;">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label class="form-label">Status</label>
+                            <select class="form-select" id="statusFilter">
+                                <option value="">All Status</option>
+                                <option value="completed">Completed</option>
+                                <option value="cancelled">Cancelled</option>
+                                <option value="scheduled">Scheduled</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Appointment Type</label>
+                            <select class="form-select" id="typeFilter">
+                                <option value="">All Types</option>
+                                <option value="in-person">In-Person</option>
+                                <option value="online">Online</option>
+                                <option value="telemedicine">Telemedicine</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Date Range</label>
+                            <select class="form-select" id="dateFilter">
+                                <option value="">All Time</option>
+                                <option value="last-month">Last Month</option>
+                                <option value="last-3-months">Last 3 Months</option>
+                                <option value="last-year">Last Year</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Feedback Status</label>
+                            <select class="form-select" id="feedbackFilter">
+                                <option value="">All</option>
+                                <option value="with-feedback">With Feedback</option>
+                                <option value="without-feedback">Without Feedback</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    {% if appointments %}
+                        <!-- Summary Statistics -->
+                        <div class="row mb-4">
+                            <div class="col-md-3">
+                                <div class="text-center p-3 bg-primary text-white rounded">
+                                    <h5 class="mb-1">{{ appointments|length }}</h5>
+                                    <small>Total Appointments</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center p-3 bg-success text-white rounded">
+                                    <h5 class="mb-1">{{ appointments|selectattr('status', 'equalto', 'completed')|list|length }}</h5>
+                                    <small>Completed</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center p-3 bg-info text-white rounded">
+                                    <h5 class="mb-1">{{ appointments|selectattr('has_feedback')|list|length }}</h5>
+                                    <small>With Feedback</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center p-3 bg-warning text-white rounded">
+                                    <h5 class="mb-1">{{ appointments|selectattr('appointment_type', 'equalto', 'online')|list|length + appointments|selectattr('appointment_type', 'equalto', 'telemedicine')|list|length }}</h5>
+                                    <small>Telemedicine</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Appointments List -->
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="appointmentsTable">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Date & Time</th>
+                                        <th>Doctor</th>
+                                        <th>Type</th>
+                                        <th>Status</th>
+                                        <th>Feedback</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for appointment in appointments %}
+                                    <tr data-status="{{ appointment.status }}" 
+                                        data-type="{{ appointment.appointment_type }}" 
+                                        data-feedback="{{ 'yes' if appointment.has_feedback() else 'no' }}"
+                                        data-date="{{ appointment.date.isoformat() }}">
+                                        
+                                        <!-- Date & Time -->
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="me-3">
+                                                    <i class="fas fa-calendar-alt text-primary fa-lg"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="fw-bold">{{ appointment.date.strftime('%B %d, %Y') }}</div>
+                                                    <small class="text-muted">{{ appointment.time.strftime('%I:%M %p') }}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+
+                                        <!-- Doctor -->
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="me-3">
+                                                    <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                        <i class="fas fa-user-md text-white"></i>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <div class="fw-bold">Dr. {{ appointment.doctor.first_name }} {{ appointment.doctor.last_name }}</div>
+                                                    <small class="text-muted">{{ appointment.doctor.specialization if appointment.doctor.specialization else 'General Practice' }}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+
+                                        <!-- Type -->
+                                        <td>
+                                            {% if appointment.appointment_type == 'online' or appointment.appointment_type == 'telemedicine' %}
+                                                <span class="badge bg-info">
+                                                    <i class="fas fa-video"></i> {{ appointment.appointment_type.title() }}
+                                                </span>
+                                            {% else %}
+                                                <span class="badge bg-primary">
+                                                    <i class="fas fa-hospital"></i> In-Person
+                                                </span>
+                                            {% endif %}
+                                        </td>
+
+                                        <!-- Status -->
+                                        <td>
+                                            {% if appointment.status == 'completed' %}
+                                                <span class="badge bg-success">
+                                                    <i class="fas fa-check-circle"></i> Completed
+                                                </span>
+                                            {% elif appointment.status == 'cancelled' %}
+                                                <span class="badge bg-danger">
+                                                    <i class="fas fa-times-circle"></i> Cancelled
+                                                </span>
+                                            {% elif appointment.status == 'in-progress' %}
+                                                <span class="badge bg-warning">
+                                                    <i class="fas fa-clock"></i> In Progress
+                                                </span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">
+                                                    <i class="fas fa-calendar-check"></i> Scheduled
+                                                </span>
+                                            {% endif %}
+                                        </td>
+
+                                        <!-- Feedback -->
+                                        <td>
+                                            {% if appointment.has_feedback() %}
+                                                <div class="d-flex align-items-center">
+                                                    <div class="me-2">
+                                                        {% for i in range(appointment.feedback.overall_rating) %}
+                                                        <i class="fas fa-star text-warning"></i>
+                                                        {% endfor %}
+                                                        {% for i in range(5 - appointment.feedback.overall_rating) %}
+                                                        <i class="far fa-star text-muted"></i>
+                                                        {% endfor %}
+                                                    </div>
+                                                    <small class="text-muted">{{ appointment.feedback.overall_rating }}/5</small>
+                                                </div>
+                                            {% elif appointment.can_provide_feedback() %}
+                                                <span class="badge bg-warning">
+                                                    <i class="fas fa-exclamation-triangle"></i> Pending
+                                                </span>
+                                            {% else %}
+                                                <span class="text-muted">
+                                                    <i class="fas fa-minus"></i> N/A
+                                                </span>
+                                            {% endif %}
+                                        </td>
+
+                                        <!-- Actions -->
+                                        <td>
+                                            <div class="dropdown">
+                                                <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" 
+                                                        id="actions{{ appointment.id }}" data-bs-toggle="dropdown">
+                                                    <i class="fas fa-cog"></i> Actions
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <!-- View Details -->
+                                                    <li>
+                                                        <a class="dropdown-item" href="#" onclick="viewAppointmentDetails({{ appointment.id }})">
+                                                            <i class="fas fa-eye"></i> View Details
+                                                        </a>
+                                                    </li>
+                                                    
+                                                    {% if appointment.can_provide_feedback() and not appointment.has_feedback() %}
+                                                    <!-- Provide Feedback -->
+                                                    <li>
+                                                        <a class="dropdown-item" href="{{ url_for('patient.feedback', appointment_id=appointment.id) }}">
+                                                            <i class="fas fa-star"></i> Provide Feedback
+                                                        </a>
+                                                    </li>
+                                                    {% endif %}
+                                                    
+                                                    {% if appointment.has_feedback() %}
+                                                    <!-- View Feedback -->
+                                                    <li>
+                                                        <a class="dropdown-item" href="#" onclick="viewFeedback({{ appointment.id }})">
+                                                            <i class="fas fa-comment"></i> View My Feedback
+                                                        </a>
+                                                    </li>
+                                                    {% endif %}
+                                                    
+                                                    {% if appointment.is_telemedicine() and appointment.has_video_consultation() %}
+                                                    <!-- Video Consultation Details -->
+                                                    <li>
+                                                        <a class="dropdown-item" href="#" onclick="viewVideoDetails({{ appointment.id }})">
+                                                            <i class="fas fa-video"></i> Video Details
+                                                        </a>
+                                                    </li>
+                                                    {% endif %}
+                                                    
+                                                    {% if appointment.status == 'scheduled' %}
+                                                    <!-- Cancel Appointment -->
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li>
+                                                        <a class="dropdown-item text-danger" href="#" onclick="cancelAppointment({{ appointment.id }})">
+                                                            <i class="fas fa-times"></i> Cancel
+                                                        </a>
+                                                    </li>
+                                                    {% endif %}
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <!-- Empty State -->
+                        <div class="text-center py-5">
+                            <i class="fas fa-calendar-times fa-4x text-muted mb-3"></i>
+                            <h5 class="text-muted">No Appointment History</h5>
+                            <p class="text-muted">You haven't had any appointments yet.</p>
+                            <a href="{{ url_for('appointment.book_appointment') }}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Book Your First Appointment
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Appointment Details Modal -->
+<div class="modal fade" id="appointmentDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Appointment Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="appointmentDetailsContent">
+                <!-- Content will be loaded dynamically -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Feedback Details Modal -->
+<div class="modal fade" id="feedbackModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Your Feedback</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="feedbackContent">
+                <!-- Content will be loaded dynamically -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function toggleFilters() {
+    const filtersSection = document.getElementById('filtersSection');
+    if (filtersSection.style.display === 'none') {
+        filtersSection.style.display = 'block';
+    } else {
+        filtersSection.style.display = 'none';
+    }
+}
+
+function viewAppointmentDetails(appointmentId) {
+    // Load appointment details via AJAX
+    fetch(`/patient/appointment/${appointmentId}/details`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('appointmentDetailsContent').innerHTML = data.html;
+            new bootstrap.Modal(document.getElementById('appointmentDetailsModal')).show();
+        })
+        .catch(error => {
+            console.error('Error loading appointment details:', error);
+            alert('Failed to load appointment details');
+        });
+}
+
+function viewFeedback(appointmentId) {
+    // Load feedback details via AJAX
+    fetch(`/patient/appointment/${appointmentId}/feedback`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('feedbackContent').innerHTML = data.html;
+            new bootstrap.Modal(document.getElementById('feedbackModal')).show();
+        })
+        .catch(error => {
+            console.error('Error loading feedback:', error);
+            alert('Failed to load feedback details');
+        });
+}
+
+function viewVideoDetails(appointmentId) {
+    // Load video consultation details
+    fetch(`/telemedicine/consultation/${appointmentId}/details`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('appointmentDetailsContent').innerHTML = data.html;
+            new bootstrap.Modal(document.getElementById('appointmentDetailsModal')).show();
+        })
+        .catch(error => {
+            console.error('Error loading video details:', error);
+            alert('Failed to load video consultation details');
+        });
+}
+
+function cancelAppointment(appointmentId) {
+    if (confirm('Are you sure you want to cancel this appointment?')) {
+        fetch(`/appointment/${appointmentId}/cancel`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('meta[name=csrf-token]').getAttribute('content')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Failed to cancel appointment: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error cancelling appointment:', error);
+            alert('Failed to cancel appointment');
+        });
+    }
+}
+
+// Filter functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const filters = {
+        status: document.getElementById('statusFilter'),
+        type: document.getElementById('typeFilter'),
+        date: document.getElementById('dateFilter'),
+        feedback: document.getElementById('feedbackFilter')
+    };
+
+    Object.values(filters).forEach(filter => {
+        if (filter) {
+            filter.addEventListener('change', applyFilters);
+        }
+    });
+
+    function applyFilters() {
+        const rows = document.querySelectorAll('#appointmentsTable tbody tr');
+        
+        rows.forEach(row => {
+            let show = true;
+            
+            // Status filter
+            if (filters.status.value && row.dataset.status !== filters.status.value) {
+                show = false;
+            }
+            
+            // Type filter
+            if (filters.type.value && row.dataset.type !== filters.type.value) {
+                show = false;
+            }
+            
+            // Feedback filter
+            if (filters.feedback.value) {
+                if (filters.feedback.value === 'with-feedback' && row.dataset.feedback !== 'yes') {
+                    show = false;
+                }
+                if (filters.feedback.value === 'without-feedback' && row.dataset.feedback !== 'no') {
+                    show = false;
+                }
+            }
+            
+            // Date filter (simplified - you might want to implement proper date filtering)
+            if (filters.date.value) {
+                const appointmentDate = new Date(row.dataset.date);
+                const now = new Date();
+                let cutoffDate = new Date();
+                
+                switch (filters.date.value) {
+                    case 'last-month':
+                        cutoffDate.setMonth(now.getMonth() - 1);
+                        break;
+                    case 'last-3-months':
+                        cutoffDate.setMonth(now.getMonth() - 3);
+                        break;
+                    case 'last-year':
+                        cutoffDate.setFullYear(now.getFullYear() - 1);
+                        break;
+                }
+                
+                if (appointmentDate < cutoffDate) {
+                    show = false;
+                }
+            }
+            
+            row.style.display = show ? '' : 'none';
+        });
+    }
+});
+</script>
+{% endblock %}

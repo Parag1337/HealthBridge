@@ -1,241 +1,292 @@
 {% extends "base.html" %}
 
-{% block title %}My Appointments - HealthBridge Ai{% endblock %}
+{% block title %}My Appointments - HealthBridge{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h2 class="text-white">My Appointments</h2>
-                    <p class="text-muted mb-0">Total: {{ total_appointments }} | Upcoming: {{ upcoming_appointments }}</p>
-                </div>
-                <a href="{{ url_for('patient.find_doctors') }}" class="btn btn-primary">
-                    <i class="fas fa-plus me-2"></i>Book New Appointment
-                </a>
+<!-- Page Header -->
+<div class="section">
+    <div class="row align-items-center">
+        <div class="col-lg-8">
+            <div class="mb-4">
+                <h1 class="display-6 fw-bold text-primary mb-2">
+                    <i class="fas fa-calendar-alt me-3"></i>My Appointments
+                </h1>
+                <p class="lead text-secondary mb-0">Manage your scheduled appointments and view your appointment history</p>
             </div>
         </div>
-    </div>
-    
-    <!-- Filters -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card bg-dark border-secondary">
-                <div class="card-header">
-                    <h6 class="text-white mb-0"><i class="fas fa-filter me-2"></i>Filter Appointments</h6>
-                </div>
-                <div class="card-body">
-                    <form method="GET" class="row g-3">
-                        <div class="col-md-3">
-                            <label for="status" class="form-label text-white">Status</label>
-                            <select class="form-control bg-secondary text-white border-secondary" id="status" name="status">
-                                <option value="">All Status</option>
-                                <option value="scheduled" {% if status_filter == 'scheduled' %}selected{% endif %}>Scheduled</option>
-                                <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>Completed</option>
-                                <option value="cancelled" {% if status_filter == 'cancelled' %}selected{% endif %}>Cancelled</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <label for="doctor" class="form-label text-white">Doctor</label>
-                            <select class="form-control bg-secondary text-white border-secondary" id="doctor" name="doctor">
-                                <option value="">All Doctors</option>
-                                {% for doctor in doctors %}
-                                <option value="{{ doctor.id }}" {% if doctor_filter == doctor.id|string %}selected{% endif %}>
-                                    Dr. {{ doctor.first_name }} {{ doctor.last_name }}
-                                </option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <label for="date_filter" class="form-label text-white">Date Range</label>
-                            <select class="form-control bg-secondary text-white border-secondary" id="date_filter" name="date_filter">
-                                <option value="">All Dates</option>
-                                <option value="upcoming" {% if date_filter == 'upcoming' %}selected{% endif %}>Upcoming</option>
-                                <option value="past" {% if date_filter == 'past' %}selected{% endif %}>Past</option>
-                                <option value="this_week" {% if date_filter == 'this_week' %}selected{% endif %}>This Week</option>
-                                <option value="this_month" {% if date_filter == 'this_month' %}selected{% endif %}>This Month</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3 d-flex align-items-end">
-                            <div class="btn-group w-100">
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-search"></i> Filter
-                                </button>
-                                <a href="{{ url_for('patient.appointments') }}" class="btn btn-secondary">
-                                    <i class="fas fa-times"></i> Clear
-                                </a>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
+        <div class="col-lg-4 text-lg-end">
+            <a href="{{ url_for('patient.book_appointment') }}" class="btn btn-primary btn-lg">
+                <i class="fas fa-plus me-2"></i>Book New Appointment
+            </a>
         </div>
     </div>
-    
-    <div class="row">
-        <div class="col-12">
-            <div class="card bg-dark border-primary">
-                <div class="card-body">
-                    {% if appointments.items %}
-                        {% for appointment in appointments.items %}
-                        <div class="card bg-secondary border-primary mb-3">
-                            <div class="card-body">
-                                <div class="row align-items-center">
-                                    <div class="col-md-8">
-                                        <h5 class="text-white mb-2">
-                                            <i class="fas fa-user-md me-2"></i>
-                                            Dr. {{ appointment.doctor.first_name }} {{ appointment.doctor.last_name }}
-                                        </h5>
-                                        <p class="text-muted mb-1">
-                                            <i class="fas fa-calendar me-2"></i>
-                                            {{ appointment.date.strftime('%B %d, %Y') }}
-                                        </p>
-                                        <p class="text-muted mb-1">
-                                            <i class="fas fa-clock me-2"></i>
-                                            {{ appointment.time.strftime('%I:%M %p') if appointment.time else 'Time not set' }}
-                                        </p>
-                                        <p class="text-muted mb-1">
-                                            <i class="fas fa-{% if appointment.appointment_type == 'online' %}video{% else %}hospital{% endif %} me-2"></i>
-                                            {% if appointment.appointment_type == 'online' %}
-                                                Online Consultation
-                                            {% else %}
-                                                In-Person Visit
-                                            {% endif %}
-                                        </p>
-                                        {% if appointment.notes %}
-                                        <p class="text-white-50 mb-0">
-                                            <i class="fas fa-sticky-note me-2"></i>
-                                            {{ appointment.notes }}
-                                        </p>
-                                        {% endif %}
-                                    </div>
-                                    <div class="col-md-4 text-end">
-                                        <span class="badge {% if appointment.status == 'scheduled' %}bg-success{% elif appointment.status == 'completed' %}bg-primary{% else %}bg-danger{% endif %} mb-2">
-                                            {{ appointment.status.title() }}
-                                        </span>
-                                        <br>
-                                        <div class="btn-group" role="group">
-                                            {% if appointment.status == 'scheduled' and appointment.date >= get_date().today() %}
-                                            <button class="btn btn-sm btn-warning" onclick="rescheduleAppointment({{ appointment.id }})">
-                                                <i class="fas fa-edit"></i> Reschedule
-                                            </button>
-                                            <button class="btn btn-sm btn-danger" onclick="cancelAppointment({{ appointment.id }})">
-                                                <i class="fas fa-times"></i> Cancel
-                                            </button>
-                                            {% elif appointment.status == 'completed' %}
-                                            <button class="btn btn-sm btn-info" onclick="viewAppointmentDetails({{ appointment.id }})">
-                                                <i class="fas fa-eye"></i> View Details
-                                            </button>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                        
-                        <!-- Pagination -->
-                        {% if appointments.pages > 1 %}
-                        <nav aria-label="Appointments pagination">
-                            <ul class="pagination justify-content-center">
-                                {% if appointments.has_prev %}
-                                <li class="page-item">
-                                    <a class="page-link bg-secondary border-secondary text-white" 
-                                       href="{{ url_for('patient.appointments', page=appointments.prev_num, status=status_filter, doctor=doctor_filter, date_filter=date_filter) }}">
-                                        Previous
-                                    </a>
-                                </li>
-                                {% endif %}
-                                
-                                {% for page_num in appointments.iter_pages() %}
-                                    {% if page_num %}
-                                        {% if page_num != appointments.page %}
-                                        <li class="page-item">
-                                            <a class="page-link bg-secondary border-secondary text-white" 
-                                               href="{{ url_for('patient.appointments', page=page_num, status=status_filter, doctor=doctor_filter, date_filter=date_filter) }}">
-                                                {{ page_num }}
-                                            </a>
-                                        </li>
-                                        {% else %}
-                                        <li class="page-item active">
-                                            <span class="page-link bg-primary border-primary">{{ page_num }}</span>
-                                        </li>
-                                        {% endif %}
-                                    {% else %}
-                                    <li class="page-item disabled">
-                                        <span class="page-link bg-secondary border-secondary text-muted">…</span>
-                                    </li>
-                                    {% endif %}
-                                {% endfor %}
-                                
-                                {% if appointments.has_next %}
-                                <li class="page-item">
-                                    <a class="page-link bg-secondary border-secondary text-white" 
-                                       href="{{ url_for('patient.appointments', page=appointments.next_num, status=status_filter, doctor=doctor_filter, date_filter=date_filter) }}">
-                                        Next
-                                    </a>
-                                </li>
-                                {% endif %}
-                            </ul>
-                        </nav>
-                        {% endif %}
-                    {% else %}
-                        <div class="text-center py-5">
-                            <i class="fas fa-calendar-times fa-4x text-muted mb-3"></i>
-                            <h4 class="text-muted">No appointments found</h4>
-                            <p class="text-muted">
-                                {% if status_filter or doctor_filter or date_filter %}
-                                    Try adjusting your filters or <a href="{{ url_for('patient.appointments') }}" class="text-primary">clear all filters</a>.
-                                {% else %}
-                                    You haven't scheduled any appointments yet.
-                                {% endif %}
-                            </p>
-                            <a href="{{ url_for('patient.find_doctors') }}" class="btn btn-primary">
-                                <i class="fas fa-plus me-2"></i>Book Your First Appointment
-                            </a>
-                        </div>
-                    {% endif %}
+</div>
+
+<!-- Quick Stats -->
+<div class="section">
+    <div class="row g-4">
+        <div class="col-lg-3 col-md-6">
+            <div class="stats-card">
+                <div class="stats-card-icon bg-primary text-white">
+                    <i class="fas fa-calendar-check"></i>
                 </div>
+                <div class="stats-card-value">{{ total_appointments or 0 }}</div>
+                <div class="stats-card-label">Total Appointments</div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="stats-card">
+                <div class="stats-card-icon bg-warning text-white">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stats-card-value">{{ upcoming_appointments or 0 }}</div>
+                <div class="stats-card-label">Upcoming</div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="stats-card">
+                <div class="stats-card-icon bg-success text-white">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stats-card-value">{{ completed_appointments or 0 }}</div>
+                <div class="stats-card-label">Completed</div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="stats-card">
+                <div class="stats-card-icon bg-info text-white">
+                    <i class="fas fa-video"></i>
+                </div>
+                <div class="stats-card-value">{{ online_appointments or 0 }}</div>
+                <div class="stats-card-label">Video Consultations</div>
             </div>
         </div>
     </div>
 </div>
 
-<script>
-function rescheduleAppointment(appointmentId) {
-    if (confirm('Do you want to reschedule this appointment?')) {
-        // Implement reschedule functionality
-        alert('Reschedule functionality would redirect to booking page with pre-filled data');
-    }
-}
-
-function cancelAppointment(appointmentId) {
-    if (confirm('Are you sure you want to cancel this appointment?')) {
-        // Implement cancel functionality
-        fetch(`/patient/appointment/${appointmentId}/cancel`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                location.reload();
-            } else {
-                alert('Error cancelling appointment: ' + data.message);
-            }
-        })
-        .catch(error => {
-            alert('Error cancelling appointment');
-        });
-    }
-}
-
-function viewAppointmentDetails(appointmentId) {
-    // Implement view details functionality
-    alert('View appointment details functionality would be implemented here');
-}
-</script>
+<!-- Filters Section -->
+<div class="section">
+    <div class="card">
+        <div class="card-header">
+            <h5 class="fw-bold mb-0">
+                <i class="fas fa-filter text-primary me-2"></i>Filter Appointments
+            </h5>
+        </div>
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-3">
+                    <label for="status" class="form-label fw-semibold">Status</label>
+                    <select class="form-select" id="status" name="status">
+                        <option value="">All Status</option>
+                        <option value="scheduled" {% if status_filter == 'scheduled' %}selected{% endif %}>Scheduled</option>
+                        <option value="confirmed" {% if status_filter == 'confirmed' %}selected{% endif %}>Confirmed</option>
+                        <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>Completed</option>
+                        <option value="cancelled" {% if status_filter == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="doctor" class="form-label fw-semibold">Doctor</label>
+                    <select class="form-select" id="doctor" name="doctor">
+                        <option value="">All Doctors</option>
+                        {% for doctor in doctors %}
+                        <option value="{{ doctor.id }}" {% if doctor_filter == doctor.id|string %}selected{% endif %}>
+                            Dr. {{ doctor.first_name }} {{ doctor.last_name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="appointment_type" class="form-label fw-semibold">Type</label>
+                    <select class="form-select" id="appointment_type" name="appointment_type">
+                        <option value="">All Types</option>
+                        <option value="in-person" {% if type_filter == 'in-person' %}selected{% endif %}>In-Person</option>
+                        <option value="online" {% if type_filter == 'online' %}selected{% endif %}>Video Consultation</option>
+                        <option value="telemedicine" {% if type_filter == 'telemedicine' %}selected{% endif %}>Telemedicine</option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary me-2">
+                        <i class="fas fa-filter me-1"></i>Apply Filter
+                    </button>
+                    <a href="{{ url_for('patient.appointments') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times me-1"></i>Clear
+                    </a>
+<!-- Appointments List -->
+<div class="section">
+    {% if appointments.items %}
+        <div class="row g-4">
+            {% for appointment in appointments.items %}
+            <div class="col-lg-6">
+                <div class="card appointment-card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-primary bg-opacity-10 rounded-circle p-2 me-3">
+                                <i class="fas fa-user-md text-primary fa-lg"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-1">Dr. {{ appointment.doctor.first_name }} {{ appointment.doctor.last_name }}</h6>
+                                <small class="text-muted">{{ appointment.doctor.specialization or 'General Practice' }}</small>
+                            </div>
+                        </div>
+                        <span class="badge 
+                            {% if appointment.status == 'scheduled' %}bg-primary
+                            {% elif appointment.status == 'confirmed' %}bg-success
+                            {% elif appointment.status == 'in-progress' %}bg-warning
+                            {% elif appointment.status == 'completed' %}bg-info
+                            {% elif appointment.status == 'cancelled' %}bg-danger
+                            {% else %}bg-secondary{% endif %} rounded-pill">
+                            {{ appointment.status.title() }}
+                        </span>
+                    </div>
+                    
+                    <div class="card-body">
+                        <div class="row g-3 mb-3">
+                            <div class="col-6">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-calendar text-primary me-2"></i>
+                                    <div>
+                                        <small class="text-muted d-block">Date</small>
+                                        <span class="fw-semibold">{{ appointment.date.strftime('%b %d, %Y') }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-clock text-primary me-2"></i>
+                                    <div>
+                                        <small class="text-muted d-block">Time</small>
+                                        <span class="fw-semibold">{{ appointment.time.strftime('%I:%M %p') }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-{{ 'video' if appointment.appointment_type == 'online' or appointment.appointment_type == 'telemedicine' else 'map-marker-alt' }} text-primary me-2"></i>
+                                <div>
+                                    <small class="text-muted d-block">Type</small>
+                                    <span class="fw-semibold">
+                                        {% if appointment.appointment_type == 'online' or appointment.appointment_type == 'telemedicine' %}
+                                            Video Consultation
+                                        {% else %}
+                                            In-Person Visit
+                                        {% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {% if appointment.reason %}
+                        <div class="mb-3">
+                            <div class="d-flex align-items-start">
+                                <i class="fas fa-notes-medical text-primary me-2 mt-1"></i>
+                                <div>
+                                    <small class="text-muted d-block">Reason</small>
+                                    <span>{{ appointment.reason }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="card-footer bg-transparent border-top">
+                        <div class="d-flex justify-content-between align-items-center">
+                            {% if appointment.status == 'scheduled' or appointment.status == 'confirmed' %}
+                                {% if appointment.appointment_type == 'online' or appointment.appointment_type == 'telemedicine' %}
+                                    <a href="{{ url_for('telemedicine.join_consultation', appointment_id=appointment.id) }}" 
+                                       class="btn btn-success btn-sm">
+                                        <i class="fas fa-video me-1"></i>Join Video Call
+                                    </a>
+                                {% endif %}
+                                
+                                <div class="btn-group">
+                                    <button class="btn btn-outline-primary btn-sm" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#rescheduleModal"
+                                            data-appointment-id="{{ appointment.id }}">
+                                        <i class="fas fa-clock me-1"></i>Reschedule
+                                    </button>
+                                    <button class="btn btn-outline-danger btn-sm"
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#cancelModal"
+                                            data-appointment-id="{{ appointment.id }}">
+                                        <i class="fas fa-times me-1"></i>Cancel
+                                    </button>
+                                </div>
+                            {% elif appointment.status == 'completed' %}
+                                <a href="{{ url_for('patient.feedback', appointment_id=appointment.id) }}" 
+                                   class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-star me-1"></i>Leave Feedback
+                                </a>
+                                <button class="btn btn-outline-info btn-sm"
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#detailsModal"
+                                        data-appointment-id="{{ appointment.id }}">
+                                    <i class="fas fa-eye me-1"></i>View Details
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if appointments.pages > 1 %}
+        <div class="section">
+            <nav aria-label="Appointments pagination">
+                <ul class="pagination justify-content-center">
+                    {% if appointments.has_prev %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('patient.appointments', page=appointments.prev_num, status=status_filter, doctor=doctor_filter, date_filter=date_filter) }}">
+                                <i class="fas fa-chevron-left"></i> Previous
+                            </a>
+                        </li>
+                    {% endif %}
+                    
+                    {% for page_num in appointments.iter_pages() %}
+                        {% if page_num %}
+                            {% if page_num != appointments.page %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('patient.view_appointments', page=page_num, status=status_filter, doctor=doctor_filter, date_filter=date_filter) }}">{{ page_num }}</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ page_num }}</span>
+                                </li>
+                            {% endif %}
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if appointments.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('patient.appointments', page=appointments.next_num, status=status_filter, doctor=doctor_filter, date_filter=date_filter) }}">
+                                Next <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+        
+    {% else %}
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <i class="fas fa-calendar-times fa-4x text-muted mb-4"></i>
+                <h4 class="text-muted mb-3">No appointments found</h4>
+                <p class="text-muted mb-4">You don't have any appointments matching your filters.</p>
+                <a href="{{ url_for('patient.book_appointment') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Book Your First Appointment
+                </a>
+            </div>
+        </div>
+    {% endif %}
+</div>
 {% endblock %}

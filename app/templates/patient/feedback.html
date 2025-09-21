@@ -1,0 +1,234 @@
+{% extends "base.html" %}
+
+{% block title %}Appointment Feedback - HealthBridge Ai{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-star"></i> Rate Your Appointment Experience
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <!-- Appointment Details -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="bg-light p-3 rounded">
+                                <h6 class="text-primary mb-2">
+                                    <i class="fas fa-calendar-check"></i> Appointment Details
+                                </h6>
+                                <p class="mb-1"><strong>Doctor:</strong> Dr. {{ appointment.doctor.first_name }} {{ appointment.doctor.last_name }}</p>
+                                <p class="mb-1"><strong>Date:</strong> {{ appointment.date.strftime('%B %d, %Y') }}</p>
+                                <p class="mb-1"><strong>Time:</strong> {{ appointment.time.strftime('%I:%M %p') }}</p>
+                                <p class="mb-0"><strong>Type:</strong> {{ appointment.appointment_type.title() }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="bg-light p-3 rounded">
+                                <h6 class="text-success mb-2">
+                                    <i class="fas fa-check-circle"></i> Status
+                                </h6>
+                                <p class="mb-1"><strong>Status:</strong> <span class="badge bg-success">{{ appointment.status.title() }}</span></p>
+                                <p class="mb-1"><strong>Completed:</strong> {{ appointment.completed_at.strftime('%B %d, %Y at %I:%M %p') if appointment.completed_at else 'N/A' }}</p>
+                                {% if appointment.notes %}
+                                <p class="mb-0"><strong>Notes:</strong> {{ appointment.notes[:100] }}{% if appointment.notes|length > 100 %}...{% endif %}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Feedback Form -->
+                    <form method="POST" id="feedbackForm">
+                        {{ form.hidden_tag() }}
+                        
+                        <!-- Overall Rating -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-star text-warning"></i> Overall Experience
+                            </label>
+                            <div class="rating-container">
+                                {% for i in range(1, 6) %}
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="overall_rating" id="overall_{{ i }}" value="{{ i }}" required>
+                                    <label class="form-check-label" for="overall_{{ i }}">
+                                        {% for j in range(1, i+1) %}
+                                        <i class="fas fa-star text-warning"></i>
+                                        {% endfor %}
+                                        {% for j in range(i+1, 6) %}
+                                        <i class="far fa-star text-muted"></i>
+                                        {% endfor %}
+                                        <span class="ms-2">{{ i }} Star{{ 's' if i > 1 else '' }}</span>
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Detailed Ratings -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <!-- Doctor Rating -->
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">
+                                        <i class="fas fa-user-md text-primary"></i> Doctor Performance
+                                    </label>
+                                    <select class="form-select" name="doctor_rating" required>
+                                        <option value="">Rate the doctor...</option>
+                                        <option value="5">Excellent (5 stars)</option>
+                                        <option value="4">Very Good (4 stars)</option>
+                                        <option value="3">Good (3 stars)</option>
+                                        <option value="2">Fair (2 stars)</option>
+                                        <option value="1">Poor (1 star)</option>
+                                    </select>
+                                </div>
+
+                                <!-- Communication Rating -->
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">
+                                        <i class="fas fa-comments text-info"></i> Communication
+                                    </label>
+                                    <select class="form-select" name="communication_rating" required>
+                                        <option value="">Rate communication...</option>
+                                        <option value="5">Excellent (5 stars)</option>
+                                        <option value="4">Very Good (4 stars)</option>
+                                        <option value="3">Good (3 stars)</option>
+                                        <option value="2">Fair (2 stars)</option>
+                                        <option value="1">Poor (1 star)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <!-- Punctuality Rating -->
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">
+                                        <i class="fas fa-clock text-success"></i> Punctuality
+                                    </label>
+                                    <select class="form-select" name="punctuality_rating" required>
+                                        <option value="">Rate punctuality...</option>
+                                        <option value="5">On Time (5 stars)</option>
+                                        <option value="4">Slightly Late (4 stars)</option>
+                                        <option value="3">Acceptable (3 stars)</option>
+                                        <option value="2">Late (2 stars)</option>
+                                        <option value="1">Very Late (1 star)</option>
+                                    </select>
+                                </div>
+
+                                <!-- Cleanliness Rating -->
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">
+                                        <i class="fas fa-broom text-warning"></i> Cleanliness & Environment
+                                    </label>
+                                    <select class="form-select" name="cleanliness_rating" required>
+                                        <option value="">Rate environment...</option>
+                                        <option value="5">Very Clean (5 stars)</option>
+                                        <option value="4">Clean (4 stars)</option>
+                                        <option value="3">Acceptable (3 stars)</option>
+                                        <option value="2">Could be Better (2 stars)</option>
+                                        <option value="1">Needs Improvement (1 star)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Text Feedback -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-thumbs-up text-success"></i> What did you like about your appointment?
+                            </label>
+                            <textarea class="form-control" name="positive_feedback" rows="3" 
+                                placeholder="Share what went well during your appointment..."></textarea>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-thumbs-down text-danger"></i> What could be improved?
+                            </label>
+                            <textarea class="form-control" name="negative_feedback" rows="3" 
+                                placeholder="Let us know what didn't go as expected..."></textarea>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-lightbulb text-warning"></i> Suggestions for improvement
+                            </label>
+                            <textarea class="form-control" name="suggestions" rows="3" 
+                                placeholder="Any suggestions to make our service better..."></textarea>
+                        </div>
+
+                        <!-- Recommendation -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-heart text-danger"></i> Would you recommend this doctor to others?
+                            </label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="would_recommend" id="recommend_yes" value="true" checked>
+                                <label class="form-check-label" for="recommend_yes">
+                                    <i class="fas fa-check-circle text-success"></i> Yes, I would recommend
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="would_recommend" id="recommend_no" value="false">
+                                <label class="form-check-label" for="recommend_no">
+                                    <i class="fas fa-times-circle text-danger"></i> No, I would not recommend
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('patient.appointments') }}" class="btn btn-outline-secondary me-md-2">
+                                <i class="fas fa-arrow-left"></i> Back to Appointments
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i> Submit Feedback
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Enhanced star rating interaction
+document.addEventListener('DOMContentLoaded', function() {
+    // Add hover effects for star ratings
+    const ratingInputs = document.querySelectorAll('input[type="radio"][name="overall_rating"]');
+    
+    ratingInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            // Update visual feedback when rating is selected
+            const value = this.value;
+            const label = this.nextElementSibling;
+            label.style.transform = 'scale(1.1)';
+            setTimeout(() => {
+                label.style.transform = 'scale(1)';
+            }, 200);
+        });
+    });
+
+    // Form validation
+    const form = document.getElementById('feedbackForm');
+    form.addEventListener('submit', function(e) {
+        const overallRating = document.querySelector('input[name="overall_rating"]:checked');
+        if (!overallRating) {
+            e.preventDefault();
+            alert('Please provide an overall rating for your appointment.');
+            return false;
+        }
+        
+        // Show loading state
+        const submitBtn = document.querySelector('button[type="submit"]');
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+        submitBtn.disabled = true;
+    });
+});
+</script>
+{% endblock %}

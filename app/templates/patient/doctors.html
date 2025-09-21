@@ -1,0 +1,461 @@
+{% extends "base.html" %}
+
+{% block title %}My Doctors - HealthBridge{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="section">
+    <div class="row align-items-center">
+        <div class="col-lg-8">
+            <div class="mb-4">
+                <h1 class="display-6 fw-bold text-primary mb-2">
+                    <i class="fas fa-user-md me-3"></i>My Doctors
+                </h1>
+                <p class="lead text-secondary mb-0">Manage your healthcare team and doctor relationships</p>
+            </div>
+        </div>
+        <div class="col-lg-4 text-lg-end">
+            <div class="d-flex flex-wrap gap-2 justify-content-lg-end">
+                <a href="{{ url_for('patient.find_doctors') }}" class="btn btn-success">
+                    <i class="fas fa-search me-2"></i>Find New Doctors
+                </a>
+                <a href="{{ url_for('patient.dashboard') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Doctors List -->
+<div class="section">
+    {% if doctors %}
+        <div class="row g-4">
+            {% for doctor in doctors %}
+            <div class="col-lg-6 col-xl-4">
+                <div class="card doctor-card h-100">
+                    <div class="card-body p-4">
+                        <!-- Doctor Header -->
+                        <div class="text-center mb-4">
+                            <div class="doctor-avatar mb-3">
+                                {% if doctor.profile_photo %}
+                                    <img src="{{ url_for('static', filename='images/doctors/' + doctor.profile_photo) }}" 
+                                         alt="Dr. {{ doctor.first_name }} {{ doctor.last_name }}" 
+                                         class="rounded-circle">
+                                {% else %}
+                                    <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center">
+                                        <i class="fas fa-user-md text-primary fa-2x"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <h5 class="fw-bold mb-1">Dr. {{ doctor.first_name }} {{ doctor.last_name }}</h5>
+                            <p class="text-muted mb-2">{{ doctor.specialization }}</p>
+                            <div class="d-flex justify-content-center align-items-center gap-2 mb-3">
+                                <div class="rating">
+                                    {% for i in range(5) %}
+                                        {% if i < (doctor.rating or 4) %}
+                                            <i class="fas fa-star text-warning"></i>
+                                        {% else %}
+                                            <i class="far fa-star text-muted"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <span class="text-muted small">({{ doctor.rating or 4.0 }}/5)</span>
+                            </div>
+                        </div>
+
+                        <!-- Doctor Stats -->
+                        {% if doctor_stats and doctor_stats.get(doctor.id) %}
+                        <div class="doctor-stats mb-4">
+                            <div class="row g-3 text-center">
+                                <div class="col-4">
+                                    <div class="bg-primary bg-opacity-10 rounded-lg p-2">
+                                        <div class="fw-bold text-primary">{{ doctor_stats[doctor.id]['appointments_count'] }}</div>
+                                        <small class="text-muted">Appointments</small>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="bg-success bg-opacity-10 rounded-lg p-2">
+                                        <div class="fw-bold text-success">{{ doctor_stats[doctor.id]['prescriptions_count'] }}</div>
+                                        <small class="text-muted">Prescriptions</small>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="bg-info bg-opacity-10 rounded-lg p-2">
+                                        <div class="fw-bold text-info">{{ doctor.years_of_experience or 'N/A' }}</div>
+                                        <small class="text-muted">Years Exp.</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Last Appointment -->
+                        {% if doctor_stats and doctor_stats.get(doctor.id) and doctor_stats[doctor.id]['last_appointment'] %}
+                        <div class="mb-4">
+                            <div class="bg-light rounded-lg p-3">
+                                <h6 class="fw-semibold mb-2 text-secondary">
+                                    <i class="fas fa-clock me-2"></i>Last Appointment
+                                </h6>
+                                <p class="mb-1 fw-medium">{{ doctor_stats[doctor.id]['last_appointment'].date.strftime('%B %d, %Y') }}</p>
+                                <small class="text-muted">{{ doctor_stats[doctor.id]['last_appointment'].time.strftime('%I:%M %p') }}</small>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Doctor Information -->
+                        <div class="mb-4">
+                            {% if doctor.consultation_fee %}
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted">Consultation Fee:</span>
+                                <span class="fw-bold text-success">${{ doctor.consultation_fee }}</span>
+                            </div>
+                            {% endif %}
+                            {% if doctor.hospital_affiliation %}
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted">Hospital:</span>
+                                <span class="fw-medium">{{ doctor.hospital_affiliation }}</span>
+                            </div>
+                            {% endif %}
+                            {% if doctor.phone %}
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted">Phone:</span>
+                                <span class="fw-medium">{{ doctor.phone }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-grid gap-2">
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <a href="{{ url_for('patient.book_appointment', doctor_id=doctor.id) }}" 
+                                       class="btn btn-primary btn-sm w-100">
+                                        <i class="fas fa-calendar-plus me-1"></i>Book Appointment
+                                    </a>
+                                </div>
+                                <div class="col-6">
+                                    <button class="btn btn-success btn-sm w-100" 
+                                            onclick="startTelemedicine('{{ doctor.id }}', '{{ doctor.first_name }} {{ doctor.last_name }}')">
+                                        <i class="fas fa-video me-1"></i>Telemedicine
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <button class="btn btn-outline-info btn-sm w-100" 
+                                            onclick="viewDoctorProfile('{{ doctor.id }}')">
+                                        <i class="fas fa-eye me-1"></i>View Profile
+                                    </button>
+                                </div>
+                                <div class="col-6">
+                                    <button class="btn btn-outline-secondary btn-sm w-100" 
+                                            onclick="messageDoctorDirect('{{ doctor.id }}')">
+                                        <i class="fas fa-comment me-1"></i>Message
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Load More Button (if needed) -->
+        {% if doctors|length >= 12 %}
+        <div class="text-center mt-5">
+            <button class="btn btn-outline-primary" onclick="loadMoreDoctors()">
+                <i class="fas fa-plus me-2"></i>Load More Doctors
+            </button>
+        </div>
+        {% endif %}
+
+    {% else %}
+        <!-- Empty State -->
+        <div class="row">
+            <div class="col-12">
+                <div class="text-center py-5">
+                    <div class="mb-4">
+                        <i class="fas fa-user-md text-muted" style="font-size: 4rem;"></i>
+                    </div>
+                    <h4 class="text-muted mb-3">No Doctors Found</h4>
+                    <p class="text-secondary mb-4">You haven't connected with any doctors yet. Start by finding doctors in your area.</p>
+                    <a href="{{ url_for('patient.find_doctors') }}" class="btn btn-primary">
+                        <i class="fas fa-search me-2"></i>Find Doctors
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Telemedicine Modal -->
+<div class="modal fade" id="telemedicineModal" tabindex="-1" aria-labelledby="telemedicineModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="telemedicineModalLabel">
+                    <i class="fas fa-video me-2"></i>Start Telemedicine Session
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-4">
+                    <div class="bg-success bg-opacity-10 rounded-circle p-3 d-inline-flex mb-3">
+                        <i class="fas fa-video text-success fa-2x"></i>
+                    </div>
+                    <h6 id="doctorNameTitle">Dr. John Doe</h6>
+                    <p class="text-muted">Choose your preferred platform for the telemedicine session</p>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="card platform-card h-100" onclick="selectPlatform('zoom')">
+                            <div class="card-body text-center p-4">
+                                <div class="bg-primary bg-opacity-10 rounded-circle p-3 d-inline-flex mb-3">
+                                    <i class="fab fa-zoom text-primary fa-2x"></i>
+                                </div>
+                                <h6 class="fw-bold">Zoom Meeting</h6>
+                                <p class="text-muted small mb-0">High-quality video calls with screen sharing</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card platform-card h-100" onclick="selectPlatform('google-meet')">
+                            <div class="card-body text-center p-4">
+                                <div class="bg-warning bg-opacity-10 rounded-circle p-3 d-inline-flex mb-3">
+                                    <i class="fab fa-google text-warning fa-2x"></i>
+                                </div>
+                                <h6 class="fw-bold">Google Meet</h6>
+                                <p class="text-muted small mb-0">Secure meetings with Google integration</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-info mt-4">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Note:</strong> The doctor will receive your request and send you the meeting link via email or SMS.
+                </div>
+
+                <form id="telemedicineForm" class="mt-4">
+                    <div class="mb-3">
+                        <label for="sessionReason" class="form-label">Reason for Consultation</label>
+                        <textarea class="form-control" id="sessionReason" rows="3" 
+                                placeholder="Brief description of your health concern..."></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="preferredTime" class="form-label">Preferred Time</label>
+                        <input type="datetime-local" class="form-control" id="preferredTime" 
+                               min="{{ min_datetime }}">
+                    </div>
+                    <input type="hidden" id="selectedPlatform" value="">
+                    <input type="hidden" id="selectedDoctorId" value="">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" onclick="requestTelemedicineSession()">
+                    <i class="fas fa-video me-2"></i>Request Session
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Doctor Profile Modal -->
+<div class="modal fade" id="doctorProfileModal" tabindex="-1" aria-labelledby="doctorProfileModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="doctorProfileModalLabel">
+                    <i class="fas fa-user-md me-2"></i>Doctor Profile
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="doctorProfileContent">
+                <!-- Content loaded dynamically -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let selectedDoctorId = null;
+let selectedDoctorName = '';
+
+function startTelemedicine(doctorId, doctorName) {
+    selectedDoctorId = doctorId;
+    selectedDoctorName = doctorName;
+    
+    document.getElementById('doctorNameTitle').textContent = doctorName;
+    document.getElementById('selectedDoctorId').value = doctorId;
+    
+    // Reset form
+    document.getElementById('telemedicineForm').reset();
+    document.getElementById('selectedPlatform').value = '';
+    
+    // Remove previous selections
+    document.querySelectorAll('.platform-card').forEach(card => {
+        card.classList.remove('border-primary', 'bg-primary', 'bg-opacity-10');
+    });
+    
+    const modal = new bootstrap.Modal(document.getElementById('telemedicineModal'));
+    modal.show();
+}
+
+function selectPlatform(platform) {
+    // Remove previous selection
+    document.querySelectorAll('.platform-card').forEach(card => {
+        card.classList.remove('border-primary', 'bg-primary', 'bg-opacity-10');
+    });
+    
+    // Add selection to clicked card
+    event.currentTarget.classList.add('border-primary', 'bg-primary', 'bg-opacity-10');
+    
+    document.getElementById('selectedPlatform').value = platform;
+}
+
+function requestTelemedicineSession() {
+    const platform = document.getElementById('selectedPlatform').value;
+    const reason = document.getElementById('sessionReason').value;
+    const preferredTime = document.getElementById('preferredTime').value;
+    const doctorId = document.getElementById('selectedDoctorId').value;
+    
+    if (!platform) {
+        alert('Please select a platform for the session.');
+        return;
+    }
+    
+    if (!reason.trim()) {
+        alert('Please provide a reason for the consultation.');
+        return;
+    }
+    
+    if (!preferredTime) {
+        alert('Please select your preferred time.');
+        return;
+    }
+    
+    // Submit telemedicine request
+    fetch('/patient/request-telemedicine', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({
+            doctor_id: doctorId,
+            platform: platform,
+            reason: reason,
+            preferred_time: preferredTime
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Telemedicine session request sent successfully! The doctor will contact you with meeting details.');
+            bootstrap.Modal.getInstance(document.getElementById('telemedicineModal')).hide();
+        } else {
+            alert('Error requesting session: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error requesting session. Please try again.');
+    });
+}
+
+function viewDoctorProfile(doctorId) {
+    // Load doctor profile
+    fetch(`/patient/doctor-profile/${doctorId}`)
+    .then(response => response.text())
+    .then(html => {
+        document.getElementById('doctorProfileContent').innerHTML = html;
+        const modal = new bootstrap.Modal(document.getElementById('doctorProfileModal'));
+        modal.show();
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error loading doctor profile.');
+    });
+}
+
+function messageDoctorDirect(doctorId) {
+    // Redirect to messaging interface
+    window.location.href = `/patient/messages?doctor_id=${doctorId}`;
+}
+
+function loadMoreDoctors() {
+    // Implement pagination if needed
+    console.log('Loading more doctors...');
+}
+</script>
+
+<!-- CSS for doctor cards -->
+<style>
+.doctor-card {
+    border: none;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-radius: var(--space-3);
+}
+
+.doctor-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
+}
+
+.doctor-avatar {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto;
+}
+
+.doctor-avatar img,
+.doctor-avatar > div {
+    width: 80px;
+    height: 80px;
+}
+
+.doctor-stats .bg-opacity-10 {
+    border-radius: var(--space-2);
+}
+
+.platform-card {
+    border: 2px solid #e9ecef;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.platform-card:hover {
+    border-color: var(--primary-300);
+    transform: translateY(-2px);
+}
+
+.platform-card.border-primary {
+    border-color: var(--primary-500) !important;
+}
+
+.rating .fa-star {
+    font-size: 0.875rem;
+}
+
+.btn-sm {
+    font-size: 0.75rem;
+    padding: 0.375rem 0.5rem;
+}
+
+@media (max-width: 768px) {
+    .doctor-card .row.g-2 {
+        margin-top: 0.5rem !important;
+    }
+    
+    .doctor-card .btn-sm {
+        font-size: 0.7rem;
+        padding: 0.25rem 0.4rem;
+    }
+}
+</style>
+{% endblock %}

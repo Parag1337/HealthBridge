@@ -1,245 +1,449 @@
 {% extends "base.html" %}
 
-{% block title %}My Prescriptions - HealthBridge Ai{% endblock %}
+{% block title %}My Prescriptions - HealthBridge{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="text-white">My Prescriptions</h2>
-                <div>
-                    {% if prescriptions.items %}
-                    <button class="btn btn-success me-2" onclick="exportAllPrescriptionsPDF()">
-                        <i class="fas fa-file-pdf me-2"></i>Export All as PDF
-                    </button>
-                    {% endif %}
-                    <a href="{{ url_for('patient.dashboard') }}" class="btn btn-outline-primary">
-                        <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
-                    </a>
-                </div>
+<!-- Page Header -->
+<div class="section">
+    <div class="row align-items-center">
+        <div class="col-lg-8">
+            <div class="mb-4">
+                <h1 class="display-6 fw-bold text-primary mb-2">
+                    <i class="fas fa-prescription-bottle me-3"></i>My Prescriptions
+                </h1>
+                <p class="lead text-secondary mb-0">Manage your medications and prescription history</p>
+            </div>
+        </div>
+        <div class="col-lg-4 text-lg-end">
+            <div class="d-flex flex-wrap gap-2 justify-content-lg-end">
+                {% if prescriptions.items %}
+                <button class="btn btn-success" onclick="exportAllPrescriptionsPDF()">
+                    <i class="fas fa-file-pdf me-2"></i>Export All as PDF
+                </button>
+                {% endif %}
+                <a href="{{ url_for('patient.dashboard') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                </a>
             </div>
         </div>
     </div>
-    
-    <div class="row">
-        <div class="col-12">
-            <div class="card bg-dark border-primary">
-                <div class="card-body">
-                    {% if prescriptions.items %}
-                        {% for prescription in prescriptions.items %}
-                        <div class="card bg-secondary border-primary mb-3" id="prescription-{{ prescription.id }}">
-                            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                                <h6 class="mb-0">
-                                    <i class="fas fa-prescription-bottle me-2"></i>
-                                    Prescription #{{ prescription.id }}
-                                </h6>
-                                <div>
-                                    <span class="badge {% if prescription.status == 'Active' %}bg-success{% elif prescription.status == 'Completed' %}bg-secondary{% else %}bg-warning{% endif %}">
-                                        {{ prescription.status }}
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <!-- Medications Section -->
-                                <div class="mb-3">
-                                    <h6 class="text-white mb-2">
-                                        <i class="fas fa-pills me-2"></i>Medications:
-                                    </h6>
-                                    {% if prescription.medications %}
-                                        {% for med in prescription.medications %}
-                                        <div class="border border-success rounded p-3 mb-2">
-                                            <h6 class="text-success mb-2">{{ med.medication_name }}</h6>
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <p class="text-light mb-1">
-                                                        <strong class="text-info">Dosage:</strong> {{ med.dosage }}
-                                                    </p>
-                                                    <p class="text-light mb-1">
-                                                        <strong class="text-info">Frequency:</strong> {{ med.frequency }}
-                                                    </p>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <p class="text-light mb-1">
-                                                        <strong class="text-info">Duration:</strong> {{ med.duration }}
-                                                    </p>
-                                                    {% if med.instructions %}
-                                                    <p class="text-light mb-1">
-                                                        <strong class="text-info">Instructions:</strong> {{ med.instructions }}
-                                                    </p>
-                                                    {% endif %}
-                                                </div>
-                                            </div>
-                                        </div>
-                                        {% endfor %}
-                                    {% else %}
-                                        <!-- Fallback for legacy single medication -->
-                                        <div class="border border-success rounded p-3 mb-2">
-                                            <h6 class="text-success mb-2">{{ prescription.medication_name }}</h6>
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <p class="text-light mb-1">
-                                                        <strong class="text-info">Dosage:</strong> {{ prescription.dosage }}
-                                                    </p>
-                                                    <p class="text-light mb-1">
-                                                        <strong class="text-info">Frequency:</strong> {{ prescription.frequency }}
-                                                    </p>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    {% if prescription.duration %}
-                                                    <p class="text-light mb-1">
-                                                        <strong class="text-info">Duration:</strong> {{ prescription.duration }}
-                                                    </p>
-                                                    {% endif %}
-                                                    {% if prescription.instructions %}
-                                                    <p class="text-light mb-1">
-                                                        <strong class="text-info">Instructions:</strong> {{ prescription.instructions }}
-                                                    </p>
-                                                    {% endif %}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    {% endif %}
-                                </div>
+</div>
 
-                                <!-- Lab Tests Section -->
-                                {% if prescription.lab_tests %}
-                                <div class="mb-3">
-                                    <h6 class="text-white mb-2">
-                                        <i class="fas fa-flask me-2"></i>Lab Tests:
-                                    </h6>
-                                    {% for test in prescription.lab_tests %}
-                                    <div class="border border-warning rounded p-3 mb-2">
-                                        <div class="d-flex justify-content-between align-items-start">
-                                            <div>
-                                                <h6 class="text-warning mb-1">{{ test.test_name }}</h6>
-                                                <p class="text-light mb-1">
-                                                    <strong class="text-info">Type:</strong> {{ test.test_type }}
-                                                </p>
-                                                {% if test.suggested_date %}
-                                                <p class="text-light mb-1">
-                                                    <strong class="text-info">Suggested Date:</strong> {{ test.suggested_date.strftime('%Y-%m-%d') }}
-                                                </p>
-                                                {% endif %}
-                                                {% if test.instructions %}
-                                                <p class="text-light mb-1">
-                                                    <strong class="text-info">Instructions:</strong> {{ test.instructions }}
-                                                </p>
-                                                {% endif %}
+<!-- Prescriptions List -->
+<div class="section">
+    {% if prescriptions.items %}
+        <div class="row g-4">
+            {% for prescription in prescriptions.items %}
+            <div class="col-12">
+                <div class="card prescription-card" id="prescription-{{ prescription.id }}">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-primary bg-opacity-10 rounded-circle p-2 me-3">
+                                <i class="fas fa-prescription-bottle text-primary fa-lg"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-1">Prescription #{{ prescription.id }}</h5>
+                                <small class="text-muted">Prescribed by Dr. {{ prescription.doctor.first_name }} {{ prescription.doctor.last_name }}</small>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge 
+                                {% if prescription.status == 'Active' %}bg-success
+                                {% elif prescription.status == 'Completed' %}bg-info
+                                {% elif prescription.status == 'Expired' %}bg-secondary
+                                {% else %}bg-warning{% endif %} rounded-pill px-3 py-2">
+                                {{ prescription.status }}
+                            </span>
+                            <div class="dropdown">
+                                <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" onclick="exportPrescriptionPDF('{{ prescription.id }}')">
+                                        <i class="fas fa-download me-2"></i>Export PDF
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="requestRefill('{{ prescription.id }}')">
+                                        <i class="fas fa-plus me-2"></i>Request Refill
+                                    </a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body">
+                        <!-- Medications Section -->
+                        <div class="mb-4">
+                            <h6 class="fw-bold text-primary mb-3">
+                                <i class="fas fa-pills me-2"></i>Medications
+                            </h6>
+                            {% if prescription.medications %}
+                                <div class="row g-3">
+                                    {% for med in prescription.medications %}
+                                    <div class="col-lg-6">
+                                        <div class="bg-light rounded-lg p-3 h-100">
+                                            <div class="d-flex align-items-center mb-3">
+                                                <div class="bg-success bg-opacity-10 rounded-circle p-2 me-3">
+                                                    <i class="fas fa-capsules text-success"></i>
+                                                </div>
+                                                <h6 class="fw-bold mb-0 text-success">{{ med.medication_name }}</h6>
                                             </div>
-                                            <div>
-                                                <span class="badge {% if test.status == 'Pending' %}bg-warning text-dark{% elif test.status == 'Completed' %}bg-success{% elif test.status == 'In Progress' %}bg-info{% else %}bg-secondary{% endif %}">
-                                                    {{ test.status }}
-                                                </span>
+                                            <div class="row g-2">
+                                                <div class="col-6">
+                                                    <div class="mb-2">
+                                                        <small class="text-muted fw-semibold d-block">Dosage</small>
+                                                        <span class="fw-medium">{{ med.dosage }}</span>
+                                                    </div>
+                                                    <div class="mb-2">
+                                                        <small class="text-muted fw-semibold d-block">Frequency</small>
+                                                        <span class="fw-medium">{{ med.frequency }}</span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6">
+                                                    <div class="mb-2">
+                                                        <small class="text-muted fw-semibold d-block">Duration</small>
+                                                        <span class="fw-medium">{{ med.duration }}</span>
+                                                    </div>
+                                                    {% if med.instructions %}
+                                                    <div class="mb-2">
+                                                        <small class="text-muted fw-semibold d-block">Instructions</small>
+                                                        <span class="fw-medium">{{ med.instructions }}</span>
+                                                    </div>
+                                                    {% endif %}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                     {% endfor %}
                                 </div>
-                                {% endif %}
+                            {% else %}
+                                <!-- Fallback for legacy single medication -->
+                                <div class="bg-light rounded-lg p-4">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="bg-success bg-opacity-10 rounded-circle p-2 me-3">
+                                            <i class="fas fa-capsules text-success"></i>
+                                        </div>
+                                        <h6 class="fw-bold mb-0 text-success">{{ prescription.medication_name }}</h6>
+                                    </div>
+                                    <div class="row g-3">
+                                        <div class="col-md-3">
+                                            <small class="text-muted fw-semibold d-block">Dosage</small>
+                                            <span class="fw-medium">{{ prescription.dosage }}</span>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <small class="text-muted fw-semibold d-block">Frequency</small>
+                                            <span class="fw-medium">{{ prescription.frequency }}</span>
+                                        </div>
+                                        {% if prescription.duration %}
+                                        <div class="col-md-3">
+                                            <small class="text-muted fw-semibold d-block">Duration</small>
+                                            <span class="fw-medium">{{ prescription.duration }}</span>
+                                        </div>
+                                        {% endif %}
+                                        {% if prescription.instructions %}
+                                        <div class="col-md-3">
+                                            <small class="text-muted fw-semibold d-block">Instructions</small>
+                                            <span class="fw-medium">{{ prescription.instructions }}</span>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
 
-                                <!-- Prescription Details -->
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <p class="text-light mb-1">
-                                            <strong class="text-info">Prescribed by:</strong> Dr. {{ prescription.doctor.first_name }} {{ prescription.doctor.last_name }}
-                                        </p>
-                                        <p class="text-light mb-1">
-                                            <strong class="text-info">Prescribed on:</strong> 
-                                            {% if prescription.prescribed_date %}
-                                                {{ prescription.prescribed_date.strftime('%B %d, %Y') }}
-                                            {% else %}
-                                                {{ prescription.created_at.strftime('%B %d, %Y') }}
+                        <!-- Lab Tests Section -->
+                        {% if prescription.lab_tests %}
+                        <div class="mb-4">
+                            <h6 class="fw-bold text-warning mb-3">
+                                <i class="fas fa-flask me-2"></i>Recommended Lab Tests
+                            </h6>
+                            <div class="row g-3">
+                                {% for test in prescription.lab_tests %}
+                                <div class="col-lg-6">
+                                    <div class="bg-warning bg-opacity-10 rounded-lg p-3 h-100 border border-warning border-opacity-25">
+                                        <div class="d-flex justify-content-between align-items-start mb-3">
+                                            <div class="d-flex align-items-center">
+                                                <div class="bg-warning bg-opacity-20 rounded-circle p-2 me-3">
+                                                    <i class="fas fa-vial text-warning"></i>
+                                                </div>
+                                                <h6 class="fw-bold mb-0 text-warning">{{ test.test_name }}</h6>
+                                            </div>
+                                            <span class="badge 
+                                                {% if test.status == 'Pending' %}bg-warning text-dark
+                                                {% elif test.status == 'Completed' %}bg-success
+                                                {% elif test.status == 'In Progress' %}bg-info
+                                                {% else %}bg-secondary{% endif %} rounded-pill">
+                                                {{ test.status }}
+                                            </span>
+                                        </div>
+                                        <div class="row g-2">
+                                            <div class="col-12">
+                                                <small class="text-muted fw-semibold d-block">Test Type</small>
+                                                <span class="fw-medium">{{ test.test_type }}</span>
+                                            </div>
+                                            {% if test.suggested_date %}
+                                            <div class="col-12">
+                                                <small class="text-muted fw-semibold d-block">Suggested Date</small>
+                                                <span class="fw-medium">{{ test.suggested_date.strftime('%B %d, %Y') }}</span>
+                                            </div>
                                             {% endif %}
-                                        </p>
-                                    </div>
-                                    <div class="col-md-6">
-                                        {% if prescription.refills_remaining %}
-                                        <p class="text-light mb-1">
-                                            <strong class="text-info">Refills remaining:</strong> {{ prescription.refills_remaining }}
-                                        </p>
-                                        {% endif %}
-                                        {% if prescription.notes %}
-                                        <p class="text-light mb-1">
-                                            <strong class="text-info">Notes:</strong> {{ prescription.notes }}
-                                        </p>
-                                        {% endif %}
+                                            {% if test.instructions %}
+                                            <div class="col-12">
+                                                <small class="text-muted fw-semibold d-block">Instructions</small>
+                                                <span class="fw-medium">{{ test.instructions }}</span>
+                                            </div>
+                                            {% endif %}
+                                        </div>
                                     </div>
                                 </div>
-
-                                <!-- Action Buttons -->
-                                <div class="d-flex justify-content-end mt-3 gap-2">
-                                    <button class="btn btn-outline-info btn-sm" onclick="viewPrescriptionDetails({{ prescription.id }})">
-                                        <i class="fas fa-eye me-1"></i>View Details
-                                    </button>
-                                    <button class="btn btn-outline-success btn-sm" onclick="exportPrescriptionPDF({{ prescription.id }})">
-                                        <i class="fas fa-download me-1"></i>Export PDF
-                                    </button>
-                                    {% if prescription.status == 'Active' %}
-                                    <button class="btn btn-outline-primary btn-sm" onclick="requestRefill({{ prescription.id }})">
-                                        <i class="fas fa-redo me-1"></i>Request Refill
-                                    </button>
-                                    {% endif %}
-                                </div>
+                                {% endfor %}
                             </div>
                         </div>
-                        {% endfor %}
-                        
-                        <!-- Pagination -->
-                        {% if prescriptions.pages > 1 %}
-                        <nav aria-label="Prescriptions pagination" class="mt-4">
-                            <ul class="pagination justify-content-center">
-                                {% if prescriptions.has_prev %}
-                                    <li class="page-item">
-                                        <a class="page-link bg-dark text-primary border-primary" 
-                                           href="{{ url_for('patient.prescriptions', page=prescriptions.prev_num) }}">Previous</a>
-                                    </li>
-                                {% endif %}
-                                
-                                {% for page_num in prescriptions.iter_pages() %}
-                                    {% if page_num %}
-                                        {% if page_num != prescriptions.page %}
-                                            <li class="page-item">
-                                                <a class="page-link bg-dark text-primary border-primary" 
-                                                   href="{{ url_for('patient.prescriptions', page=page_num) }}">{{ page_num }}</a>
-                                            </li>
-                                        {% else %}
-                                            <li class="page-item active">
-                                                <span class="page-link bg-primary border-primary">{{ page_num }}</span>
-                                            </li>
-                                        {% endif %}
-                                    {% else %}
-                                        <li class="page-item disabled">
-                                            <span class="page-link bg-dark text-muted border-primary">...</span>
-                                        </li>
-                                    {% endif %}
-                                {% endfor %}
-                                
-                                {% if prescriptions.has_next %}
-                                    <li class="page-item">
-                                        <a class="page-link bg-dark text-primary border-primary" 
-                                           href="{{ url_for('patient.prescriptions', page=prescriptions.next_num) }}">Next</a>
-                                    </li>
-                                {% endif %}
-                            </ul>
-                        </nav>
                         {% endif %}
-                        
-                    {% else %}
-                        <div class="text-center py-5">
-                            <i class="fas fa-prescription-bottle fa-4x text-muted mb-3"></i>
-                            <h4 class="text-white">No Prescriptions Yet</h4>
-                            <p class="text-muted mb-4">You don't have any prescriptions yet. Visit a doctor to get prescriptions.</p>
-                            <a href="{{ url_for('patient.find_doctors') }}" class="btn btn-primary btn-lg">
-                                <i class="fas fa-calendar-plus me-2"></i>Book an Appointment
-                            </a>
+
+                        <!-- Prescription Information -->
+                        <div class="bg-gray-50 rounded-lg p-3">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <small class="text-muted fw-semibold d-block">Prescribed Date</small>
+                                    <span class="fw-medium">
+                                        {% if prescription.prescribed_date %}
+                                            {{ prescription.prescribed_date.strftime('%B %d, %Y') }}
+                                        {% else %}
+                                            {{ prescription.created_at.strftime('%B %d, %Y') }}
+                                        {% endif %}
+                                    </span>
+                                </div>
+                                <div class="col-md-4">
+                                    <small class="text-muted fw-semibold d-block">Prescribed By</small>
+                                    <span class="fw-medium">Dr. {{ prescription.doctor.first_name }} {{ prescription.doctor.last_name }}</span>
+                                </div>
+                                {% if prescription.notes %}
+                                <div class="col-md-4">
+                                    <small class="text-muted fw-semibold d-block">Doctor's Notes</small>
+                                    <span class="fw-medium">{{ prescription.notes }}</span>
+                                </div>
+                                {% endif %}
+                            </div>
                         </div>
-                    {% endif %}
+
+                        <!-- Action Buttons -->
+                        <div class="row g-2 mt-3">
+                            <div class="col-auto">
+                                <button class="btn btn-outline-info btn-sm" onclick="viewPrescriptionDetails('{{ prescription.id }}')">
+                                    <i class="fas fa-eye me-2"></i>View Details
+                                </button>
+                            </div>
+                            <div class="col-auto">
+                                <button class="btn btn-outline-success btn-sm" onclick="exportPrescriptionPDF('{{ prescription.id }}')">
+                                    <i class="fas fa-download me-2"></i>Download PDF
+                                </button>
+                            </div>
+                            {% if prescription.status == 'Active' %}
+                            <div class="col-auto">
+                                <button class="btn btn-outline-primary btn-sm" onclick="requestRefill('{{ prescription.id }}')">
+                                    <i class="fas fa-plus me-2"></i>Request Refill
+                                </button>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
                 </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if prescriptions.pages > 1 %}
+        <div class="row mt-4">
+            <div class="col-12">
+                <nav aria-label="Prescription pagination">
+                    <ul class="pagination justify-content-center">
+                        {% if prescriptions.has_prev %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('patient.prescriptions', page=prescriptions.prev_num) }}">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                        {% endif %}
+
+                        {% for page_num in prescriptions.iter_pages() %}
+                            {% if page_num %}
+                                {% if page_num != prescriptions.page %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('patient.prescriptions', page=page_num) }}">{{ page_num }}</a>
+                                </li>
+                                {% else %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ page_num }}</span>
+                                </li>
+                                {% endif %}
+                            {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">…</span>
+                            </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if prescriptions.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('patient.prescriptions', page=prescriptions.next_num) }}">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        {% endif %}
+
+    {% else %}
+        <!-- Empty State -->
+        <div class="row">
+            <div class="col-12">
+                <div class="text-center py-5">
+                    <div class="mb-4">
+                        <i class="fas fa-prescription-bottle text-muted" style="font-size: 4rem;"></i>
+                    </div>
+                    <h4 class="text-muted mb-3">No Prescriptions Found</h4>
+                    <p class="text-secondary mb-4">You don't have any prescriptions yet. When your doctor prescribes medications, they will appear here.</p>
+                    <a href="{{ url_for('patient.dashboard') }}" class="btn btn-primary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Prescription Details Modal -->
+<div class="modal fade" id="prescriptionDetailsModal" tabindex="-1" aria-labelledby="prescriptionDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="prescriptionDetailsModalLabel">
+                    <i class="fas fa-prescription-bottle me-2"></i>Prescription Details
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="prescriptionDetailsContent">
+                <!-- Content will be loaded dynamically -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-success" onclick="exportCurrentPrescriptionPDF()">
+                    <i class="fas fa-download me-2"></i>Download PDF
+                </button>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+// Prescription functions
+function viewPrescriptionDetails(prescriptionId) {
+    // Show prescription details in modal
+    const modal = new bootstrap.Modal(document.getElementById('prescriptionDetailsModal'));
+    
+    // Load prescription details (this would typically be an AJAX call)
+    const prescriptionElement = document.getElementById('prescription-' + prescriptionId);
+    const prescriptionContent = prescriptionElement.innerHTML;
+    
+    document.getElementById('prescriptionDetailsContent').innerHTML = prescriptionContent;
+    modal.show();
+}
+
+function exportPrescriptionPDF(prescriptionId) {
+    // Export single prescription as PDF
+    window.open('/patient/prescriptions/' + prescriptionId + '/pdf', '_blank');
+}
+
+function exportAllPrescriptionsPDF() {
+    // Export all prescriptions as PDF
+    window.open('/patient/prescriptions/export/pdf', '_blank');
+}
+
+function requestRefill(prescriptionId) {
+    if (confirm('Are you sure you want to request a refill for this prescription?')) {
+        // Submit refill request (this would typically be an AJAX call)
+        fetch('/patient/prescriptions/' + prescriptionId + '/refill', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Refill request submitted successfully!');
+            } else {
+                alert('Error submitting refill request: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error submitting refill request. Please try again.');
+        });
+    }
+}
+
+let currentPrescriptionId = null;
+
+function exportCurrentPrescriptionPDF() {
+    if (currentPrescriptionId) {
+        exportPrescriptionPDF(currentPrescriptionId);
+    }
+}
+</script>
+
+<!-- Additional CSS for prescription cards -->
+<style>
+.prescription-card {
+    border: none;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-radius: var(--space-3);
+}
+
+.prescription-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+}
+
+.bg-gray-50 {
+    background-color: #f8f9fa;
+}
+
+.rounded-lg {
+    border-radius: var(--space-3);
+}
+
+.page-link {
+    border-radius: var(--space-2);
+    margin: 0 2px;
+    border: 1px solid #dee2e6;
+    color: var(--text-secondary);
+}
+
+.page-link:hover {
+    background-color: var(--primary-100);
+    border-color: var(--primary-300);
+    color: var(--primary-700);
+}
+
+.page-item.active .page-link {
+    background-color: var(--primary-600);
+    border-color: var(--primary-600);
+    color: white;
+}
+
+.btn-sm {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.875rem;
+    border-radius: var(--space-2);
+}
+</style>
 
 <!-- Prescription Details Modal -->
 <div class="modal fade" id="prescriptionDetailsModal" tabindex="-1" aria-labelledby="prescriptionDetailsModalLabel" aria-hidden="true">

@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+
+{% block title %}Book Online Consultation - HealthBridge Ai{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card border-0 shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-video"></i> Book Online Consultation
+                    </h4>
+                    <p class="mb-0 mt-2 opacity-75">Schedule a video consultation with our doctors from the comfort of your home</p>
+                </div>
+                <div class="card-body">
+                    <!-- Benefits Section -->
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="text-center p-3 bg-light rounded">
+                                <i class="fas fa-home fa-2x text-primary mb-2"></i>
+                                <h6>From Home</h6>
+                                <small class="text-muted">No travel required</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center p-3 bg-light rounded">
+                                <i class="fas fa-clock fa-2x text-success mb-2"></i>
+                                <h6>Time Saving</h6>
+                                <small class="text-muted">Quick & convenient</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center p-3 bg-light rounded">
+                                <i class="fas fa-shield-alt fa-2x text-info mb-2"></i>
+                                <h6>Safe & Secure</h6>
+                                <small class="text-muted">Encrypted video calls</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Booking Form -->
+                    <form method="POST" id="onlineBookingForm">
+                        <div class="row">
+                            <!-- Doctor Selection -->
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">
+                                    <i class="fas fa-user-md text-primary"></i> Select Doctor
+                                </label>
+                                <select class="form-select" name="doctor_id" required>
+                                    <option value="">Choose a doctor...</option>
+                                    {% for doctor in doctors %}
+                                    <option value="{{ doctor.id }}">
+                                        Dr. {{ doctor.first_name }} {{ doctor.last_name }}
+                                        {% if doctor.specialization %}
+                                        - {{ doctor.specialization }}
+                                        {% endif %}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- Date Selection -->
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">
+                                    <i class="fas fa-calendar text-success"></i> Appointment Date
+                                </label>
+                                <input type="date" class="form-control" name="date" 
+                                       min="{{ min_date }}" 
+                                       max="{{ max_date }}" 
+                                       required>
+                            </div>
+
+                            <!-- Time Selection -->
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">
+                                    <i class="fas fa-clock text-warning"></i> Preferred Time
+                                </label>
+                                <select class="form-select" name="time" required>
+                                    <option value="">Select time...</option>
+                                    <option value="09:00">9:00 AM</option>
+                                    <option value="09:30">9:30 AM</option>
+                                    <option value="10:00">10:00 AM</option>
+                                    <option value="10:30">10:30 AM</option>
+                                    <option value="11:00">11:00 AM</option>
+                                    <option value="11:30">11:30 AM</option>
+                                    <option value="14:00">2:00 PM</option>
+                                    <option value="14:30">2:30 PM</option>
+                                    <option value="15:00">3:00 PM</option>
+                                    <option value="15:30">3:30 PM</option>
+                                    <option value="16:00">4:00 PM</option>
+                                    <option value="16:30">4:30 PM</option>
+                                    <option value="17:00">5:00 PM</option>
+                                </select>
+                            </div>
+
+                            <!-- Consultation Type -->
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">
+                                    <i class="fas fa-stethoscope text-info"></i> Consultation Type
+                                </label>
+                                <select class="form-select" name="consultation_type">
+                                    <option value="general">General Consultation</option>
+                                    <option value="follow-up">Follow-up</option>
+                                    <option value="prescription">Prescription Renewal</option>
+                                    <option value="second-opinion">Second Opinion</option>
+                                </select>
+                            </div>
+
+                            <!-- Reason for Visit -->
+                            <div class="col-12 mb-3">
+                                <label class="form-label fw-bold">
+                                    <i class="fas fa-comment-medical text-danger"></i> Reason for Consultation
+                                </label>
+                                <textarea class="form-control" name="reason" rows="3" 
+                                          placeholder="Please describe your symptoms or reason for the consultation..."
+                                          required></textarea>
+                            </div>
+
+                            <!-- Technical Requirements -->
+                            <div class="col-12 mb-4">
+                                <div class="alert alert-info border-0">
+                                    <h6 class="alert-heading">
+                                        <i class="fas fa-laptop"></i> Technical Requirements
+                                    </h6>
+                                    <ul class="mb-0">
+                                        <li>Stable internet connection (minimum 1 Mbps)</li>
+                                        <li>Device with camera and microphone (computer, tablet, or smartphone)</li>
+                                        <li>Modern web browser (Chrome, Firefox, Safari, or Edge)</li>
+                                        <li>Quiet, well-lit environment for the consultation</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Terms and Conditions -->
+                            <div class="col-12 mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="termsCheck" required>
+                                    <label class="form-check-label" for="termsCheck">
+                                        I agree to the <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">Terms and Conditions</a> 
+                                        for online consultations
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="col-12">
+                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                    <a href="{{ url_for('patient.dashboard') }}" class="btn btn-outline-secondary me-md-2">
+                                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                                    </a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-calendar-plus"></i> Book Online Consultation
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Terms and Conditions Modal -->
+<div class="modal fade" id="termsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Online Consultation Terms and Conditions</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <h6>1. Scope of Service</h6>
+                <p>Online consultations are suitable for non-emergency medical advice, follow-up consultations, and general health inquiries.</p>
+                
+                <h6>2. Limitations</h6>
+                <ul>
+                    <li>Not suitable for emergency situations - call emergency services if needed</li>
+                    <li>Physical examination limitations may require in-person follow-up</li>
+                    <li>Prescription of controlled substances may not be available</li>
+                </ul>
+                
+                <h6>3. Technical Requirements</h6>
+                <p>You are responsible for ensuring adequate internet connection and compatible devices.</p>
+                
+                <h6>4. Privacy and Security</h6>
+                <p>All video consultations are encrypted and comply with healthcare privacy regulations.</p>
+                
+                <h6>5. Recording Policy</h6>
+                <p>Consultations may be recorded for quality assurance and medical record purposes with your consent.</p>
+                
+                <h6>6. Cancellation Policy</h6>
+                <p>Online consultations can be cancelled up to 2 hours before the scheduled time.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set minimum date to tomorrow
+    const dateInput = document.querySelector('input[name="date"]');
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    dateInput.min = tomorrow.toISOString().split('T')[0];
+    
+    // Set maximum date to 30 days from today
+    const maxDate = new Date();
+    maxDate.setDate(maxDate.getDate() + 30);
+    dateInput.max = maxDate.toISOString().split('T')[0];
+    
+    // Form validation
+    const form = document.getElementById('onlineBookingForm');
+    form.addEventListener('submit', function(e) {
+        const selectedDate = new Date(dateInput.value);
+        const today = new Date();
+        
+        if (selectedDate <= today) {
+            e.preventDefault();
+            alert('Please select a future date for your consultation.');
+            return false;
+        }
+        
+        // Show loading state
+        const submitBtn = form.querySelector('button[type="submit"]');
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Booking...';
+        submitBtn.disabled = true;
+    });
+    
+    // Doctor selection change handler
+    const doctorSelect = document.querySelector('select[name="doctor_id"]');
+    doctorSelect.addEventListener('change', function() {
+        // In a real implementation, you might fetch available time slots for the selected doctor
+        console.log('Doctor selected:', this.value);
+    });
+});
+</script>
+{% endblock %}

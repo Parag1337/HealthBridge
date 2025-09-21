@@ -1,0 +1,333 @@
+{% extends "base.html" %}
+
+{% block title %}Telemedicine Sessions - HealthBridge{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="section">
+    <div class="row align-items-center">
+        <div class="col-lg-8">
+            <div class="mb-4">
+                <h1 class="display-6 fw-bold text-primary mb-2">
+                    <i class="fas fa-video me-3"></i>Telemedicine Sessions
+                </h1>
+                <p class="lead text-secondary mb-0">Your virtual consultations and video appointments</p>
+            </div>
+        </div>
+        <div class="col-lg-4 text-lg-end">
+            <div class="d-flex flex-wrap gap-2 justify-content-lg-end">
+                <a href="{{ url_for('patient.doctors') }}" class="btn btn-success">
+                    <i class="fas fa-plus me-2"></i>Request New Session
+                </a>
+                <a href="{{ url_for('patient.dashboard') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sessions List -->
+<div class="section">
+    {% if appointments %}
+        <div class="row g-4">
+            {% for appointment in appointments %}
+            <div class="col-12">
+                <div class="card telemedicine-card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-primary bg-opacity-10 rounded-circle p-2 me-3">
+                                <i class="fas fa-video text-primary fa-lg"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-1">Telemedicine Session with Dr. {{ appointment.doctor.first_name }} {{ appointment.doctor.last_name }}</h5>
+                                <small class="text-muted">{{ appointment.doctor.specialization }}</small>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge 
+                                {% if appointment.status == 'pending' %}bg-warning text-dark
+                                {% elif appointment.status == 'confirmed' %}bg-info
+                                {% elif appointment.status == 'in-progress' %}bg-success
+                                {% elif appointment.status == 'completed' %}bg-secondary
+                                {% elif appointment.status == 'cancelled' %}bg-danger
+                                {% else %}bg-primary{% endif %} rounded-pill px-3 py-2">
+                                {{ appointment.status.title() }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body">
+                        <div class="row g-4">
+                            <!-- Session Details -->
+                            <div class="col-lg-8">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="d-flex align-items-center mb-3">
+                                            <i class="fas fa-calendar text-primary me-2"></i>
+                                            <div>
+                                                <small class="text-muted d-block">Date & Time</small>
+                                                <span class="fw-medium">{{ appointment.date.strftime('%B %d, %Y') }}</span>
+                                                <span class="text-muted">at {{ appointment.time.strftime('%I:%M %p') }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="d-flex align-items-center mb-3">
+                                            <i class="fas fa-desktop text-success me-2"></i>
+                                            <div>
+                                                <small class="text-muted d-block">Platform</small>
+                                                <span class="fw-medium">
+                                                    {% if appointment.telemedicine_platform == 'zoom' %}
+                                                        <i class="fab fa-zoom me-1"></i>Zoom
+                                                    {% elif appointment.telemedicine_platform == 'google-meet' %}
+                                                        <i class="fab fa-google me-1"></i>Google Meet
+                                                    {% else %}
+                                                        {{ appointment.telemedicine_platform.title() }}
+                                                    {% endif %}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% if appointment.consultation_fee %}
+                                    <div class="col-md-6">
+                                        <div class="d-flex align-items-center mb-3">
+                                            <i class="fas fa-dollar-sign text-warning me-2"></i>
+                                            <div>
+                                                <small class="text-muted d-block">Consultation Fee</small>
+                                                <span class="fw-medium">${{ appointment.consultation_fee }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                    {% if appointment.reason %}
+                                    <div class="col-12">
+                                        <div class="bg-light rounded-lg p-3">
+                                            <small class="text-muted fw-semibold d-block mb-2">Reason for Consultation</small>
+                                            <p class="mb-0">{{ appointment.reason }}</p>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <!-- Action Panel -->
+                            <div class="col-lg-4">
+                                <div class="bg-gray-50 rounded-lg p-3 h-100">
+                                    <h6 class="fw-semibold mb-3">Session Actions</h6>
+                                    
+                                    {% if appointment.status == 'confirmed' and appointment.telemedicine_link %}
+                                        <!-- Ready to join -->
+                                        <div class="text-center mb-3">
+                                            <div class="bg-success bg-opacity-10 rounded-circle p-3 d-inline-flex mb-2">
+                                                <i class="fas fa-video text-success fa-lg"></i>
+                                            </div>
+                                            <p class="text-success fw-medium mb-0">Ready to Join</p>
+                                        </div>
+                                        <div class="d-grid gap-2">
+                                            <a href="{{ url_for('patient.join_telemedicine', appointment_id=appointment.id) }}" 
+                                               class="btn btn-success" target="_blank">
+                                                <i class="fas fa-video me-2"></i>Join Session
+                                            </a>
+                                            <button class="btn btn-outline-info btn-sm" 
+                                                    onclick="copyMeetingLink('{{ appointment.telemedicine_link }}')">
+                                                <i class="fas fa-copy me-1"></i>Copy Link
+                                            </button>
+                                        </div>
+                                    {% elif appointment.status == 'pending' %}
+                                        <!-- Waiting for confirmation -->
+                                        <div class="text-center mb-3">
+                                            <div class="bg-warning bg-opacity-10 rounded-circle p-3 d-inline-flex mb-2">
+                                                <i class="fas fa-clock text-warning fa-lg"></i>
+                                            </div>
+                                            <p class="text-warning fw-medium mb-0">Pending Confirmation</p>
+                                            <small class="text-muted">Doctor will confirm shortly</small>
+                                        </div>
+                                        <div class="d-grid">
+                                            <button class="btn btn-outline-danger btn-sm" 
+                                                    onclick="cancelSession('{{ appointment.id }}')">
+                                                <i class="fas fa-times me-1"></i>Cancel Request
+                                            </button>
+                                        </div>
+                                    {% elif appointment.status == 'completed' %}
+                                        <!-- Session completed -->
+                                        <div class="text-center mb-3">
+                                            <div class="bg-info bg-opacity-10 rounded-circle p-3 d-inline-flex mb-2">
+                                                <i class="fas fa-check text-info fa-lg"></i>
+                                            </div>
+                                            <p class="text-info fw-medium mb-0">Session Completed</p>
+                                            <small class="text-muted">{{ appointment.completed_at.strftime('%B %d, %Y') if appointment.completed_at else 'Recently' }}</small>
+                                        </div>
+                                        <div class="d-grid gap-2">
+                                            {% if not appointment.has_feedback() %}
+                                            <a href="{{ url_for('patient.submit_feedback', appointment_id=appointment.id) }}" 
+                                               class="btn btn-outline-primary btn-sm">
+                                                <i class="fas fa-star me-1"></i>Rate Session
+                                            </a>
+                                            {% endif %}
+                                            <button class="btn btn-outline-info btn-sm" 
+                                                    onclick="viewSessionSummary('{{ appointment.id }}')">
+                                                <i class="fas fa-file-alt me-1"></i>View Summary
+                                            </button>
+                                        </div>
+                                    {% elif appointment.status == 'cancelled' %}
+                                        <!-- Session cancelled -->
+                                        <div class="text-center mb-3">
+                                            <div class="bg-danger bg-opacity-10 rounded-circle p-3 d-inline-flex mb-2">
+                                                <i class="fas fa-times text-danger fa-lg"></i>
+                                            </div>
+                                            <p class="text-danger fw-medium mb-0">Session Cancelled</p>
+                                        </div>
+                                        <div class="d-grid">
+                                            <a href="{{ url_for('patient.doctors') }}" class="btn btn-outline-primary btn-sm">
+                                                <i class="fas fa-plus me-1"></i>Request New Session
+                                            </a>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <!-- Empty State -->
+        <div class="row">
+            <div class="col-12">
+                <div class="text-center py-5">
+                    <div class="mb-4">
+                        <i class="fas fa-video text-muted" style="font-size: 4rem;"></i>
+                    </div>
+                    <h4 class="text-muted mb-3">No Telemedicine Sessions</h4>
+                    <p class="text-secondary mb-4">You haven't scheduled any telemedicine sessions yet. Start by requesting a virtual consultation with your doctor.</p>
+                    <a href="{{ url_for('patient.doctors') }}" class="btn btn-primary">
+                        <i class="fas fa-video me-2"></i>Request Telemedicine Session
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Session Summary Modal -->
+<div class="modal fade" id="sessionSummaryModal" tabindex="-1" aria-labelledby="sessionSummaryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="sessionSummaryModalLabel">
+                    <i class="fas fa-file-alt me-2"></i>Session Summary
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="sessionSummaryContent">
+                <!-- Content loaded dynamically -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="downloadSessionSummary()">
+                    <i class="fas fa-download me-2"></i>Download PDF
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function copyMeetingLink(link) {
+    navigator.clipboard.writeText(link).then(function() {
+        alert('Meeting link copied to clipboard!');
+    }, function(err) {
+        console.error('Could not copy text: ', err);
+        alert('Failed to copy link. Please copy manually.');
+    });
+}
+
+function cancelSession(appointmentId) {
+    if (confirm('Are you sure you want to cancel this telemedicine session?')) {
+        fetch(`/patient/cancel-appointment/${appointmentId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Session cancelled successfully.');
+                location.reload();
+            } else {
+                alert('Error cancelling session: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error cancelling session. Please try again.');
+        });
+    }
+}
+
+function viewSessionSummary(appointmentId) {
+    fetch(`/patient/session-summary/${appointmentId}`)
+    .then(response => response.text())
+    .then(html => {
+        document.getElementById('sessionSummaryContent').innerHTML = html;
+        const modal = new bootstrap.Modal(document.getElementById('sessionSummaryModal'));
+        modal.show();
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error loading session summary.');
+    });
+}
+
+function downloadSessionSummary() {
+    // Implement PDF download functionality
+    alert('Session summary download will be implemented soon.');
+}
+</script>
+
+<!-- CSS for telemedicine cards -->
+<style>
+.telemedicine-card {
+    border: none;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-radius: var(--space-3);
+    margin-bottom: var(--space-4);
+}
+
+.telemedicine-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+}
+
+.telemedicine-card .card-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-bottom: 1px solid #dee2e6;
+    border-radius: var(--space-3) var(--space-3) 0 0 !important;
+}
+
+.bg-gray-50 {
+    background-color: #f8f9fa;
+}
+
+.rounded-lg {
+    border-radius: var(--space-3);
+}
+
+@media (max-width: 768px) {
+    .telemedicine-card .card-header {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: var(--space-2);
+    }
+    
+    .telemedicine-card .row.g-4 {
+        flex-direction: column;
+    }
+}
+</style>
+{% endblock %}

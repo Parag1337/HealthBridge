@@ -96,15 +96,15 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for appointment in scheduled_appointments %}
+                                    {% for appointment, patient in scheduled_appointments %}
                                     <tr>
                                         <td>
                                             <strong>{{ appointment.time.strftime('%I:%M %p') }}</strong>
                                         </td>
                                         <td>
                                             <div>
-                                                <strong>{{ appointment.patient.user.username }}</strong><br>
-                                                <small class="text-muted">{{ appointment.patient.phone if appointment.patient.phone else 'No phone' }}</small>
+                                                <strong>{{ patient.username }}</strong><br>
+                                                <small class="text-muted">{{ patient.phone if patient.phone else 'No phone' }}</small>
                                             </div>
                                         </td>
                                         <td>
@@ -147,15 +147,15 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for appointment in in_progress_appointments %}
+                                    {% for appointment, patient in in_progress_appointments %}
                                     <tr>
                                         <td>
                                             <strong>{{ appointment.time.strftime('%I:%M %p') }}</strong>
                                         </td>
                                         <td>
                                             <div>
-                                                <strong>{{ appointment.patient.user.username }}</strong><br>
-                                                <small class="text-muted">{{ appointment.patient.phone if appointment.patient.phone else 'No phone' }}</small>
+                                                <strong>{{ patient.username }}</strong><br>
+                                                <small class="text-muted">{{ patient.phone if patient.phone else 'No phone' }}</small>
                                             </div>
                                         </td>
                                         <td>
@@ -206,15 +206,15 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for appointment in completed_appointments %}
+                                    {% for appointment, patient in completed_appointments %}
                                     <tr>
                                         <td>
                                             <strong>{{ appointment.time.strftime('%I:%M %p') }}</strong>
                                         </td>
                                         <td>
                                             <div>
-                                                <strong>{{ appointment.patient.user.username }}</strong><br>
-                                                <small class="text-muted">{{ appointment.patient.phone if appointment.patient.phone else 'No phone' }}</small>
+                                                <strong>{{ patient.username }}</strong><br>
+                                                <small class="text-muted">{{ patient.phone if patient.phone else 'No phone' }}</small>
                                             </div>
                                         </td>
                                         <td>
@@ -236,7 +236,7 @@
                                         <td>
                                             <div class="btn-group btn-group-sm" role="group">
                                                 <button class="btn btn-outline-primary" 
-                                                        onclick="viewPatientHistory({{ appointment.patient.id }})">
+                                                        onclick="viewPatientHistory({{ patient.id }})">
                                                     <i class="fas fa-history"></i> History
                                                 </button>
                                                 <button class="btn btn-outline-success" 
@@ -301,7 +301,7 @@ function updateClock() {
 
 // Update duration for in-progress appointments
 function updateDurations() {
-    {% for appointment in in_progress_appointments %}
+    {% for appointment, patient in in_progress_appointments %}
     const startTime = new Date('{{ appointment.time.strftime("%Y-%m-%d %H:%M:%S") }}');
     const now = new Date();
     const duration = Math.floor((now - startTime) / (1000 * 60)); // minutes
