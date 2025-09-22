@@ -7,6 +7,7 @@ from app.models.prescription import Prescription
 from app.models.prescription_components import PrescriptionMedication, LabTest, PrescriptionEdit
 from app.models.scheduling import DoctorSchedule, SlotConfiguration, AvailabilityOverride, TimeSlot, RecurringSchedule
 from app.utils.email import send_prescription_email
+from app.utils.timezone_utils import get_current_date, get_current_time, get_current_datetime
 from datetime import datetime, date, timedelta, time
 from sqlalchemy import and_, or_
 
@@ -20,7 +21,7 @@ def home():
         flash('Access denied. Doctors only.', 'error')
         return redirect(url_for('main.index'))
     
-    today = date.today()
+    today = get_current_date()  # Use timezone-aware date
     
     # Get today's appointments with patient details
     today_appointments = db.session.query(Appointment, User).join(
@@ -41,7 +42,7 @@ def home():
     
     # Next appointment
     next_appointment = None
-    current_time = datetime.now().time()
+    current_time = get_current_time()  # Use timezone-aware time
     for apt, patient in today_appointments:
         if apt.status == 'scheduled' and apt.time >= current_time:
             next_appointment = (apt, patient)

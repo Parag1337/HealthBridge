@@ -135,7 +135,8 @@ Thumbs.db
 *.sqlite3
 instance/
 migrations/versions/
+.env
 .env.local
 .env.development
 .env.test
-.env.production
+# Note: .env.production is NOT ignored - it's a safe template
