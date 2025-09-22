@@ -76,22 +76,14 @@
                                 <label class="form-label fw-bold">
                                     <i class="fas fa-clock text-warning"></i> Preferred Time
                                 </label>
-                                <select class="form-select" name="time" required>
+                                <select class="form-select" name="time" id="appointment_time" required>
                                     <option value="">Select time...</option>
-                                    <option value="09:00">9:00 AM</option>
-                                    <option value="09:30">9:30 AM</option>
-                                    <option value="10:00">10:00 AM</option>
-                                    <option value="10:30">10:30 AM</option>
-                                    <option value="11:00">11:00 AM</option>
-                                    <option value="11:30">11:30 AM</option>
-                                    <option value="14:00">2:00 PM</option>
-                                    <option value="14:30">2:30 PM</option>
-                                    <option value="15:00">3:00 PM</option>
-                                    <option value="15:30">3:30 PM</option>
-                                    <option value="16:00">4:00 PM</option>
-                                    <option value="16:30">4:30 PM</option>
-                                    <option value="17:00">5:00 PM</option>
+                                    <!-- Time slots will be populated dynamically based on doctor and date selection -->
                                 </select>
+                                <div class="form-text">
+                                    <i class="fas fa-info-circle"></i> 
+                                    Available times are based on the doctor's schedule. Select a doctor and date first.
+                                </div>
                             </div>
 
                             <!-- Consultation Type -->
@@ -235,10 +227,49 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Doctor selection change handler
     const doctorSelect = document.querySelector('select[name="doctor_id"]');
-    doctorSelect.addEventListener('change', function() {
-        // In a real implementation, you might fetch available time slots for the selected doctor
-        console.log('Doctor selected:', this.value);
-    });
+    
+    doctorSelect.addEventListener('change', updateTimeSlots);
+    dateInput.addEventListener('change', updateTimeSlots);
+    
+    function updateTimeSlots() {
+        const doctorId = doctorSelect.value;
+        const selectedDate = dateInput.value;
+        const timeSelect = document.getElementById('appointment_time');
+        
+        if (!doctorId || !selectedDate) {
+            timeSelect.innerHTML = '<option value="">Select time...</option>';
+            return;
+        }
+        
+        // Show loading state
+        timeSelect.innerHTML = '<option value="">Loading available times...</option>';
+        timeSelect.disabled = true;
+        
+        // Fetch available time slots
+        fetch(`/telemedicine/api/doctor-slots/${doctorId}?date=${selectedDate}`)
+            .then(response => response.json())
+            .then(data => {
+                timeSelect.innerHTML = '<option value="">Select time...</option>';
+                
+                if (data.slots && data.slots.length > 0) {
+                    data.slots.forEach(slot => {
+                        const option = document.createElement('option');
+                        option.value = slot.value;
+                        option.textContent = slot.label;
+                        timeSelect.appendChild(option);
+                    });
+                } else {
+                    timeSelect.innerHTML = '<option value="">No available times for this date</option>';
+                }
+                
+                timeSelect.disabled = false;
+            })
+            .catch(error => {
+                console.error('Error fetching time slots:', error);
+                timeSelect.innerHTML = '<option value="">Error loading times. Please try again.</option>';
+                timeSelect.disabled = false;
+            });
+    }
 });
 </script>
 {% endblock %}

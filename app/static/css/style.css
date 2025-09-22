@@ -367,6 +367,34 @@ p {
     font-weight: 500;
 }
 
+/* Appointment Card Styles */
+.appointment-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+}
+
+.appointment-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.appointment-card .card-header {
+    background: var(--gray-50);
+    border-bottom: 1px solid var(--gray-200);
+    padding: var(--space-4);
+}
+
+.appointment-card .card-body {
+    padding: var(--space-4);
+}
+
+.appointment-card .card-footer {
+    padding: var(--space-4);
+    background: var(--white);
+}
+
 /* Badge Enhancements */
 .badge {
     font-size: var(--font-size-xs);
@@ -428,10 +456,19 @@ p {
 /* Content Section Spacing */
 .section {
     margin-bottom: var(--space-12);
+    overflow-x: auto; /* Prevent horizontal overflow */
 }
 
 .section:last-child {
     margin-bottom: 0;
+}
+
+/* Content wrapper overflow protection */
+.content-wrapper {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: var(--space-6) var(--space-4);
+    overflow-x: hidden; /* Prevent horizontal scrolling */
 }
 
 /* Responsive Design */
@@ -452,6 +489,23 @@ p {
     
     .stats-card {
         padding: var(--space-4);
+    }
+    
+    /* Make appointment cards full width on mobile */
+    .appointment-card .row .col-6 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+    
+    /* Adjust button groups on mobile */
+    .appointment-card .btn-group {
+        width: 100%;
+        flex-direction: column;
+    }
+    
+    .appointment-card .btn-group .btn {
+        margin-bottom: var(--space-2);
+        width: 100%;
     }
     
     h1 { font-size: var(--font-size-3xl); }

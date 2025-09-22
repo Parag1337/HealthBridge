@@ -264,15 +264,12 @@
                         <label for="appointment_time" class="form-label">Preferred Time</label>
                         <select class="form-select" id="appointment_time" name="appointment_time" required>
                             <option value="">Select time...</option>
-                            <option value="09:00">9:00 AM</option>
-                            <option value="10:00">10:00 AM</option>
-                            <option value="11:00">11:00 AM</option>
-                            <option value="12:00">12:00 PM</option>
-                            <option value="14:00">2:00 PM</option>
-                            <option value="15:00">3:00 PM</option>
-                            <option value="16:00">4:00 PM</option>
-                            <option value="17:00">5:00 PM</option>
+                            <!-- Time slots will be populated dynamically based on doctor and date selection -->
                         </select>
+                        <div class="form-text">
+                            <i class="fas fa-info-circle"></i> 
+                            Available times are based on the doctor's schedule. Select a doctor and date first.
+                        </div>
                     </div>
                     
                     <div class="mb-3">
@@ -311,6 +308,9 @@ document.addEventListener('DOMContentLoaded', function() {
     if (dateInput) {
         const today = new Date().toISOString().split('T')[0];
         dateInput.min = today;
+        
+        // Add event listener for date change
+        dateInput.addEventListener('change', updateTimeSlots);
     }
 });
 
@@ -320,6 +320,49 @@ function bookAppointment(doctorId, doctorName) {
     
     const bookingModal = new bootstrap.Modal(document.getElementById('bookingModal'));
     bookingModal.show();
+    
+    // Update time slots when doctor is selected
+    updateTimeSlots();
+}
+
+function updateTimeSlots() {
+    const doctorId = document.getElementById('selected_doctor_id').value;
+    const selectedDate = document.getElementById('appointment_date').value;
+    const timeSelect = document.getElementById('appointment_time');
+    
+    if (!doctorId || !selectedDate) {
+        timeSelect.innerHTML = '<option value="">Select time...</option>';
+        return;
+    }
+    
+    // Show loading state
+    timeSelect.innerHTML = '<option value="">Loading available times...</option>';
+    timeSelect.disabled = true;
+    
+    // Fetch available time slots
+    fetch(`/patient/api/doctor-slots/${doctorId}?date=${selectedDate}`)
+        .then(response => response.json())
+        .then(data => {
+            timeSelect.innerHTML = '<option value="">Select time...</option>';
+            
+            if (data.slots && data.slots.length > 0) {
+                data.slots.forEach(slot => {
+                    const option = document.createElement('option');
+                    option.value = slot.value;
+                    option.textContent = slot.label;
+                    timeSelect.appendChild(option);
+                });
+            } else {
+                timeSelect.innerHTML = '<option value="">No available times for this date</option>';
+            }
+            
+            timeSelect.disabled = false;
+        })
+        .catch(error => {
+            console.error('Error fetching time slots:', error);
+            timeSelect.innerHTML = '<option value="">Error loading times. Please try again.</option>';
+            timeSelect.disabled = false;
+        });
 }
 
 function viewDoctorProfile(doctorId) {

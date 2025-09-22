@@ -5,11 +5,70 @@ from app.models.user import User
 from app.models.appointment import Appointment
 from app.models.prescription import Prescription
 from app.models.prescription_components import PrescriptionMedication, LabTest, PrescriptionEdit
+from app.models.scheduling import DoctorSchedule, SlotConfiguration
 from app.utils.email import send_appointment_confirmation_email
-from datetime import datetime, date, timedelta
+from datetime import datetime, date, timedelta, time
 from sqlalchemy import and_, or_
 
 bp = Blueprint('patient', __name__, url_prefix='/patient')
+
+def get_doctor_available_slots(doctor_id, selected_date=None):
+    """Get available time slots for a doctor based on their schedule settings"""
+    # Get doctor's slot configuration
+    slot_config = SlotConfiguration.query.filter_by(doctor_id=doctor_id).first()
+    if not slot_config:
+        # Default configuration if none exists
+        slot_duration = 30
+    else:
+        slot_duration = slot_config.slot_duration_minutes
+    
+    # Get doctor's schedule for the day of week
+    if selected_date:
+        target_date = datetime.strptime(selected_date, '%Y-%m-%d').date()
+        day_of_week = target_date.weekday()  # 0=Monday, 6=Sunday
+    else:
+        day_of_week = None
+    
+    # Get doctor's working hours for the day
+    if day_of_week is not None:
+        schedule = DoctorSchedule.query.filter_by(
+            doctor_id=doctor_id, 
+            day_of_week=day_of_week,
+            is_active=True
+        ).first()
+        
+        if schedule:
+            # Generate time slots based on working hours
+            slots = []
+            current_time = datetime.combine(date.today(), schedule.start_time)
+            end_time = datetime.combine(date.today(), schedule.end_time)
+            
+            while current_time < end_time:
+                slots.append({
+                    'value': current_time.strftime('%H:%M'),
+                    'label': current_time.strftime('%I:%M %p')
+                })
+                current_time += timedelta(minutes=slot_duration)
+            
+            return slots
+    
+    # Default time slots if no schedule found
+    default_slots = [
+        {'value': '09:00', 'label': '9:00 AM'},
+        {'value': '09:30', 'label': '9:30 AM'},
+        {'value': '10:00', 'label': '10:00 AM'},
+        {'value': '10:30', 'label': '10:30 AM'},
+        {'value': '11:00', 'label': '11:00 AM'},
+        {'value': '11:30', 'label': '11:30 AM'},
+        {'value': '14:00', 'label': '2:00 PM'},
+        {'value': '14:30', 'label': '2:30 PM'},
+        {'value': '15:00', 'label': '3:00 PM'},
+        {'value': '15:30', 'label': '3:30 PM'},
+        {'value': '16:00', 'label': '4:00 PM'},
+        {'value': '16:30', 'label': '4:30 PM'},
+        {'value': '17:00', 'label': '5:00 PM'},
+    ]
+    return default_slots
 
 @bp.route('/dashboard')
 @login_required
@@ -543,7 +602,7 @@ def live_appointments():
 @bp.route('/health-records')
 @login_required
 def health_records():
-    """View comprehensive health records including medical history, test results, and vital signs"""
+    """View comprehensive health records including medical history and test results"""
     if current_user.role != 'patient':
         flash('Access denied. Patients only.', 'error')
         return redirect(url_for('main.index'))
@@ -569,21 +628,10 @@ def health_records():
             appointments_by_year[year] = []
         appointments_by_year[year].append((appointment, doctor))
     
-    # Get health metrics (placeholder data - can be expanded with actual vital signs)
-    health_metrics = {
-        'blood_pressure': '120/80 mmHg',
-        'heart_rate': '72 bpm',
-        'temperature': '98.6°F',
-        'weight': '70 kg',
-        'height': '175 cm',
-        'last_checkup': medical_history[0][0].date if medical_history else None
-    }
-    
     return render_template('patient/health_records.html',
                          medical_history=medical_history,
                          prescription_history=prescription_history,
-                         appointments_by_year=appointments_by_year,
-                         health_metrics=health_metrics)
+                         appointments_by_year=appointments_by_year)
 
 @bp.route('/medical-documents')
 @login_required
@@ -984,3 +1032,15 @@ def join_telemedicine(appointment_id):
     
     # Redirect to the telemedicine platform
     return redirect(appointment.telemedicine_link)
+
+@bp.route('/api/doctor-slots/<int:doctor_id>')
+@login_required
+def get_doctor_slots_api(doctor_id):
+    """API endpoint to get available time slots for a doctor"""
+    if current_user.role != 'patient':
+        return jsonify({'error': 'Access denied'}), 403
+    
+    selected_date = request.args.get('date')
+    slots = get_doctor_available_slots(doctor_id, selected_date)
+    
+    return jsonify({'slots': slots})

@@ -21,7 +21,7 @@
     <nav class="glass-nav" id="main-nav">
         <div class="nav-container">
             <a href="#hero" class="nav-brand">
-                <div class="brand-icon">🏥</div>
+                <img src="../static/images/logo.png" height="35px" alt="image">
                 <span>HealthBridge AI</span>
             </a>
             <div class="nav-menu">
@@ -63,7 +63,7 @@
                     that adapts to your unique needs.
                 </p>
                 <div class="hero-buttons">
-                    <a href="/register" class="cta-button cta-primary">
+                    <a href="{{ url_for('auth.register') }}" class="cta-button cta-primary">
                         <span>Start Your Journey</span>
                         <span>→</span>
                     </a>

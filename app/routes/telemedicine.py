@@ -3,10 +3,69 @@ from flask_login import login_required, current_user
 from app import db
 from app.models.appointment import Appointment
 from app.models.telemedicine import VideoConsultation
-from datetime import datetime
+from app.models.scheduling import DoctorSchedule, SlotConfiguration
+from datetime import datetime, date, timedelta, time
 import secrets
 
 bp = Blueprint('telemedicine', __name__, url_prefix='/telemedicine')
+
+def get_doctor_available_slots(doctor_id, selected_date=None):
+    """Get available time slots for a doctor based on their schedule settings"""
+    # Get doctor's slot configuration
+    slot_config = SlotConfiguration.query.filter_by(doctor_id=doctor_id).first()
+    if not slot_config:
+        # Default configuration if none exists
+        slot_duration = 30
+    else:
+        slot_duration = slot_config.slot_duration_minutes
+    
+    # Get doctor's schedule for the day of week
+    if selected_date:
+        target_date = datetime.strptime(selected_date, '%Y-%m-%d').date()
+        day_of_week = target_date.weekday()  # 0=Monday, 6=Sunday
+    else:
+        day_of_week = None
+    
+    # Get doctor's working hours for the day
+    if day_of_week is not None:
+        schedule = DoctorSchedule.query.filter_by(
+            doctor_id=doctor_id, 
+            day_of_week=day_of_week,
+            is_active=True
+        ).first()
+        
+        if schedule:
+            # Generate time slots based on working hours
+            slots = []
+            current_time = datetime.combine(date.today(), schedule.start_time)
+            end_time = datetime.combine(date.today(), schedule.end_time)
+            
+            while current_time < end_time:
+                slots.append({
+                    'value': current_time.strftime('%H:%M'),
+                    'label': current_time.strftime('%I:%M %p')
+                })
+                current_time += timedelta(minutes=slot_duration)
+            
+            return slots
+    
+    # Default time slots if no schedule found
+    default_slots = [
+        {'value': '09:00', 'label': '9:00 AM'},
+        {'value': '09:30', 'label': '9:30 AM'},
+        {'value': '10:00', 'label': '10:00 AM'},
+        {'value': '10:30', 'label': '10:30 AM'},
+        {'value': '11:00', 'label': '11:00 AM'},
+        {'value': '11:30', 'label': '11:30 AM'},
+        {'value': '14:00', 'label': '2:00 PM'},
+        {'value': '14:30', 'label': '2:30 PM'},
+        {'value': '15:00', 'label': '3:00 PM'},
+        {'value': '15:30', 'label': '3:30 PM'},
+        {'value': '16:00', 'label': '4:00 PM'},
+        {'value': '16:30', 'label': '4:30 PM'},
+        {'value': '17:00', 'label': '5:00 PM'},
+    ]
+    return default_slots
 
 @bp.route('/consultation/<int:appointment_id>')
 @login_required
@@ -261,3 +320,12 @@ def my_consultations():
         return redirect(url_for('main.index'))
     
     return render_template('telemedicine/consultations.html', consultations=consultations)
+
+@bp.route('/api/doctor-slots/<int:doctor_id>')
+@login_required
+def get_doctor_slots_api(doctor_id):
+    """API endpoint to get available time slots for a doctor"""
+    selected_date = request.args.get('date')
+    slots = get_doctor_available_slots(doctor_id, selected_date)
+    
+    return jsonify({'slots': slots})

@@ -51,21 +51,21 @@
             </div>
             <div class="col-md-3 col-sm-6">
                 <a href="{{ url_for('patient.health_records') }}" class="btn btn-info btn-lg w-100 h-100 d-flex flex-column align-items-center justify-content-center p-4 text-decoration-none">
-                    <i class="fas fa-notes-medical fa-2x mb-3"></i>
+                    <i class="fas fa-file-medical fa-2x mb-3"></i>
                     <span class="fw-semibold">Health Records</span>
                 </a>
             </div>
             <div class="col-md-3 col-sm-6">
-                <a href="{{ url_for('patient.reminders') }}" class="btn btn-warning btn-lg w-100 h-100 d-flex flex-column align-items-center justify-content-center p-4 text-decoration-none">
-                    <i class="fas fa-bell fa-2x mb-3"></i>
-                    <span class="fw-semibold">Reminders</span>
+                <a href="{{ url_for('patient.prescriptions') }}" class="btn btn-warning btn-lg w-100 h-100 d-flex flex-column align-items-center justify-content-center p-4 text-decoration-none">
+                    <i class="fas fa-pills fa-2x mb-3"></i>
+                    <span class="fw-semibold">Prescriptions</span>
                 </a>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Health Stats Overview -->
+<!-- Stats Cards -->
 <div class="section">
     <div class="row g-4">
         <div class="col-lg-3 col-md-6">
@@ -203,7 +203,7 @@
         <!-- Right Column - Recent Prescriptions -->
         <div class="col-lg-4">
             <!-- Recent Prescriptions -->
-            <div class="card h-100">
+            <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="fw-bold mb-0">
                         <i class="fas fa-pills text-warning me-2"></i>Recent Prescriptions
@@ -239,12 +239,11 @@
         </div>
     </div>
 </div>
-{% endblock %}
 
-{% block extra_js %}
+<!-- JavaScript for enhanced functionality -->
 <script>
-// Real-time clock
-function updateTime() {
+// Real-time clock and date update
+function updateDateTime() {
     const now = new Date();
     const timeOptions = { 
         hour: '2-digit', 
@@ -259,13 +258,23 @@ function updateTime() {
         day: 'numeric' 
     };
     
-    document.getElementById('currentTime').textContent = now.toLocaleTimeString('en-US', timeOptions);
-    document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', dateOptions);
+    const timeElement = document.getElementById('currentTime');
+    const dateElement = document.getElementById('currentDate');
+    
+    if (timeElement) {
+        timeElement.textContent = now.toLocaleTimeString('en-US', timeOptions);
+    }
+    
+    if (dateElement) {
+        dateElement.textContent = now.toLocaleDateString('en-US', dateOptions);
+    }
 }
 
-// Update time immediately and then every second
-updateTime();
-setInterval(updateTime, 1000);
+// Initialize and update time
+document.addEventListener('DOMContentLoaded', function() {
+    updateDateTime();
+    setInterval(updateDateTime, 1000);
+});
 
 // Add smooth animations
 document.addEventListener('DOMContentLoaded', function() {
@@ -282,67 +291,4 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
-
-<style>
-.section {
-    margin-bottom: 2rem;
-}
-
-.stats-card {
-    background: white;
-    border-radius: 16px;
-    padding: 24px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    border: 1px solid #e5e7eb;
-    position: relative;
-    overflow: hidden;
-    transition: all 0.3s ease;
-}
-
-.stats-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1);
-}
-
-.stats-card-icon {
-    width: 60px;
-    height: 60px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    margin-bottom: 16px;
-}
-
-.stats-card-value {
-    font-size: 2rem;
-    font-weight: 700;
-    color: #1f2937;
-    margin-bottom: 4px;
-}
-
-.stats-card-label {
-    color: #6b7280;
-    font-size: 14px;
-    font-weight: 500;
-}
-
-.card {
-    border: none;
-    border-radius: 16px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-}
-
-.card-header {
-    background: white;
-    border-bottom: 1px solid #e5e7eb;
-    border-radius: 16px 16px 0 0 !important;
-    padding: 20px 24px;
-}
-
-.card-body {
-    padding: 24px;
-}
-</style>
 {% endblock %}

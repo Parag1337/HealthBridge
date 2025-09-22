@@ -111,6 +111,12 @@
                     <a href="{{ url_for('patient.appointments') }}" class="btn btn-outline-secondary">
                         <i class="fas fa-times me-1"></i>Clear
                     </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <!-- Appointments List -->
 <div class="section">
     {% if appointments.items %}
@@ -250,7 +256,7 @@
                         {% if page_num %}
                             {% if page_num != appointments.page %}
                                 <li class="page-item">
-                                    <a class="page-link" href="{{ url_for('patient.view_appointments', page=page_num, status=status_filter, doctor=doctor_filter, date_filter=date_filter) }}">{{ page_num }}</a>
+                                    <a class="page-link" href="{{ url_for('patient.appointments', page=page_num, status=status_filter, doctor=doctor_filter, date_filter=date_filter) }}">{{ page_num }}</a>
                                 </li>
                             {% else %}
                                 <li class="page-item active">
