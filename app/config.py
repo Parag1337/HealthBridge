@@ -1,7 +1,7 @@
 import os
 
 class Config:
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key-change-in-production'
+    SECRET_KEY = os.environ.get('mysql://root:password@localhost:3306/smart_healthcare_db') or 'dev-secret-key-change-in-production'
     
     # Database Configuration
     # Will use SQLite for development if no DATABASE_URL is set

@@ -1,20 +1,20 @@
 {% extends "base.html" %}
 
-{% block title %}Login - HealthBridge Ai{% endblock %}
+{% block title %}Login - HealthBridge AI{% endblock %}
 
 {% block content %}
 <div class="auth-container">
     <div class="auth-card">
-        <div class="text-center mb-20">
+        <div class="text-center mb-4">
             <h2>Welcome Back</h2>
-            <p>Sign in to your HealthBridge Ai account</p>
+            <p>Sign in to your HealthBridge AI account</p>
         </div>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
                     <div class="alert alert-{{ 'danger' if category == 'error' else category }}">
-                        {{ message }}
+                        <i class="fas fa-exclamation-circle me-2"></i>{{ message }}
                     </div>
                 {% endfor %}
             {% endif %}
@@ -22,66 +22,226 @@
 
         <!-- Login Tabs -->
         <div class="auth-tabs">
-            <button class="auth-tab active" onclick="switchTab('patient')">Patient Login</button>
-            <button class="auth-tab" onclick="switchTab('doctor')">Doctor Login</button>
+            <button class="auth-tab active" onclick="switchTab('patient')">
+                <i class="fas fa-user me-2"></i>Patient Login
+            </button>
+            <button class="auth-tab" onclick="switchTab('doctor')">
+                <i class="fas fa-user-md me-2"></i>Doctor Login
+            </button>
         </div>
 
         <!-- Patient Login Form -->
         <form class="auth-form active" id="patient-login" method="POST" action="{{ url_for('auth.login') }}">
             <input type="hidden" name="user_type" value="patient">
+            
             <div class="form-group">
-                <label for="patient-email">Email Address</label>
-                <input type="email" id="patient-email" name="email" class="form-control" placeholder="Enter your email" required>
-
+                <label for="patient-email">
+                    <i class="fas fa-envelope me-2"></i>Email Address
+                </label>
+                <input type="email" id="patient-email" name="email" class="form-control" 
+                       placeholder="Enter your email address" required>
             </div>
+            
             <div class="form-group">
-                <label for="patient-password">Password</label>
-                <input type="password" id="patient-password" name="password" class="form-control" placeholder="Enter your password" required>
+                <label for="patient-password">
+                    <i class="fas fa-lock me-2"></i>Password
+                </label>
+                <input type="password" id="patient-password" name="password" class="form-control" 
+                       placeholder="Enter your password" required>
             </div>
+            
             <div class="form-group">
-                <label>
-                    <input type="checkbox" name="remember_me"> Remember me
+                <label class="d-flex align-items-center">
+                    <input type="checkbox" name="remember_me" class="me-2"> 
+                    <span>Remember me for 30 days</span>
                 </label>
             </div>
-            <button type="submit" class="btn-auth">Sign In as Patient</button>
+            
+            <button type="submit" class="btn-auth">
+                <i class="fas fa-sign-in-alt me-2"></i>Sign In as Patient
+            </button>
+            
             <div class="auth-link">
-                <a href="#">Forgot your password?</a>
+                <a href="#" class="forgot-password">
+                    <i class="fas fa-key me-1"></i>Forgot your password?
+                </a>
             </div>
         </form>
 
         <!-- Doctor Login Form -->
         <form class="auth-form" id="doctor-login" method="POST" action="{{ url_for('auth.login') }}">
             <input type="hidden" name="user_type" value="doctor">
+            
             <div class="form-group">
-                <label for="doctor-email">Email Address</label>
-                <input type="email" id="doctor-email" name="email" class="form-control" placeholder="Enter your email" required>
+                <label for="doctor-email">
+                    <i class="fas fa-envelope me-2"></i>Email Address
+                </label>
+                <input type="email" id="doctor-email" name="email" class="form-control" 
+                       placeholder="Enter your professional email" required>
             </div>
+            
             <div class="form-group">
-                <label for="doctor-password">Password</label>
-                <input type="password" id="doctor-password" name="password" class="form-control" placeholder="Enter your password" required>
+                <label for="doctor-password">
+                    <i class="fas fa-lock me-2"></i>Password
+                </label>
+                <input type="password" id="doctor-password" name="password" class="form-control" 
+                       placeholder="Enter your password" required>
             </div>
+            
             <div class="form-group">
-                <label>
-                    <input type="checkbox" name="remember_me"> Remember me
+                <label class="d-flex align-items-center">
+                    <input type="checkbox" name="remember_me" class="me-2"> 
+                    <span>Remember me for 30 days</span>
                 </label>
             </div>
-            <button type="submit" class="btn-auth">Sign In as Doctor</button>
+            
+            <button type="submit" class="btn-auth">
+                <i class="fas fa-stethoscope me-2"></i>Sign In as Doctor
+            </button>
+            
             <div class="auth-link">
-                <a href="#">Forgot your password?</a>
+                <a href="#" class="forgot-password">
+                    <i class="fas fa-key me-1"></i>Forgot your password?
+                </a>
             </div>
         </form>
 
-        <div class="auth-link mt-20">
-            Don't have an account? <a href="{{ url_for('auth.register') }}">Sign up here</a>
+        <div class="auth-link mt-4">
+            <p>Don't have an account? 
+                <a href="{{ url_for('auth.register') }}">
+                    <i class="fas fa-user-plus me-1"></i>Sign up here
+                </a>
+            </p>
+        </div>
+        
+        <!-- Security Notice -->
+        <div class="security-notice mt-4">
+            <small class="text-muted">
+                <i class="fas fa-shield-alt me-1"></i>
+                Your data is protected with enterprise-grade security
+            </small>
         </div>
     </div>
 </div>
 
-<!-- Chatbot Widget -->
-<div class="chatbot-widget">
-    <div class="chatbot-icon">💬</div>
-    <div class="chatbot-tooltip">AI Assistant</div>
+<!-- Floating Help Button -->
+<div class="floating-help">
+    <button class="help-btn" onclick="toggleHelp()" title="Need Help?">
+        <i class="fas fa-question-circle"></i>
+    </button>
+    <div class="help-tooltip" id="helpTooltip">
+        <div class="help-content">
+            <h6><i class="fas fa-info-circle me-2"></i>Need Help?</h6>
+            <p>Contact support: <br>
+            📧 support@healthbridge.ai<br>
+            � 1-800-HEALTH</p>
+        </div>
+    </div>
 </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.security-notice {
+    text-align: center;
+    padding: 12px;
+    background: rgba(79, 70, 229, 0.05);
+    border-radius: 8px;
+    border: 1px solid rgba(79, 70, 229, 0.1);
+}
+
+.security-notice small {
+    color: #4f46e5;
+    font-weight: 500;
+}
+
+.floating-help {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 1000;
+}
+
+.help-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3);
+    transition: all 0.3s ease;
+}
+
+.help-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(79, 70, 229, 0.4);
+}
+
+.help-tooltip {
+    position: absolute;
+    bottom: 70px;
+    right: 0;
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    min-width: 200px;
+    display: none;
+    border: 1px solid #e2e8f0;
+}
+
+.help-tooltip.show {
+    display: block;
+    animation: fadeInUp 0.3s ease;
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.help-content h6 {
+    color: #4f46e5;
+    margin-bottom: 10px;
+}
+
+.help-content p {
+    margin: 0;
+    color: #4a5568;
+    font-size: 14px;
+}
+
+.forgot-password {
+    display: inline-flex;
+    align-items: center;
+    font-size: 14px;
+}
+
+@media (max-width: 768px) {
+    .auth-card {
+        margin: 20px;
+        padding: 30px 25px;
+    }
+    
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .floating-help {
+        bottom: 20px;
+        right: 20px;
+    }
+    
+    .help-btn {
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
+    }
+}
+</style>
 {% endblock %}
 
 {% block extra_js %}
@@ -101,5 +261,36 @@
             document.getElementById('doctor-login').classList.add('active');
         }
     }
+    
+    function toggleHelp() {
+        const tooltip = document.getElementById('helpTooltip');
+        tooltip.classList.toggle('show');
+    }
+    
+    // Close help tooltip when clicking outside
+    document.addEventListener('click', function(event) {
+        const help = document.querySelector('.floating-help');
+        const tooltip = document.getElementById('helpTooltip');
+        
+        if (!help.contains(event.target)) {
+            tooltip.classList.remove('show');
+        }
+    });
+    
+    // Auto-hide help tooltip after 5 seconds
+    function autoHideHelp() {
+        setTimeout(() => {
+            document.getElementById('helpTooltip').classList.remove('show');
+        }, 5000);
+    }
+    
+    // Add form validation feedback
+    document.querySelectorAll('.auth-form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            const button = this.querySelector('.btn-auth');
+            button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Signing in...';
+            button.disabled = true;
+        });
+    });
 </script>
 {% endblock %}

@@ -1,18 +1,29 @@
-{% extends "base.html" %}
-
-{% block title %}HealthBridge Ai - Smart Healthcare Management{% endblock %}
-
-{% block content %}
-    <!-- 3D Canvas for Background -->
-    <canvas id="three-canvas"></canvas>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HealthBridge AI - Revolutionary Healthcare Management</title>
+    <meta name="description" content="Transform your healthcare experience with AI-powered appointment booking, digital prescriptions, and 24/7 health assistance.">
     
-    <!-- Glassmorphism Navigation -->
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Landing Page Styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}">
+</head>
+<body>
+    <!-- Floating Particles Background -->
+    <div class="floating-particles" id="particles"></div>
+
+    <!-- Enhanced Navigation -->
     <nav class="glass-nav" id="main-nav">
         <div class="nav-container">
-            <div class="nav-brand">
+            <a href="#hero" class="nav-brand">
                 <div class="brand-icon">🏥</div>
-                <span>HealthBridge</span>
-            </div>
+                <span>HealthBridge AI</span>
+            </a>
             <div class="nav-menu">
                 <a href="#hero" class="nav-link active">Home</a>
                 <a href="#features" class="nav-link">Features</a>
@@ -21,10 +32,10 @@
                 <a href="#contact" class="nav-link">Contact</a>
             </div>
             <div class="nav-actions">
-                <a href="{{ url_for('auth.login') }}" class="nav-btn nav-btn-ghost">Login</a>
-                <a href="{{ url_for('auth.register') }}" class="nav-btn nav-btn-primary">Get Started</a>
+                <a href="/login" class="nav-btn nav-btn-ghost">Login</a>
+                <a href="/register" class="nav-btn nav-btn-primary">Get Started</a>
             </div>
-            <div class="mobile-menu-toggle">
+            <div class="mobile-menu-toggle" id="mobile-toggle">
                 <span></span>
                 <span></span>
                 <span></span>
@@ -32,530 +43,141 @@
         </div>
     </nav>
 
-    <!-- Hero Section -->
+    <!-- Enhanced Hero Section -->
     <section id="hero" class="hero-section">
         <div class="hero-background">
             <div class="hero-gradient"></div>
-            <div class="floating-elements">
-                <div class="float-element float-1">🩺</div>
-                <div class="float-element float-2">💊</div>
-                <div class="float-element float-3">❤️</div>
-                <div class="float-element float-4">🧬</div>
-                <div class="float-element float-5">⚕️</div>
-            </div>
         </div>
         <div class="hero-container">
-            <div class="hero-content" data-aos="fade-up" data-aos-duration="1000">
+            <div class="hero-content">
                 <div class="hero-badge">
-                    <span>🌟 AI-Powered Healthcare</span>
+                    <span>🌟 AI-Powered Healthcare Revolution</span>
                 </div>
                 <h1 class="hero-title">
-                    The Future of
-                    <span class="gradient-text">Smart Healthcare</span>
-                    is Here
+                    Transform Your Health with
+                    <span class="gradient-text">Intelligent Care</span>
                 </h1>
                 <p class="hero-subtitle">
-                    Revolutionizing patient care with AI-powered appointment booking, 
-                    intelligent prescription management, and personalized medical assistance 
-                    that puts your health first.
+                    Experience the future of healthcare with AI-powered appointment booking, 
+                    smart prescription management, and 24/7 personalized health assistance 
+                    that adapts to your unique needs.
                 </p>
                 <div class="hero-buttons">
-                    <a href="{{ url_for('auth.register') }}" class="cta-button cta-primary">
-                        <span>Book Appointment</span>
-                        <div class="button-glow"></div>
+                    <a href="/register" class="cta-button cta-primary">
+                        <span>Start Your Journey</span>
+                        <span>→</span>
                     </a>
                     <a href="#features" class="cta-button cta-secondary">
-                        <span>Explore Features</span>
-                        <div class="button-glow"></div>
+                        <span>Discover Features</span>
+                        <span>↓</span>
                     </a>
                 </div>
                 <div class="hero-stats">
                     <div class="stat-item">
-                        <div class="stat-number" data-count="10000">0</div>
-                        <div class="stat-label">Active Patients</div>
+                        <div class="stat-number" data-count="15000">0</div>
+                        <div class="stat-label">Happy Patients</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-number" data-count="500">0</div>
+                        <div class="stat-number" data-count="800">0</div>
                         <div class="stat-label">Expert Doctors</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-number" data-count="50000">0</div>
-                        <div class="stat-label">Appointments</div>
+                        <div class="stat-number" data-count="75000">0</div>
+                        <div class="stat-label">Successful Consultations</div>
                     </div>
                 </div>
             </div>
-            <div class="hero-visual" data-aos="fade-left" data-aos-duration="1200">
+            <div class="hero-visual">
                 <div class="medical-device">
                     <div class="device-screen">
                         <div class="screen-content">
-                            <div class="health-chart">
-                                <div class="chart-line"></div>
-                                <div class="chart-dots">
-                                    <span class="dot active"></span>
-                                    <span class="dot"></span>
-                                    <span class="dot"></span>
-                                    <span class="dot"></span>
+                            <div class="health-dashboard">
+                                <div class="dashboard-header">
+                                    <div class="dashboard-title">Health Overview</div>
                                 </div>
-                            </div>
-                            <div class="health-metrics">
-                                <div class="metric">
-                                    <span class="metric-icon">❤️</span>
-                                    <span class="metric-value">72 BPM</span>
+                                <div class="health-chart">
+                                    <div class="chart-wave"></div>
+                                    <div class="chart-dots">
+                                        <span class="dot"></span>
+                                        <span class="dot"></span>
+                                        <span class="dot"></span>
+                                        <span class="dot"></span>
+                                    </div>
                                 </div>
-                                <div class="metric">
-                                    <span class="metric-icon">🌡️</span>
-                                    <span class="metric-value">98.6°F</span>
+                                <div class="health-metrics">
+                                    <div class="metric">
+                                        <span class="metric-icon">❤️</span>
+                                        <span class="metric-value">75 BPM</span>
+                                    </div>
+                                    <div class="metric">
+                                        <span class="metric-icon">🌡️</span>
+                                        <span class="metric-value">98.4°F</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="device-glow"></div>
-                </div>
-                <div class="floating-cards">
-                    <div class="mini-card card-1">
-                        <div class="card-icon">📅</div>
-                        <div class="card-text">Next: Dr. Smith<br>2:30 PM</div>
-                    </div>
-                    <div class="mini-card card-2">
-                        <div class="card-icon">💊</div>
-                        <div class="card-text">Medication<br>Reminder</div>
-                    </div>
-                    <div class="mini-card card-3">
-                        <div class="card-icon">✅</div>
-                        <div class="card-text">Health Check<br>Complete</div>
+                    <div class="floating-cards">
+                        <div class="mini-card card-1">
+                            <div class="card-icon">📅</div>
+                            <div class="card-text">Upcoming<br>Dr. Johnson 3:30 PM</div>
+                        </div>
+                        <div class="mini-card card-2">
+                            <div class="card-icon">💊</div>
+                            <div class="card-text">Medication<br>Alert Ready</div>
+                        </div>
+                        <div class="mini-card card-3">
+                            <div class="card-icon">✅</div>
+                            <div class="card-text">Health Goals<br>On Track</div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
         <div class="scroll-indicator">
             <div class="scroll-arrow"></div>
-            <span>Scroll to explore</span>
+            <span>Explore our features</span>
         </div>
     </section>
 
-    <!-- Features Section -->
+    <!-- Enhanced Features Section -->
     <section id="features" class="features-section">
-        <div class="section-background">
-            <div class="bg-pattern"></div>
-        </div>
         <div class="container">
-            <div class="section-header" data-aos="fade-up">
+            <div class="section-header">
                 <div class="section-badge">
-                    <span>🚀 Advanced Features</span>
+                    <span>🚀 Cutting-Edge Features</span>
                 </div>
                 <h2 class="section-title">
-                    Comprehensive Healthcare
-                    <span class="gradient-text">Solutions</span>
+                    Complete Healthcare
+                    <span class="gradient-text">Ecosystem</span>
                 </h2>
                 <p class="section-subtitle">
-                    Discover cutting-edge features designed to transform your healthcare experience
+                    Discover intelligent features designed to revolutionize your healthcare journey with personalized AI assistance
                 </p>
             </div>
             <div class="features-grid">
-                <div class="feature-card" data-aos="fade-up" data-aos-delay="100">
+                <div class="feature-card">
+                    <div class="feature-icon-container">
+                        <div class="feature-icon">🧠</div>
+                        <div class="icon-glow"></div>
+                    </div>
+                    <h3>AI Health Assistant</h3>
+                    <p>24/7 intelligent companion providing instant symptom analysis, personalized health insights, and evidence-based medical recommendations tailored to your health profile.</p>
+                    <div class="feature-tags">
+                        <span class="tag">Machine Learning</span>
+                        <span class="tag">Real-time Analysis</span>
+                    </div>
+                </div>
+                <div class="feature-card">
                     <div class="feature-icon-container">
                         <div class="feature-icon">📅</div>
                         <div class="icon-glow"></div>
                     </div>
-                    <h3>Smart Appointment Booking</h3>
-                    <p>AI-powered scheduling that finds the perfect time slots with your preferred doctors, complete with automated reminders and calendar integration.</p>
+                    <h3>Smart Scheduling</h3>
+                    <p>AI-powered appointment booking that learns your preferences, finds optimal time slots, and automatically manages calendar integration with intelligent reminders.</p>
                     <div class="feature-tags">
-                        <span class="tag">AI Scheduling</span>
-                        <span class="tag">Auto Reminders</span>
+                        <span class="tag">Auto-Scheduling</span>
+                        <span class="tag">Smart Reminders</span>
                     </div>
                 </div>
-                <div class="feature-card" data-aos="fade-up" data-aos-delay="200">
-                    <div class="feature-icon-container">
-                        <div class="feature-icon">💊</div>
-                        <div class="icon-glow"></div>
-                    </div>
-                    <h3>Digital Prescriptions</h3>
-                    <p>Secure digital prescriptions with medication tracking, dosage reminders, and interaction warnings to ensure safe and effective treatment.</p>
-                    <div class="feature-tags">
-                        <span class="tag">Digital Rx</span>
-                        <span class="tag">Safety Alerts</span>
-                    </div>
-                </div>
-                <div class="feature-card" data-aos="fade-up" data-aos-delay="300">
-                    <div class="feature-icon-container">
-                        <div class="feature-icon">🤖</div>
-                        <div class="icon-glow"></div>
-                    </div>
-                    <h3>AI Health Assistant</h3>
-                    <p>24/7 intelligent health companion providing instant symptom analysis, health insights, and personalized wellness recommendations.</p>
-                    <div class="feature-tags">
-                        <span class="tag">24/7 Support</span>
-                        <span class="tag">Smart Analysis</span>
-                    </div>
-                </div>
-                <div class="feature-card" data-aos="fade-up" data-aos-delay="400">
-                    <div class="feature-icon-container">
-                        <div class="feature-icon">📊</div>
-                        <div class="icon-glow"></div>
-                    </div>
-                    <h3>Health Analytics</h3>
-                    <p>Comprehensive health trends monitoring with predictive insights, medication adherence tracking, and personalized wellness goals.</p>
-                    <div class="feature-tags">
-                        <span class="tag">Predictive</span>
-                        <span class="tag">Insights</span>
-                    </div>
-                </div>
-                <div class="feature-card" data-aos="fade-up" data-aos-delay="500">
-                    <div class="feature-icon-container">
-                        <div class="feature-icon">👨‍⚕️</div>
-                        <div class="icon-glow"></div>
-                    </div>
-                    <h3>Doctor Dashboard</h3>
-                    <p>Advanced practice management tools with patient insights, treatment analytics, and collaborative care coordination for healthcare providers.</p>
-                    <div class="feature-tags">
-                        <span class="tag">Pro Tools</span>
-                        <span class="tag">Analytics</span>
-                    </div>
-                </div>
-                <div class="feature-card" data-aos="fade-up" data-aos-delay="600">
-                    <div class="feature-icon-container">
-                        <div class="feature-icon">🔒</div>
-                        <div class="icon-glow"></div>
-                    </div>
-                    <h3>Secure & Private</h3>
-                    <p>Enterprise-grade security with end-to-end encryption, HIPAA compliance, and blockchain-verified medical records protection.</p>
-                    <div class="feature-tags">
-                        <span class="tag">HIPAA</span>
-                        <span class="tag">Encrypted</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- About Section -->
-    <section id="about" class="about-section">
-        <div class="container">
-            <div class="about-content">
-                <div class="about-text" data-aos="fade-right">
-                    <div class="section-badge">
-                        <span>🏆 About Us</span>
-                    </div>
-                    <h2 class="section-title">
-                        Pioneering the Future of
-                        <span class="gradient-text">Digital Health</span>
-                    </h2>
-                    <p>HealthBridge Ai is more than a platform—it's a revolutionary ecosystem that transforms how patients and healthcare providers connect, communicate, and collaborate. Our mission is to democratize access to quality healthcare through intelligent technology.</p>
-                    <p>With cutting-edge artificial intelligence, machine learning algorithms, and user-centric design, we're building the foundation for a healthier tomorrow where personalized care is accessible to everyone, everywhere.</p>
-                    
-                    <div class="about-features">
-                        <div class="about-feature">
-                            <div class="feature-check">✓</div>
-                            <span>AI-Powered Health Insights</span>
-                        </div>
-                        <div class="about-feature">
-                            <div class="feature-check">✓</div>
-                            <span>HIPAA Compliant Security</span>
-                        </div>
-                        <div class="about-feature">
-                            <div class="feature-check">✓</div>
-                            <span>24/7 Healthcare Access</span>
-                        </div>
-                        <div class="about-feature">
-                            <div class="feature-check">✓</div>
-                            <span>Seamless Provider Network</span>
-                        </div>
-                    </div>
-                    
-                    <a href="{{ url_for('auth.register') }}" class="cta-button cta-primary">
-                        <span>Join Our Network</span>
-                        <div class="button-glow"></div>
-                    </a>
-                </div>
-                <div class="about-visual" data-aos="fade-left">
-                    <div class="visual-container">
-                        <div class="health-ecosystem">
-                            <div class="ecosystem-center">
-                                <div class="center-icon">🏥</div>
-                                <div class="center-pulse"></div>
-                            </div>
-                            <div class="ecosystem-nodes">
-                                <div class="node node-1">
-                                    <div class="node-icon">👩‍⚕️</div>
-                                    <span>Doctors</span>
-                                </div>
-                                <div class="node node-2">
-                                    <div class="node-icon">👥</div>
-                                    <span>Patients</span>
-                                </div>
-                                <div class="node node-3">
-                                    <div class="node-icon">🏥</div>
-                                    <span>Hospitals</span>
-                                </div>
-                                <div class="node node-4">
-                                    <div class="node-icon">💊</div>
-                                    <span>Pharmacy</span>
-                                </div>
-                            </div>
-                            <div class="connection-lines">
-                                <div class="connection line-1"></div>
-                                <div class="connection line-2"></div>
-                                <div class="connection line-3"></div>
-                                <div class="connection line-4"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Testimonials Section -->
-    <section id="testimonials" class="testimonials-section">
-        <div class="section-background">
-            <div class="testimonial-bg-pattern"></div>
-        </div>
-        <div class="container">
-            <div class="section-header" data-aos="fade-up">
-                <div class="section-badge">
-                    <span>💬 Testimonials</span>
-                </div>
-                <h2 class="section-title">
-                    What Our Community
-                    <span class="gradient-text">Says</span>
-                </h2>
-                <p class="section-subtitle">
-                    Hear from patients and healthcare providers who've transformed their experience with HealthBridge
-                </p>
-            </div>
-            <div class="testimonials-grid">
-                <div class="testimonial-card" data-aos="fade-up" data-aos-delay="100">
-                    <div class="testimonial-content">
-                        <div class="quote-icon">"</div>
-                        <p>"HealthBridge Ai has completely transformed how I manage my health. The AI assistant provides incredibly accurate insights, and the prescription reminders ensure I never miss my medication. It's like having a personal healthcare companion."</p>
-                        <div class="testimonial-rating">
-                            <span class="star">⭐</span>
-                            <span class="star">⭐</span>
-                            <span class="star">⭐</span>
-                            <span class="star">⭐</span>
-                            <span class="star">⭐</span>
-                        </div>
-                    </div>
-                    <div class="testimonial-author">
-                        <div class="author-avatar">
-                            <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiM2MzY2RjEiLz4KPHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4PSI4IiB5PSI4Ij4KPHBhdGggZD0iTTIwIDIxVjE5QzIwIDE3LjkzOTEgMTkuNTc4NiAxNi45MjE3IDE4LjgyODQgMTYuMTcxNkMxOC4wNzgzIDE1LjQyMTQgMTcuMDYwOSAxNSAxNiAxNUg4QzYuOTM5MTMgMTUgNS45MjE3MiAxNS40MjE0IDUuMTcxNTcgMTYuMTcxNkM0LjQyMTQzIDE2LjkyMTcgNCAxNy45MzkxIDQgMTlWMjEiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxjaXJjbGUgY3g9IjEyIiBjeT0iNyIgcj0iNCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9zdmc+Cjwvc3ZnPgo=" alt="Sarah Johnson">
-                        </div>
-                        <div class="author-info">
-                            <h4>Sarah Johnson</h4>
-                            <p>Chronic Care Patient</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="testimonial-card" data-aos="fade-up" data-aos-delay="200">
-                    <div class="testimonial-content">
-                        <div class="quote-icon">"</div>
-                        <p>"As a cardiologist, this platform has revolutionized my practice. The patient insights, treatment analytics, and seamless communication tools have improved patient outcomes significantly. It's the future of healthcare delivery."</p>
-                        <div class="testimonial-rating">
-                            <span class="star">⭐</span>
-                            <span class="star">⭐</span>
-                            <span class="star">⭐</span>
-                            <span class="star">⭐</span>
-                            <span class="star">⭐</span>
-                        </div>
-                    </div>
-                    <div class="testimonial-author">
-                        <div class="author-avatar">
-                            <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiMxMEI5ODEiLz4KPHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4PSI4IiB5PSI4Ij4KPHBhdGggZD0iTTIwIDIxVjE5QzIwIDE3LjkzOTEgMTkuNTc4NiAxNi45MjE3IDE4LjgyODQgMTYuMTcxNkMxOC4wNzgzIDE1LjQyMTQgMTcuMDYwOSAxNSAxNiAxNUg4QzYuOTM5MTMgMTUgNS45MjE3MiAxNS40MjE0IDUuMTcxNTcgMTYuMTcxNkM0LjQyMTQzIDE2LjkyMTcgNCAxNy45MzkxIDQgMTlWMjEiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxjaXJjbGUgY3g9IjEyIiBjeT0iNyIgcj0iNCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9zdmc+Cjwvc3ZnPgo=" alt="Dr. Michael Chen">
-                        </div>
-                        <div class="author-info">
-                            <h4>Dr. Michael Chen</h4>
-                            <p>Cardiologist</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="testimonial-card" data-aos="fade-up" data-aos-delay="300">
-                    <div class="testimonial-content">
-                        <div class="quote-icon">"</div>
-                        <p>"The appointment booking system is incredibly intuitive. I can easily find available specialists, book consultations, and manage my entire family's healthcare from one platform. It's simplified our healthcare management completely."</p>
-                        <div class="testimonial-rating">
-                            <span class="star">⭐</span>
-                            <span class="star">⭐</span>
-                            <span class="star">⭐</span>
-                            <span class="star">⭐</span>
-                            <span class="star">⭐</span>
-                        </div>
-                    </div>
-                    <div class="testimonial-author">
-                        <div class="author-avatar">
-                            <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiNGNTlFMEIiLz4KPHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4PSI4IiB5PSI4Ij4KPHBhdGggZD0iTTIwIDIxVjE5QzIwIDE3LjkzOTEgMTkuNTc4NiAxNi45MjE3IDE4LjgyODQgMTYuMTcxNkMxOC4wNzgzIDE1LjQyMTQgMTcuMDYwOSAxNSAxNiAxNUg4QzYuOTM5MTMgMTUgNS45MjE3MiAxNS40MjE0IDUuMTcxNTcgMTYuMTcxNkM0LjQyMTQzIDE2LjkyMTcgNCAxNy45MzkxIDQgMTlWMjEiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxjaXJjbGUgY3g9IjEyIiBjeT0iNyIgcj0iNCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9zdmc+Cjwvc3ZnPgo=" alt="Robert Williams">
-                        </div>
-                        <div class="author-info">
-                            <h4>Robert Williams</h4>
-                            <p>Family Healthcare Manager</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Contact Section -->
-    <section id="contact" class="contact-section">
-        <div class="container">
-            <div class="contact-content">
-                <div class="contact-info" data-aos="fade-right">
-                    <div class="section-badge">
-                        <span>📞 Get in Touch</span>
-                    </div>
-                    <h2 class="section-title">
-                        Ready to Transform Your
-                        <span class="gradient-text">Healthcare Experience?</span>
-                    </h2>
-                    <p>Join thousands of patients and healthcare providers who trust HealthBridge Ai for their healthcare needs. Start your journey today.</p>
-                    
-                    <div class="contact-methods">
-                        <div class="contact-method">
-                            <div class="method-icon">📧</div>
-                            <div class="method-info">
-                                <h4>Email Us</h4>
-                                <p>info@healthbridgeai.com</p>
-                            </div>
-                        </div>
-                        <div class="contact-method">
-                            <div class="method-icon">📞</div>
-                            <div class="method-info">
-                                <h4>Call Us</h4>
-                                <p>+1 (555) 123-4567</p>
-                            </div>
-                        </div>
-                        <div class="contact-method">
-                            <div class="method-icon">📍</div>
-                            <div class="method-info">
-                                <h4>Visit Us</h4>
-                                <p>123 Health Street, Medical City</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="contact-form" data-aos="fade-left">
-                    <div class="form-container">
-                        <h3>Send us a message</h3>
-                        <form class="premium-form">
-                            <div class="form-group">
-                                <label for="name">Full Name</label>
-                                <input type="text" id="name" name="name" required>
-                                <div class="input-glow"></div>
-                            </div>
-                            <div class="form-group">
-                                <label for="email">Email Address</label>
-                                <input type="email" id="email" name="email" required>
-                                <div class="input-glow"></div>
-                            </div>
-                            <div class="form-group">
-                                <label for="subject">Subject</label>
-                                <select id="subject" name="subject" required>
-                                    <option value="">Select a topic</option>
-                                    <option value="general">General Inquiry</option>
-                                    <option value="patient">Patient Support</option>
-                                    <option value="doctor">Doctor Registration</option>
-                                    <option value="technical">Technical Support</option>
-                                </select>
-                                <div class="input-glow"></div>
-                            </div>
-                            <div class="form-group">
-                                <label for="message">Message</label>
-                                <textarea id="message" name="message" rows="5" required></textarea>
-                                <div class="input-glow"></div>
-                            </div>
-                            <button type="submit" class="form-submit">
-                                <span>Send Message</span>
-                                <div class="button-glow"></div>
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- AI Chatbot Widget -->
-    <div class="chatbot-widget" id="chatbot-widget">
-        <div class="chatbot-toggle" id="chatbot-toggle">
-            <div class="bot-icon">🤖</div>
-            <div class="bot-pulse"></div>
-        </div>
-        <div class="chatbot-tooltip">AI Health Assistant</div>
-        <div class="chatbot-panel" id="chatbot-panel">
-            <div class="chatbot-header">
-                <div class="bot-avatar">🤖</div>
-                <div class="bot-info">
-                    <h4>HealthBot</h4>
-                    <p>AI Health Assistant</p>
-                </div>
-                <button class="close-chat" id="close-chat">×</button>
-            </div>
-            <div class="chatbot-messages">
-                <div class="bot-message">
-                    <p>Hello! I'm your AI health assistant. How can I help you today?</p>
-                </div>
-            </div>
-            <div class="chatbot-input">
-                <input type="text" placeholder="Type your health question..." id="chat-input">
-                <button class="send-message" id="send-message">
-                    <span>➤</span>
-                </button>
-            </div>
-        </div>
-    </div>
-{% endblock %}
-
-{% block footer %}
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h3>HealthBridge Ai</h3>
-                    <p>Making healthcare accessible and efficient for everyone through intelligent technology.</p>
-                    <div class="social-links">
-                        <a href="#" class="social-link">📘</a>
-                        <a href="#" class="social-link">🐦</a>
-                        <a href="#" class="social-link">📷</a>
-                        <a href="#" class="social-link">💼</a>
-                    </div>
-                </div>
-                <div class="footer-section">
-                    <h4>Quick Links</h4>
-                    <ul>
-                        <li><a href="#about">About Us</a></li>
-                        <li><a href="#features">Features</a></li>
-                        <li><a href="#">Privacy Policy</a></li>
-                        <li><a href="#">Terms of Service</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h4>For Patients</h4>
-                    <ul>
-                        <li><a href="{{ url_for('auth.register') }}">Register</a></li>
-                        <li><a href="{{ url_for('auth.login') }}">Patient Login</a></li>
-                        <li><a href="#">Find Doctors</a></li>
-                        <li><a href="#">Book Appointment</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h4>For Doctors</h4>
-                    <ul>
-                        <li><a href="{{ url_for('auth.register') }}">Join Network</a></li>
-                        <li><a href="{{ url_for('auth.login') }}">Doctor Login</a></li>
-                        <li><a href="#">Practice Tools</a></li>
-                        <li><a href="#">Support</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h4>Contact Info</h4>
-                    <p>📧 info@healthbridgeai.com</p>
-                    <p>📞 +1 (555) 123-4567</p>
-                    <p>📍 123 Health Street, Medical City, MC 12345</p>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2024 HealthBridge Ai. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
-{% endblock %}
+                <div class="feature-card">
