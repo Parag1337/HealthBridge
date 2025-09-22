@@ -108,10 +108,17 @@
                                             </div>
                                         </td>
                                         <td>
-                                            <button class="btn btn-sm btn-success" 
-                                                    onclick="startAppointment({{ appointment.id }})">
-                                                <i class="fas fa-play"></i> Start
-                                            </button>
+                                            <div class="btn-group" role="group">
+                                                <a href="{{ url_for('doctor.create_prescription', patient_id=patient.id) }}" 
+                                                   class="btn btn-sm btn-outline-success" 
+                                                   title="Add Prescription">
+                                                    <i class="fas fa-prescription-bottle-alt"></i>
+                                                </a>
+                                                <button class="btn btn-sm btn-success" 
+                                                        onclick="startAppointment({{ appointment.id }})">
+                                                    <i class="fas fa-play"></i> Start
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                     {% endfor %}
@@ -164,10 +171,17 @@
                                             </span>
                                         </td>
                                         <td>
-                                            <button class="btn btn-sm btn-primary" 
-                                                    onclick="completeAppointment({{ appointment.id }})">
-                                                <i class="fas fa-check"></i> Complete
-                                            </button>
+                                            <div class="btn-group" role="group">
+                                                <a href="{{ url_for('doctor.create_prescription', patient_id=patient.id) }}" 
+                                                   class="btn btn-sm btn-success" 
+                                                   title="Add Prescription">
+                                                    <i class="fas fa-prescription-bottle-alt"></i> Add Prescription
+                                                </a>
+                                                <button class="btn btn-sm btn-primary" 
+                                                        onclick="completeAppointment({{ appointment.id }})">
+                                                    <i class="fas fa-check"></i> Complete
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                     {% endfor %}
@@ -239,10 +253,10 @@
                                                         onclick="viewPatientHistory({{ patient.id }})">
                                                     <i class="fas fa-history"></i> History
                                                 </button>
-                                                <button class="btn btn-outline-success" 
-                                                        onclick="addPrescription({{ appointment.id }})">
+                                                <a href="{{ url_for('doctor.create_prescription', patient_id=patient.id) }}" 
+                                                   class="btn btn-outline-success">
                                                     <i class="fas fa-prescription"></i> Prescribe
-                                                </button>
+                                                </a>
                                             </div>
                                         </td>
                                     </tr>

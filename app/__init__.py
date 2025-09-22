@@ -40,9 +40,24 @@ def create_app():
     app.register_blueprint(doctor.bp)
     app.register_blueprint(telemedicine.bp)
 
-    # Create database tables
+    # Create database tables (only if not in production or if explicitly requested)
     with app.app_context():
-        db.create_all()
+        try:
+            # Only create tables if they don't exist
+            from sqlalchemy import inspect
+            inspector = inspect(db.engine)
+            existing_tables = inspector.get_table_names()
+            
+            if not existing_tables:
+                print("🔄 Creating database tables...")
+                db.create_all()
+                print("✅ Database tables created successfully!")
+            else:
+                print(f"📋 Database already has {len(existing_tables)} tables")
+                
+        except Exception as e:
+            print(f"⚠️  Database initialization warning: {str(e)}")
+            # Don't fail the app startup, just log the warning
 
     # Make date, datetime, and timedelta available to all templates
     @app.template_global()
