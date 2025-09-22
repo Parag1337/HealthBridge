@@ -88,7 +88,12 @@ body {
     -webkit-backdrop-filter: blur(20px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.2);
     transition: var(--transition-normal);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.glass-nav.scrolled {
+    background: rgba(255, 255, 255, 0.98);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
 }
 
 .nav-container {
@@ -103,11 +108,30 @@ body {
 .nav-brand {
     display: flex;
     align-items: center;
-    gap: var(--space-3);
+    gap: var(--space-4);
     font-weight: 800;
     font-size: 1.5rem;
     color: var(--primary-color);
     text-decoration: none;
+    transition: var(--transition-normal);
+}
+
+.nav-brand:hover {
+    transform: translateY(-1px);
+    color: var(--primary-color) !important;
+}
+
+.nav-brand img {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    transition: var(--transition-normal);
+}
+
+.nav-brand img:hover {
+    transform: scale(1.05);
+    box-shadow: var(--shadow-lg);
 }
 
 .brand-icon {
@@ -1510,6 +1534,16 @@ body {
         display: flex;
     }
     
+    .nav-brand {
+        font-size: 1.25rem;
+        gap: var(--space-3);
+    }
+    
+    .nav-brand img {
+        width: 35px;
+        height: 35px;
+    }
+    
     .hero-buttons {
         flex-direction: column;
         align-items: center;
@@ -1546,6 +1580,25 @@ body {
     .nav-container,
     .container {
         padding: 0 var(--space-4);
+    }
+    
+    .nav-brand {
+        font-size: 1.1rem;
+        gap: var(--space-2);
+    }
+    
+    .nav-brand img {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .nav-actions {
+        gap: var(--space-2);
+    }
+    
+    .nav-btn {
+        padding: var(--space-2) var(--space-4);
+        font-size: 0.875rem;
     }
     
     .hero-title {

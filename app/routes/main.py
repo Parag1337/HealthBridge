@@ -1,5 +1,7 @@
-from flask import Blueprint, render_template, redirect, url_for
+from flask import Blueprint, render_template, redirect, url_for, request
 from flask_login import current_user
+from datetime import datetime
+from app.utils.visitor_tracking import log_visitor_info
 
 bp = Blueprint('main', __name__)
 
@@ -7,6 +9,12 @@ bp = Blueprint('main', __name__)
 @bp.route('/index')
 def index():
     """Homepage route - redirects logged-in users to their dashboard"""
+    
+    # Log visitor information using utility function
+    log_visitor_info("homepage", {
+        "redirect_target": None if not current_user.is_authenticated else current_user.role + "_dashboard"
+    })
+    
     if current_user.is_authenticated:
         if current_user.role == 'patient':
             return redirect(url_for('patient.dashboard'))
@@ -20,4 +28,8 @@ def index():
 @bp.route('/about')
 def about():
     """About page route"""
+    
+    # Log visitor information for about page
+    log_visitor_info("about")
+    
     return render_template('about.html')

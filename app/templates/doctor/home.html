@@ -1,64 +1,66 @@
 {% extends "base.html" %}
 
-{% block title %}Doctor Home - HealthBridge Ai{% endblock %}
+{% block title %}Doctor Dashboard - HealthBridge Ai{% endblock %}
 
 {% block content %}
 <div class="container-fluid mt-4">
     <!-- Welcome Header -->
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h3 class="text-primary mb-1">
-                        <i class="fas fa-heartbeat"></i> Welcome Dr. {{ current_user.last_name }}
-                    </h3>
-                    <p class="text-muted mb-0">{{ today.strftime('%A, %B %d, %Y') }}</p>
+    <div class="section">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <div class="mb-4">
+                    <h1 class="section-title">
+                        <i class="fas fa-heartbeat text-primary me-3"></i>Welcome Dr. {{ current_user.last_name }}
+                    </h1>
+                    <p class="lead text-secondary mb-0">{{ today.strftime('%A, %B %d, %Y') }}</p>
                 </div>
-                <div class="text-end">
-                    <div class="badge bg-primary fs-6" id="current-time"></div>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <div class="card p-4">
+                    <div class="d-flex align-items-center justify-content-md-end">
+                        <div class="me-3">
+                            <div class="stats-card-icon bg-primary text-white">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <div id="current-time" class="stats-card-value" style="font-size: 1.5rem; margin-bottom: 0.5rem;"></div>
+                            <div class="stats-card-label">Current Time</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Quick Stats -->
-    <div class="row mb-4">
-        <div class="col-md-4">
-            <div class="card bg-primary text-white h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h5>Today's Appointments</h5>
-                            <h2>{{ total_today }}</h2>
-                        </div>
-                        <i class="fas fa-calendar-day fa-2x opacity-75"></i>
+    <div class="section">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <div class="stats-card-icon bg-primary text-white">
+                        <i class="fas fa-calendar-day"></i>
                     </div>
+                    <div class="stats-card-value">{{ total_today }}</div>
+                    <div class="stats-card-label">Today's Appointments</div>
                 </div>
             </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card bg-success text-white h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h5>Completed</h5>
-                            <h2>{{ completed_today }}</h2>
-                        </div>
-                        <i class="fas fa-check-circle fa-2x opacity-75"></i>
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <div class="stats-card-icon bg-success text-white">
+                        <i class="fas fa-check-circle"></i>
                     </div>
+                    <div class="stats-card-value">{{ completed_today }}</div>
+                    <div class="stats-card-label">Completed</div>
                 </div>
             </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card bg-warning text-white h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h5>Pending</h5>
-                            <h2>{{ pending_today }}</h2>
-                        </div>
-                        <i class="fas fa-clock fa-2x opacity-75"></i>
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <div class="stats-card-icon bg-warning text-white">
+                        <i class="fas fa-clock"></i>
                     </div>
+                    <div class="stats-card-value">{{ pending_today }}</div>
+                    <div class="stats-card-label">Pending</div>
                 </div>
             </div>
         </div>
@@ -68,13 +70,15 @@
         <!-- Today's Schedule -->
         <div class="col-md-8">
             <div class="card h-100">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">
-                        <i class="fas fa-calendar-check text-primary"></i> Today's Schedule
-                    </h5>
-                    <a href="{{ url_for('doctor.appointments') }}" class="btn btn-outline-primary btn-sm">
-                        <i class="fas fa-expand-arrows-alt"></i> Full View
-                    </a>
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-calendar-check text-primary me-2"></i>Today's Schedule
+                        </h5>
+                        <a href="{{ url_for('doctor.appointments') }}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-expand-arrows-alt me-1"></i>Full View
+                        </a>
+                    </div>
                 </div>
                 <div class="card-body">
                     {% if today_appointments %}
