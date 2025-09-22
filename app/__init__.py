@@ -43,6 +43,13 @@ def create_app():
     # Create database tables (only if not in production or if explicitly requested)
     with app.app_context():
         try:
+            # Import all models to ensure SQLAlchemy knows about them
+            from app.models.user import User
+            from app.models.appointment import Appointment
+            from app.models.prescription import Prescription, PrescriptionMedication, LabTest
+            from app.models.telemedicine import VideoConsultation
+            from app.models.scheduling import DoctorSchedule, SlotConfiguration
+            
             # Only create tables if they don't exist
             from sqlalchemy import inspect
             inspector = inspect(db.engine)

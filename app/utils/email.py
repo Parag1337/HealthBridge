@@ -1,17 +1,6 @@
 """
-Email utility function    print(f"📧 Preparing to send email:")
-    print(f"   Subject: {subject}")
-    print(f"   From: {sender}")
-    print(f"   To: {recipients}")
-    
-    msg = Message(subject, sender=sender, recipients=recipients)
-    msg.body = text_body
-    if html_body:
-        msg.html = html_body
-    
-    # Send email asynchronously
-    thread = threading.Thread(target=send_async_email, args=(current_app._get_current_object(), msg))
-    thread.start()cations
+Email utility functions for HealthBridge AI
+Handles appointment confirmations, prescription notifications, and reminders
 """
 from flask import current_app, render_template
 from flask_mail import Message
