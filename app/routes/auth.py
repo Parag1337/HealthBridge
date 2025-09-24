@@ -6,7 +6,6 @@ from datetime import datetime
 import os
 from werkzeug.utils import secure_filename
 import uuid
-from app.utils.visitor_tracking import log_visitor_info, log_security_event
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -58,8 +57,6 @@ def save_profile_photo(file):
 @bp.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'GET':
-        # Log visitor accessing registration page
-        log_visitor_info("registration_page")
         return render_template('auth/register.html')
     
     # Handle POST request for registration
@@ -71,49 +68,22 @@ def register():
     confirm_password = request.form.get('confirm_password')
     phone = request.form.get('phone')
     
-    # Log registration attempt
-    log_security_event("registration_attempt", {
-        "email": email,
-        "user_type": user_type,
-        "name": f"{first_name} {last_name}" if first_name and last_name else None
-    })
-    
     # Validation
     if not all([user_type, first_name, last_name, email, password, confirm_password]):
         flash('All fields are required', 'error')
-        log_security_event("registration_failed", {
-            "reason": "missing_fields",
-            "email": email,
-            "user_type": user_type
-        })
         return render_template('auth/register.html')
     
     if password != confirm_password:
         flash('Passwords do not match', 'error')
-        log_security_event("registration_failed", {
-            "reason": "password_mismatch",
-            "email": email,
-            "user_type": user_type
-        })
         return render_template('auth/register.html')
     
     if len(password) < 6:
         flash('Password must be at least 6 characters long', 'error')
-        log_security_event("registration_failed", {
-            "reason": "weak_password",
-            "email": email,
-            "user_type": user_type
-        })
         return render_template('auth/register.html')
     
     # Check if user already exists
     if User.query.filter_by(email=email).first():
         flash('Email already registered', 'error')
-        log_security_event("registration_failed", {
-            "reason": "email_exists",
-            "email": email,
-            "user_type": user_type
-        })
         return render_template('auth/register.html')
     
     # Create new user
@@ -140,36 +110,16 @@ def register():
     try:
         db.session.add(user)
         db.session.commit()
-        
-        # Log successful registration
-        log_security_event("registration_success", {
-            "user_id": user.id,
-            "email": email,
-            "user_type": user_type,
-            "name": f"{first_name} {last_name}"
-        })
-        
         flash('Registration successful! Please log in.', 'success')
         return redirect(url_for('auth.login'))
     except Exception as e:
         db.session.rollback()
-        
-        # Log registration failure
-        log_security_event("registration_failed", {
-            "reason": "database_error",
-            "email": email,
-            "user_type": user_type,
-            "error": str(e)
-        })
-        
         flash('Registration failed. Please try again.', 'error')
         return render_template('auth/register.html')
 
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'GET':
-        # Log visitor accessing login page
-        log_visitor_info("login_page")
         return render_template('auth/login.html')
     
     # Handle POST request for login
@@ -178,20 +128,8 @@ def login():
     user_type = request.form.get('user_type')
     remember_me = request.form.get('remember_me')
     
-    # Log login attempt
-    log_security_event("login_attempt", {
-        "email": email,
-        "user_type": user_type,
-        "remember_me": bool(remember_me)
-    })
-    
     if not all([email, password, user_type]):
         flash('All fields are required', 'error')
-        log_security_event("login_failed", {
-            "reason": "missing_fields",
-            "email": email,
-            "user_type": user_type
-        })
         return render_template('auth/login.html')
     
     # Find user by email and role
@@ -200,14 +138,6 @@ def login():
     if user and user.check_password(password):
         login_user(user, remember=bool(remember_me))
         flash(f'Welcome back, {user.first_name}!', 'success')
-        
-        # Log successful login
-        log_security_event("login_success", {
-            "user_id": user.id,
-            "email": email,
-            "user_type": user_type,
-            "user_name": f"{user.first_name} {user.last_name}"
-        })
         
         # Redirect based on user type
         if user_type == 'patient':
@@ -218,24 +148,11 @@ def login():
             return redirect(url_for('main.index'))
     else:
         flash('Invalid email, password, or user type', 'error')
-        log_security_event("login_failed", {
-            "reason": "invalid_credentials",
-            "email": email,
-            "user_type": user_type,
-            "user_exists": user is not None
-        })
         return render_template('auth/login.html')
 
 @bp.route('/logout')
 @login_required
 def logout():
-    # Log logout event
-    log_security_event("logout", {
-        "user_id": current_user.id,
-        "user_type": current_user.role,
-        "user_name": f"{current_user.first_name} {current_user.last_name}"
-    })
-    
     logout_user()
     flash('You have been logged out', 'info')
     return redirect(url_for('main.index'))

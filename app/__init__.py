@@ -6,14 +6,8 @@ import os
 from datetime import date, datetime, timedelta
 from dotenv import load_dotenv
 
-# Load environment variables - use .env.local for development, .env.production for production
-if os.path.exists('.env.local'):
-    load_dotenv('.env.local')  # Local development
-elif os.path.exists('.env.production'):
-    load_dotenv('.env.production')  # Production
-else:
-    # Fallback - load from environment variables directly
-    pass
+# Load environment variables from .env file
+load_dotenv()
 
 # Initialize extensions
 db = SQLAlchemy()

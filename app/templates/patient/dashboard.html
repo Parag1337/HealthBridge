@@ -8,23 +8,21 @@
     <div class="row align-items-center">
         <div class="col-lg-8">
             <div class="mb-4">
-                <h1 class="section-title">
-                    <i class="fas fa-hand-wave me-3 text-warning"></i>Welcome back, {{ current_user.first_name }}!
+                <h1 class="display-6 fw-bold text-primary mb-2">
+                    <i class="fas fa-hand-wave me-3"></i>Welcome back, {{ current_user.first_name }}!
                 </h1>
                 <p class="lead text-secondary mb-0">Your health journey starts here. Stay on top of your appointments and health records.</p>
             </div>
         </div>
         <div class="col-lg-4 text-lg-end">
-            <div class="card p-4">
+            <div class="bg-white rounded-xl shadow-sm p-4 border">
                 <div class="d-flex align-items-center justify-content-lg-end">
                     <div class="me-3">
-                        <div class="stats-card-icon bg-primary text-white">
-                            <i class="fas fa-clock"></i>
-                        </div>
+                        <i class="fas fa-clock text-primary fa-2x"></i>
                     </div>
                     <div>
-                        <div id="currentTime" class="stats-card-value" style="font-size: 1.5rem; margin-bottom: 0.5rem;"></div>
-                        <div id="currentDate" class="stats-card-label"></div>
+                        <div id="currentTime" class="h5 text-primary mb-1 fw-bold"></div>
+                        <div id="currentDate" class="text-muted small"></div>
                     </div>
                 </div>
             </div>
@@ -34,38 +32,34 @@
 
 <!-- Quick Actions -->
 <div class="section">
-    <div class="card">
-        <div class="card-header">
-            <h5 class="fw-bold text-gray-900 mb-0">
-                <i class="fas fa-bolt text-warning me-2"></i>Quick Actions
-            </h5>
-        </div>
-        <div class="card-body">
-            <div class="row g-4">
-                <div class="col-md-3 col-sm-6">
-                    <a href="{{ url_for('patient.book_appointment') }}" class="quick-action-btn text-primary">
-                        <i class="fas fa-calendar-plus"></i>
-                        <span class="fw-semibold">Book Appointment</span>
-                    </a>
-                </div>
-                <div class="col-md-3 col-sm-6">
-                    <a href="{{ url_for('telemedicine.book_online_appointment') }}" class="quick-action-btn text-success">
-                        <i class="fas fa-video"></i>
-                        <span class="fw-semibold">Video Consultation</span>
-                    </a>
-                </div>
-                <div class="col-md-3 col-sm-6">
-                    <a href="{{ url_for('patient.health_records') }}" class="quick-action-btn text-info">
-                        <i class="fas fa-notes-medical"></i>
-                        <span class="fw-semibold">Health Records</span>
-                    </a>
-                </div>
-                <div class="col-md-3 col-sm-6">
-                    <a href="{{ url_for('patient.reminders') }}" class="quick-action-btn text-warning">
-                        <i class="fas fa-bell"></i>
-                        <span class="fw-semibold">Reminders</span>
-                    </a>
-                </div>
+    <div class="bg-white rounded-xl shadow-sm p-4 border">
+        <h5 class="fw-bold text-gray-900 mb-4">
+            <i class="fas fa-bolt text-warning me-2"></i>Quick Actions
+        </h5>
+        <div class="row g-3">
+            <div class="col-md-3 col-sm-6">
+                <a href="{{ url_for('patient.book_appointment') }}" class="btn btn-primary btn-lg w-100 h-100 d-flex flex-column align-items-center justify-content-center p-4 text-decoration-none">
+                    <i class="fas fa-calendar-plus fa-2x mb-3"></i>
+                    <span class="fw-semibold">Book Appointment</span>
+                </a>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <a href="{{ url_for('telemedicine.book_online_appointment') }}" class="btn btn-success btn-lg w-100 h-100 d-flex flex-column align-items-center justify-content-center p-4 text-decoration-none">
+                    <i class="fas fa-video fa-2x mb-3"></i>
+                    <span class="fw-semibold">Video Consultation</span>
+                </a>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <a href="{{ url_for('patient.health_records') }}" class="btn btn-info btn-lg w-100 h-100 d-flex flex-column align-items-center justify-content-center p-4 text-decoration-none">
+                    <i class="fas fa-notes-medical fa-2x mb-3"></i>
+                    <span class="fw-semibold">Health Records</span>
+                </a>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <a href="{{ url_for('patient.reminders') }}" class="btn btn-warning btn-lg w-100 h-100 d-flex flex-column align-items-center justify-content-center p-4 text-decoration-none">
+                    <i class="fas fa-bell fa-2x mb-3"></i>
+                    <span class="fw-semibold">Reminders</span>
+                </a>
             </div>
         </div>
     </div>
