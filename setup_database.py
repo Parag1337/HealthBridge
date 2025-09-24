@@ -7,7 +7,8 @@ import os
 from app import create_app, db
 from app.models.user import User
 from app.models.appointment import Appointment
-from app.models.prescription import Prescription, PrescriptionMedication, LabTest
+from app.models.prescription import Prescription
+from app.models.prescription_components import PrescriptionMedication, LabTest
 from app.models.telemedicine import VideoConsultation
 from app.models.scheduling import DoctorSchedule, SlotConfiguration
 
