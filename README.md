@@ -12,6 +12,12 @@
   <h3>🩺 Empowering Healthcare Through Technology</h3>
   <p><em>A comprehensive healthcare management platform connecting patients and doctors through innovative digital solutions</em></p>
   
+  <p>
+    <a href="https://healthbridge-seas.onrender.com/" target="_blank">
+      <img src="https://img.shields.io/badge/🌐 Live Demo-Visit Now-blue?style=for-the-badge" alt="Live Demo">
+    </a>
+  </p>
+  
   <a href="#-quick-start">Quick Start</a> •
   <a href="#-features">Features</a> •
   <a href="#-tech-stack">Tech Stack</a> •
@@ -24,6 +30,8 @@
 ## 🌟 Overview
 
 HealthBridge AI is a modern, full-stack healthcare management system built with Flask and cutting-edge web technologies. It provides a seamless digital bridge between healthcare providers and patients, offering appointment scheduling, telemedicine capabilities, prescription management, and comprehensive health record tracking.
+
+> **🚀 Live Application**: Experience HealthBridge AI in action at [https://healthbridge-seas.onrender.com/](https://healthbridge-seas.onrender.com/)
 
 ### 🎯 Key Highlights
 
@@ -105,6 +113,10 @@ Environment: Production-ready # Scalable architecture
 ---
 
 ## 🚀 Quick Start
+
+### 🌐 Try the Live Demo
+Before setting up locally, you can explore the full application at:
+**[https://healthbridge-seas.onrender.com/](https://healthbridge-seas.onrender.com/)**
 
 ### Prerequisites
 - Python 3.8+ 
@@ -300,6 +312,8 @@ EMAIL_USER = 'healthbridgeassistant@gmail.com'
 ## 🌐 Deployment
 
 ### **Production Environment**
+
+**Live Application**: [https://healthbridge-seas.onrender.com/](https://healthbridge-seas.onrender.com/)
 
 **Render.com Hosting**
 ```yaml
@@ -541,8 +555,8 @@ copies of the Software...
   
   <p><strong>Made with ❤️ for the healthcare community</strong></p>
   
-  <a href="https://healthbridge-ai.com">🌐 Website</a> •
+  <a href="https://healthbridge-seas.onrender.com/">🌐 Live Demo</a> •
   <a href="https://docs.healthbridge-ai.com">📖 Documentation</a> •
   <a href="https://twitter.com/healthbridgeai">🐦 Twitter</a> •
-  <a href="mailto:support@healthbridge-ai.com">📧 Support</a>
+  <a href="mailto:heathbridgeassistant@gmail.com">📧 Support</a>
 </div>
