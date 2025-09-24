@@ -60,4 +60,6 @@ class Config:
     # Notification API Key
     NOTIFICATION_API_KEY = os.environ.get('NOTIFICATION_API_KEY')
     
-    GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY') or 'AIzaSyD8ZSKBHR39oWPuqknZtbvP3zxYpORoyjg'
+    # Gemini API Key - Get a valid key from https://makersuite.google.com/app/apikey
+    # For development, you can set this in your .env file
+    GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY') or 'AIzaSyAe6LiOZqYbO9tCnj0C363BX7O6EXioSNA'
