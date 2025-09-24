@@ -59,3 +59,5 @@ class Config:
     
     # Notification API Key
     NOTIFICATION_API_KEY = os.environ.get('NOTIFICATION_API_KEY')
+    
+    GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY') or 'AIzaSyD8ZSKBHR39oWPuqknZtbvP3zxYpORoyjg'

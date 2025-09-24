@@ -685,7 +685,7 @@
             });
 
             // Send message function
-            function sendChatMessage() {
+            async function sendChatMessage() {
                 const message = chatInput.value.trim();
                 if (message) {
                     // Add user message
@@ -697,14 +697,41 @@
                     // Clear input
                     chatInput.value = '';
 
-                    // Simulate bot response
-                    setTimeout(() => {
-                        const botResponse = document.createElement('div');
-                        botResponse.className = 'bot-message';
-                        botResponse.innerHTML = `<p>Thanks for your message! Our AI is processing your request. For immediate assistance, please call 1-800-HEALTH-AI or visit our help center.</p>`;
-                        messagesContainer.appendChild(botResponse);
-                        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                    }, 1000);
+                    // Scroll to bottom
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+                    try {
+                        // Send message to backend
+                        const response = await fetch('/chatbot', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ message: message })
+                        });
+
+                        const data = await response.json();
+
+                        if (response.ok) {
+                            // Add bot response
+                            const botResponse = document.createElement('div');
+                            botResponse.className = 'bot-message';
+                            botResponse.innerHTML = `<p>${data.reply}</p>`;
+                            messagesContainer.appendChild(botResponse);
+                        } else {
+                            // Add error message
+                            const errorResponse = document.createElement('div');
+                            errorResponse.className = 'bot-message';
+                            errorResponse.innerHTML = `<p style="color: red;">Error: ${data.error}</p>`;
+                            messagesContainer.appendChild(errorResponse);
+                        }
+                    } catch (error) {
+                        // Add network error message
+                        const errorResponse = document.createElement('div');
+                        errorResponse.className = 'bot-message';
+                        errorResponse.innerHTML = `<p style="color: red;">Error: Unable to connect to chatbot service. Please try again later.</p>`;
+                        messagesContainer.appendChild(errorResponse);
+                    }
 
                     messagesContainer.scrollTop = messagesContainer.scrollHeight;
                 }
@@ -782,6 +809,28 @@
                 observer.observe(el);
             });
         });
+        async function sendMessage() {
+            const input = document.querySelector("#chat-input");
+            const message = input.value;
+            input.value = "";
+
+            // Show user's message immediately
+            document.querySelector("#chat-output").innerHTML += `<div class='user-msg'>${message}</div>`;
+
+            const res = await fetch("/chatbot", {
+                method: "POST",
+                headers: {
+                "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ message }),
+            });
+
+            const data = await res.json();
+
+            // Show bot's reply
+            document.querySelector("#chat-output").innerHTML += `<div class='bot-msg'>${data.reply}</div>`;
+        }
+            document.querySelector("#send-button").addEventListener("click", sendMessage);
     </script>
 </body>
 </html>
