@@ -1,13 +1,15 @@
 {% extends "base.html" %}
 
+{% block title %}Prescription Details - HealthBridge AI{% endblock %}
+
 {% block content %}
 <div class="container mt-4">
     <div class="row">
         <div class="col-md-12">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
-                    <h2 class="text-light">Prescription Details</h2>
-                    <p class="text-info mb-0">
+                    <h2 class="text-white">Prescription Details</h2>
+                    <p class="text-muted mb-0">
                         <strong>Patient:</strong> {{ prescription.patient.first_name }} {{ prescription.patient.last_name }} |
                         <strong>Date:</strong> {{ prescription.created_at.strftime('%B %d, %Y') if prescription.created_at else 'Unknown' }} |
                         <strong>Status:</strong> 
@@ -20,7 +22,7 @@
                     <button onclick="exportToPDF()" class="btn btn-success me-2">
                         <i class="fas fa-file-pdf"></i> Export PDF
                     </button>
-                    <a href="{{ url_for('doctor.prescriptions') }}" class="btn btn-secondary">
+                    <a href="{{ url_for('doctor.prescriptions') }}" class="btn btn-outline-primary">
                         <i class="fas fa-arrow-left"></i> Back to Prescriptions
                     </a>
                 </div>
@@ -48,26 +50,43 @@
                 </div>
 
                 <!-- Basic Prescription Info -->
-                <div class="card bg-dark border-secondary mb-4">
+                <div class="card bg-dark border-primary mb-4">
                     <div class="card-header bg-primary text-white">
                         <h5 class="mb-0"><i class="fas fa-clipboard-list"></i> Prescription Information</h5>
                     </div>
                     <div class="card-body">
+                        <!-- Patient Information with Avatar -->
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <h6 class="text-white mb-3">Patient Information</h6>
+                                <div class="bg-secondary p-3 rounded">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-circle me-3">
+                                            {{ prescription.patient.first_name[0] }}{{ prescription.patient.last_name[0] }}
+                                        </div>
+                                        <div>
+                                            <h6 class="text-white mb-1">{{ prescription.patient.first_name }} {{ prescription.patient.last_name }}</h6>
+                                            <p class="text-muted mb-0">{{ prescription.patient.email }} | Patient ID: #{{ prescription.patient.id }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
                         <div class="row">
                             <div class="col-md-6">
-                                <p><strong class="text-info">Patient:</strong> <span class="text-light">{{ prescription.patient.first_name }} {{ prescription.patient.last_name }}</span></p>
-                                <p><strong class="text-info">Doctor:</strong> <span class="text-light">Dr. {{ prescription.doctor.first_name }} {{ prescription.doctor.last_name }}</span></p>
-                                <p><strong class="text-info">Prescription ID:</strong> <span class="text-light">#{{ prescription.id }}</span></p>
+                                <p><strong class="text-info">Doctor:</strong> <span class="text-white">Dr. {{ prescription.doctor.first_name }} {{ prescription.doctor.last_name }}</span></p>
+                                <p><strong class="text-info">Prescription ID:</strong> <span class="text-white">#{{ prescription.id }}</span></p>
                             </div>
                             <div class="col-md-6">
-                                <p><strong class="text-info">Date Created:</strong> <span class="text-light">{{ prescription.created_at.strftime('%B %d, %Y at %I:%M %p') if prescription.created_at else 'Unknown' }}</span></p>
+                                <p><strong class="text-info">Date Created:</strong> <span class="text-white">{{ prescription.created_at.strftime('%B %d, %Y at %I:%M %p') if prescription.created_at else 'Unknown' }}</span></p>
                                 <p><strong class="text-info">Status:</strong> 
                                     <span class="badge {% if prescription.status == 'Active' %}bg-success{% elif prescription.status == 'Completed' %}bg-primary{% else %}bg-secondary{% endif %}">
                                         {{ prescription.status }}
                                     </span>
                                 </p>
                                 {% if prescription.notes %}
-                                <p><strong class="text-info">Notes:</strong> <span class="text-light">{{ prescription.notes }}</span></p>
+                                <p><strong class="text-info">Notes:</strong> <span class="text-white">{{ prescription.notes }}</span></p>
                                 {% endif %}
                             </div>
                         </div>
@@ -76,14 +95,14 @@
 
                 <!-- Medications Section -->
                 {% if medications %}
-                <div class="card bg-dark border-secondary mb-4">
+                <div class="card bg-dark border-success mb-4">
                     <div class="card-header bg-success text-white">
                         <h5 class="mb-0"><i class="fas fa-pills"></i> Prescribed Medications ({{ medications|length }})</h5>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table table-dark table-striped">
-                                <thead>
+                            <table class="table table-dark table-hover mb-0">
+                                <thead class="table-success">
                                     <tr>
                                         <th>Medication</th>
                                         <th>Dosage</th>
@@ -95,11 +114,11 @@
                                 <tbody>
                                     {% for medication in medications %}
                                     <tr>
-                                        <td class="text-light"><strong>{{ medication.medication_name }}</strong></td>
-                                        <td class="text-info">{{ medication.dosage }}</td>
-                                        <td class="text-info">{{ medication.frequency }}</td>
-                                        <td class="text-info">{{ medication.duration or 'As needed' }}</td>
-                                        <td class="text-light">{{ medication.instructions or 'No special instructions' }}</td>
+                                        <td><strong class="text-white">{{ medication.medication_name }}</strong></td>
+                                        <td><span class="badge bg-info text-dark">{{ medication.dosage }}</span></td>
+                                        <td><span class="badge bg-secondary">{{ medication.frequency }}</span></td>
+                                        <td><span class="badge bg-warning text-dark">{{ medication.duration or 'As needed' }}</span></td>
+                                        <td class="text-white">{{ medication.instructions or 'No special instructions' }}</td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
@@ -111,32 +130,32 @@
 
                 <!-- Lab Tests Section -->
                 {% if lab_tests %}
-                <div class="card bg-dark border-secondary mb-4">
+                <div class="card bg-dark border-warning mb-4">
                     <div class="card-header bg-warning text-dark">
                         <h5 class="mb-0"><i class="fas fa-flask"></i> Recommended Lab Tests ({{ lab_tests|length }})</h5>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table table-dark table-striped">
-                                <thead>
+                            <table class="table table-dark table-hover mb-0">
+                                <thead class="table-warning text-dark">
                                     <tr>
                                         <th>Test Name</th>
                                         <th>Instructions</th>
-                                        <th>Urgency</th>
+                                        <th>Priority</th>
                                         <th>Notes</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for test in lab_tests %}
                                     <tr>
-                                        <td class="text-light"><strong>{{ test.test_name }}</strong></td>
-                                        <td class="text-info">{{ test.instructions or 'Standard procedure' }}</td>
+                                        <td><strong class="text-white">{{ test.test_name }}</strong></td>
+                                        <td class="text-white">{{ test.instructions or 'Standard procedure' }}</td>
                                         <td>
-                                            <span class="badge {% if test.urgency == 'High' %}bg-danger{% elif test.urgency == 'Medium' %}bg-warning text-dark{% else %}bg-success{% endif %}">
-                                                {{ test.urgency or 'Normal' }}
+                                            <span class="badge {% if test.priority == 'High' %}bg-danger{% elif test.priority == 'Medium' %}bg-warning text-dark{% else %}bg-success{% endif %}">
+                                                {{ test.priority or 'Normal' }}
                                             </span>
                                         </td>
-                                        <td class="text-light">{{ test.notes or 'No additional notes' }}</td>
+                                        <td class="text-white">{{ test.notes or 'No additional notes' }}</td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
@@ -148,12 +167,12 @@
 
                 <!-- Legacy Medicine Field (for backward compatibility) -->
                 {% if prescription.medicine and not medications %}
-                <div class="card bg-dark border-secondary mb-4">
+                <div class="card bg-dark border-info mb-4">
                     <div class="card-header bg-info text-white">
                         <h5 class="mb-0"><i class="fas fa-pill"></i> Prescribed Medicine (Legacy)</h5>
                     </div>
                     <div class="card-body">
-                        <p class="text-light">{{ prescription.medicine }}</p>
+                        <p class="text-white">{{ prescription.medicine }}</p>
                     </div>
                 </div>
                 {% endif %}
@@ -193,18 +212,21 @@
 
                 <!-- Actions -->
                 <div class="card bg-dark border-secondary">
-                    <div class="card-header bg-dark text-white">
+                    <div class="card-header bg-secondary text-white">
                         <h5 class="mb-0"><i class="fas fa-tools"></i> Actions</h5>
                     </div>
                     <div class="card-body">
-                        <div class="btn-group" role="group">
+                        <div class="d-flex gap-2 flex-wrap">
                             <button onclick="exportToPDF()" class="btn btn-success">
                                 <i class="fas fa-file-pdf"></i> Export as PDF
                             </button>
                             <button onclick="window.print()" class="btn btn-info">
                                 <i class="fas fa-print"></i> Print
                             </button>
-                            <a href="{{ url_for('doctor.prescriptions') }}" class="btn btn-secondary">
+                            <button onclick="sendToPharmacy({{ prescription.id }})" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i> Send to Pharmacy
+                            </button>
+                            <a href="{{ url_for('doctor.prescriptions') }}" class="btn btn-outline-secondary">
                                 <i class="fas fa-arrow-left"></i> Back to Prescriptions
                             </a>
                         </div>
@@ -216,6 +238,58 @@
 </div>
 
 <style>
+    /* Avatar circle styling */
+    .avatar-circle {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 18px;
+        text-transform: uppercase;
+        flex-shrink: 0;
+    }
+
+    /* Enhanced card styling */
+    .card {
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-2px);
+    }
+
+    .card-header {
+        border-radius: 0;
+        font-weight: 600;
+    }
+
+    /* Badge styling improvements */
+    .badge {
+        font-size: 0.75em;
+        padding: 0.5em 0.75em;
+        border-radius: 6px;
+    }
+
+    /* Table styling */
+    .table-hover tbody tr:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Button improvements */
+    .btn {
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        font-weight: 500;
+    }
+
     @media print {
         body * {
             visibility: hidden;
@@ -286,7 +360,7 @@
             color: black !important;
         }
         
-        .btn-group {
+        .d-flex {
             display: none !important;
         }
         
@@ -306,7 +380,7 @@
         
         // Set document title for PDF
         const originalTitle = document.title;
-        document.title = `Prescription_${prescription.patient.first_name}_${prescription.patient.last_name}_${prescription.id}`;
+        document.title = `Prescription_{{ prescription.patient.first_name }}_{{ prescription.patient.last_name }}_{{ prescription.id }}`;
         
         // Trigger print dialog
         window.print();
@@ -318,6 +392,44 @@
                 header.classList.add('d-none');
             });
         }, 1000);
+    }
+
+    function sendToPharmacy(prescriptionId) {
+        // Show loading state
+        const btn = event.target;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+        btn.disabled = true;
+
+        // Simulate sending to pharmacy (replace with actual API call)
+        fetch(`/doctor/prescriptions/${prescriptionId}/send-to-pharmacy`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                prescription_id: prescriptionId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                btn.innerHTML = '<i class="fas fa-check"></i> Sent Successfully';
+                btn.classList.remove('btn-primary');
+                btn.classList.add('btn-success');
+                
+                // Show success message
+                alert('Prescription sent to pharmacy successfully!');
+            } else {
+                throw new Error(data.message || 'Failed to send prescription');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            alert('Failed to send prescription to pharmacy. Please try again.');
+        });
     }
 </script>
 {% endblock %}

@@ -58,14 +58,14 @@ def create_app():
             existing_tables = inspector.get_table_names()
             
             if not existing_tables:
-                print("🔄 Creating database tables...")
+                print("Creating database tables...")
                 db.create_all()
-                print("✅ Database tables created successfully!")
+                print("Database tables created successfully!")
             else:
-                print(f"📋 Database already has {len(existing_tables)} tables")
+                print(f"Database already has {len(existing_tables)} tables")
                 
         except Exception as e:
-            print(f"⚠️  Database initialization warning: {str(e)}")
+            print(f"Database initialization warning: {str(e)}")
             # Don't fail the app startup, just log the warning
 
     # Make date, datetime, and timedelta available to all templates

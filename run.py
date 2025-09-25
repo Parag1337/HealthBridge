@@ -8,7 +8,7 @@ if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     debug = os.environ.get('DEBUG', 'True').lower() in ['true', '1', 'on']
     
-    print(f"🏥 Starting HealthBridge AI on port {port}")
+    print(f"Starting HealthBridge AI on port {port}")
     
     app.run(
         host='0.0.0.0' if not debug else '127.0.0.1',
