@@ -1,8 +1,4 @@
-# Core Flask Depend# AI and Chatbot Dependencies
-google-generativeai==0.3.0
-
-# Sample Data Generation
-faker==22.0.0cies
+# Core Flask Dependencies
 Flask==2.3.3
 Flask-Login==0.6.3
 Flask-SQLAlchemy==3.0.5
@@ -16,13 +12,13 @@ mysqlclient==2.2.0
 # Environment and Configuration
 python-dotenv==1.0.0
 
+# AI and Chatbot Dependencies
+google-generativeai==0.3.2
+
 # Optional Dependencies for Future Features
 Flask-Migrate==4.0.5
 Flask-Cors==4.0.0
 requests==2.31.0
-
-# AI and Chatbot Dependencies
-google-generativeai==0.3.2
 
 # Development and Testing (optional)
 pytest==7.4.2
